@@ -53,8 +53,7 @@ let eatme = (function () {
     }
 
     let genPlayerId = function () {
-        // TODO
-        playerId = "playerId1234567";
+        playerId = UUID.generate().replace(/-/g, "");
     }
 
     let getPlayerId = function () {
