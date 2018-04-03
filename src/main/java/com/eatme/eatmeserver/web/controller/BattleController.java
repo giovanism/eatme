@@ -27,7 +27,7 @@ public class BattleController {
     @MessageMapping("/wait")
     public void wait(PlayerMsg msg) throws Exception {
         Log.info("/wait " + msg);
-        Thread.sleep(5000);
+        Thread.sleep(3000);
         Map<String, Object> headers = new HashMap<>();
         headers.put("type", "bid");
         template.convertAndSend(WebSocketConfig.playerDest(msg.getPlayerId()), "battle123", headers);
