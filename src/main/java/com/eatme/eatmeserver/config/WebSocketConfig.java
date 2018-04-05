@@ -1,4 +1,4 @@
-package com.eatme.eatmeserver.web.config;
+package com.eatme.eatmeserver.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -12,7 +12,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private static final String BASE = "/wbskt";
     private static final String ENDPOINT = BASE + "/ep";
-    private static final String PREFIX_SUBSCRIBE = BASE + "/sb";
+    public static final String PREFIX_SUBSCRIBE = BASE + "/sb";
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -22,10 +22,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker(PREFIX_SUBSCRIBE);
-    }
-
-    public static String playerDest(String playerId) {
-        return PREFIX_SUBSCRIBE + "/" + playerId;
     }
 
 }

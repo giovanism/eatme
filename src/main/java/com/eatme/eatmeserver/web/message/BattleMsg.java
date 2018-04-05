@@ -1,12 +1,13 @@
 package com.eatme.eatmeserver.web.message;
 
-public class PlayerMsg {
+public class BattleMsg {
 
     private String playerId;
+    private String battleId;
 
     @Override
     public String toString() {
-        return "playerId=" + playerId;
+        return "playerId=" + playerId + "&battleId=" + battleId;
     }
 
     public String getPlayerId() {
@@ -15,6 +16,14 @@ public class PlayerMsg {
 
     public void setPlayerId(String playerId) {
         this.playerId = playerId;
+    }
+
+    public String getBattleId() {
+        return battleId;
+    }
+
+    public void setBattleId(String battleId) {
+        this.battleId = battleId;
     }
 
 }
