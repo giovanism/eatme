@@ -1,37 +1,40 @@
 "use strict";
 
-let eatme = (function () {
+let eatme = (() => {
 
     // Manage websocket connection
-    const sktMgr = (function () {
+    const sktMgr = (() => {
         
         let stompClient = null;
 
-        const connect = function (connDest, sucCb, errCb, subscribeDest, subscribeCb) {
+        const connect = (connDest, sucCb, errCb, subscribeDest, subscribeCb) => {
             stompClient = Stomp.over(new SockJS(connDest));
-            stompClient.connect({}, function (frame) {
-                console.log("[WebSocketManager] connect suc:\n" + frame);
-                stompClient.subscribe(subscribeDest, subscribeCb);
-                if (sucCb) sucCb(frame);
-            }, function (err) {
-                console.log("[WebSocketManager] connect fail:\n" + err);
-                stompClient = null;
-                if (errCb) errCb(err);
-            });
+            stompClient.connect({},
+                (frame) => {
+                    console.log("[WebSocketManager] connect suc:\n" + frame);
+                    stompClient.subscribe(subscribeDest, subscribeCb);
+                    if (sucCb) sucCb(frame);
+                },
+                (err) => {
+                    console.log("[WebSocketManager] connect fail:\n" + err);
+                    stompClient = null;
+                    if (errCb) errCb(err);
+                }
+            );
         }
 
-        const disconnect = function () {
+        const disconnect = () => {
             if (stompClient) {
                 stompClient.disconnect();
             }
             console.log("[WebSocketManager] disconnected");
         }
 
-        const isConnected = function () {
+        const isConnected = () => {
             return !!stompClient;
         }
 
-        const send = function (dest, obj) {
+        const send = (dest, obj) => {
             if (stompClient) {
                 stompClient.send(dest, {}, JSON.stringify(obj));
             }
@@ -69,46 +72,46 @@ let eatme = (function () {
     let battleId = null;
     let playerState = STATE_OFFLINE;
 
-    const connect = function (sucCb, errCb, subscribeCb) {
+    const connect = (sucCb, errCb, subscribeCb) => {
         sktMgr.connect(
             DEST_ENDPOINT,
             sucCb,
             errCb,
             DEST_SUBSCRIBE + "/" + playerId,
-            function (msg) {
+            (msg) => {
                 handleMsg(msg);
                 if (subscribeCb) subscribeCb(msg);
             }
         );
     }
 
-    const disconnect = function () {
+    const disconnect = () => {
         sktMgr.disconnect();
     }
 
-    const isConnected = function () {
+    const isConnected = () => {
         return sktMgr.isConnected();
     }
 
-    const send = function (dest, obj) {
+    const send = (dest, obj) => {
         sktMgr.send(dest, obj);
     }
 
-    const wait = function () {
+    const wait = () => {
         if (playerState === STATE_OFFLINE) {
             send(DEST_BATTLE_WAIT, {playerId: playerId});
             setPlayerState(STATE_WAITING);
         }
     }
 
-    const quitWait = function () {
+    const quitWait = () => {
         if (playerState === STATE_WAITING) {
             send(DEST_BATTLE_QUIT_WAIT, {playerId: playerId});
             setPlayerState(STATE_OFFLINE);
         }
     }
 
-    const quitBattle = function () {
+    const quitBattle = () => {
         if (playerState !== STATE_OFFLINE && playerState !== STATE_WAITING) {
             send(DEST_BATTLE_QUIT_BATTLE, {playerId: playerId, battleId: battleId});
             setPlayerState(STATE_OFFLINE);
@@ -116,24 +119,24 @@ let eatme = (function () {
         }
     }
 
-    const genPlayerId = function () {
+    const genPlayerId = () => {
         playerId = UUID.generate().replace(/-/g, "");
     }
 
-    const getPlayerId = function () {
+    const getPlayerId = () => {
         return playerId;
     }
 
-    const getPlayerState = function () {
+    const getPlayerState = () => {
         return playerState;
     }
 
-    const setPlayerState = function (state) {
+    const setPlayerState = (state) => {
         playerState = state;
         console.log("state: " + state);
     }
 
-    const handleMsg = function (msg) {
+    const handleMsg = (msg) => {
         const {headers: {type, state}, body} = msg;
         setPlayerState(state);
         if (type === MSG_BID) {

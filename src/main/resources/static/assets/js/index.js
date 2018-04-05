@@ -1,20 +1,39 @@
 "use strict";
 
-$(function () {
+$(() => {
 
-    $(window).on("beforeunload", function () {
+    let btnFind = $("#find-btn");
+    let pPrompt = $("#prompt");
+
+    btnFind.click(findBattle);
+
+    $(window).on("beforeunload", () => {
         eatme.quitWait();
         eatme.quitBattle();
         eatme.disconnect();
     });
 
-    $("#find-btn").click(findBattle);
+    function enableFindBtn() {
+        btnFind.prop("disabled", false);
+    }
+
+    function disableFindBtn() {
+        btnFind.prop("disabled", true);
+    }
+
+    function showInfo(info) {
+        pPrompt.text(info);
+    }
+
+    function clearInfo(info) {
+        pPrompt.text("");
+    }
 
     function findBattle() {
         disableFindBtn();
         clearInfo();
 
-        setTimeout(function () {
+        setTimeout(() => {
             if (eatme.getPlayerState() === eatme.STATE_WAITING) {
                 eatme.quitWait();
                 enableFindBtn();
@@ -30,31 +49,15 @@ $(function () {
             eatme.wait();
         } else {
             eatme.connect(eatme.wait,
-                function (err) {
+                (err) => {
                     enableFindBtn();
                     showInfo("Failed to connect server. Please try again.");
                 },
-                function (msg) {
+                (msg) => {
                     handleMsg(msg);
                 }
             );
         }
-    }
-
-    function enableFindBtn() {
-        $("#find-btn").prop("disabled", false);
-    }
-
-    function disableFindBtn() {
-        $("#find-btn").prop("disabled", true);
-    }
-
-    function showInfo(info) {
-        $("#prompt").text(info);
-    }
-
-    function clearInfo(info) {
-        $("#prompt").text("");
     }
 
     function handleMsg(msg) {
