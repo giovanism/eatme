@@ -10,13 +10,17 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private static final String BASE = "/wbskt";
+    private static final String BASE = "/ws";
     private static final String ENDPOINT = BASE + "/ep";
     public static final String PREFIX_SUBSCRIBE = BASE + "/sb";
+    private static final String CLIENT_SOCKJS_URL = "//cdn.jsdelivr.net/sockjs/1.1.4/sockjs.min.js";
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint(ENDPOINT).withSockJS();
+        registry.addEndpoint(ENDPOINT)
+            .setAllowedOrigins("*")
+            .withSockJS()
+            .setClientLibraryUrl(CLIENT_SOCKJS_URL);
     }
 
     @Override

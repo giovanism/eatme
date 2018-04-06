@@ -10,11 +10,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
 @SuppressWarnings("unused")
 @RestController
-@MessageMapping("/battle")
+@MessageMapping("/btl")
 public class BattleController {
 
     private static final Logger LOG = LoggerFactory.getLogger(BattleController.class);

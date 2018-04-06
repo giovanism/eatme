@@ -49,11 +49,11 @@ let eatme = (() => {
 
     })();
 
-    const DEST_ENDPOINT = "/wbskt/ep";
-    const DEST_SUBSCRIBE = "/wbskt/sb";
-    const DEST_BATTLE_WAIT = "/battle/wait";
-    const DEST_BATTLE_QUIT_WAIT = "/battle/quit-wait";
-    const DEST_BATTLE_QUIT_BATTLE = "/battle/quit-battle";
+    const DEST_ENDPOINT = "/ws/ep";
+    const DEST_SUBSCRIBE = "/ws/sb";
+    const DEST_BATTLE_WAIT = "/btl/wait";
+    const DEST_BATTLE_QUIT_WAIT = "/btl/quit-wait";
+    const DEST_BATTLE_QUIT_BATTLE = "/btl/quit-battle";
 
     const STATE_OFFLINE = "0";
     const STATE_WAITING = "1";

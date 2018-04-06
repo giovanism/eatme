@@ -1,4 +1,3 @@
 * text=auto
 
 *.conf text eol=lf
-pom.xml text eol=lf
