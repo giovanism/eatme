@@ -8,8 +8,7 @@ $(() => {
     btnFind.click(findBattle);
 
     $(window).on("beforeunload", () => {
-        eatme.quitWait();
-        eatme.quitBattle();
+        quitWaitOrBattle();
         eatme.disconnect();
     });
 
@@ -27,6 +26,18 @@ $(() => {
 
     function clearInfo(info) {
         pPrompt.text("");
+    }
+
+    function quitWaitOrBattle() {
+        let state = eatme.getPlayerState();
+        if (state === eatme.STATE_OFFLINE) {
+            return;
+        }
+        if (state === eatme.STATE_WAITING) {
+            eatme.quitWait();
+        } else {
+            eatme.quitBattle();
+        }
     }
 
     function findBattle() {

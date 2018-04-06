@@ -101,6 +101,8 @@ let eatme = (() => {
         if (playerState === STATE_OFFLINE) {
             send(DEST_BATTLE_WAIT, {playerId: playerId});
             setPlayerState(STATE_WAITING);
+        } else {
+            throw new Error("Call wait() in state " + playerState);
         }
     }
 
@@ -108,6 +110,8 @@ let eatme = (() => {
         if (playerState === STATE_WAITING) {
             send(DEST_BATTLE_QUIT_WAIT, {playerId: playerId});
             setPlayerState(STATE_OFFLINE);
+        } else {
+            throw new Error("Call quitWait() in state " + playerState);
         }
     }
 
@@ -116,6 +120,8 @@ let eatme = (() => {
             send(DEST_BATTLE_QUIT_BATTLE, {playerId: playerId, battleId: battleId});
             setPlayerState(STATE_OFFLINE);
             battleId = null;
+        } else {
+            throw new Error("Call quitBattle() in state " + playerState);
         }
     }
 
