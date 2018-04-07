@@ -8,7 +8,7 @@ $(() => {
     btnFind.click(findBattle);
 
     $(window).on("beforeunload", () => {
-        quitWaitOrBattle();
+        quit();
         eatme.disconnect();
     });
 
@@ -28,7 +28,7 @@ $(() => {
         pPrompt.text("");
     }
 
-    function quitWaitOrBattle() {
+    function quit() {
         let state = eatme.getPlayerState();
         if (state === eatme.STATE_OFFLINE) {
             return;
@@ -46,7 +46,7 @@ $(() => {
 
         setTimeout(() => {
             if (eatme.getPlayerState() === eatme.STATE_WAITING) {
-                eatme.quitWait();
+                quit();
                 enableFindBtn();
                 showInfo("Timeout. Please try again.");
             }
