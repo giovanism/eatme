@@ -10,8 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 @SuppressWarnings("unused")
 @RestController
@@ -30,7 +31,7 @@ public class BattleController {
     private WebSocketMessenger messenger;
 
     @MessageMapping("/wait")
-    public void wait(PlayerMsg msg) {
+    public void wait(@Valid PlayerMsg msg) {
         int ret = playerService.wait(msg.getPlayerId());
         if (ret != 0) {
             messenger.sendErr(msg.getPlayerId(), PlayerState.OFFLINE, ret);
@@ -39,7 +40,7 @@ public class BattleController {
     }
 
     @MessageMapping("/quit-wait")
-    public void quitWait(PlayerMsg msg) {
+    public void quitWait(@Valid PlayerMsg msg) {
         int ret = playerService.quitWait(msg.getPlayerId());
         if (ret != 0) {
             messenger.sendErr(msg.getPlayerId(), PlayerState.OFFLINE, ret);
@@ -48,7 +49,7 @@ public class BattleController {
     }
 
     @MessageMapping("/quit-battle")
-    public void quitBattle(BattleMsg msg) {
+    public void quitBattle(@Valid BattleMsg msg) {
         int ret = battleService.quitBattle(msg.getPlayerId(), msg.getBattleId());
         if (ret != 0) {
             messenger.sendErr(msg.getPlayerId(), PlayerState.OFFLINE, ret);

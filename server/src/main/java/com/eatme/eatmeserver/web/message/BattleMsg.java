@@ -1,8 +1,16 @@
 package com.eatme.eatmeserver.web.message;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 public class BattleMsg {
 
+    @NotNull
+    @Size(min=32, max=32)
     private String playerId;
+
+    @NotNull
+    @Size(min=32, max=32)
     private String battleId;
 
     @Override
