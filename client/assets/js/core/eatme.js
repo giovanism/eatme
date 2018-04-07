@@ -79,8 +79,9 @@ let eatme = (() => {
             errCb,
             DEST_SUBSCRIBE + "/" + playerId,
             (msg) => {
-                handleMsg(msg);
-                if (subscribeCb) subscribeCb(msg);
+                const chunks = msg.body.split("|", 3);
+                handleMsg(chunks[1], chunks[2], chunks[0]);
+                if (subscribeCb) subscribeCb(chunks[1], chunks[2], chunks[0]);
             }
         );
     }
@@ -142,11 +143,10 @@ let eatme = (() => {
         console.log("state: " + state);
     }
 
-    const handleMsg = (msg) => {
-        const {headers: {type, state}, body} = msg;
-        setPlayerState(state);
+    const handleMsg = (type, data, nextState) => {
+        setPlayerState(nextState);
         if (type === MSG_BID) {
-            battleId = body;
+            battleId = data;
         }
     }
 

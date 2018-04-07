@@ -64,29 +64,28 @@ $(() => {
                     enableFindBtn();
                     showInfo("Failed to connect server. Please try again.");
                 },
-                (msg) => {
-                    handleMsg(msg);
+                (type, data) => {
+                    handleMsg(type, data);
                 }
             );
         }
     }
 
-    function handleMsg(msg) {
-        const {headers: {type}, body} = msg;
+    function handleMsg(type, data) {
         if (type === eatme.MSG_ERR) {
-            if (body === eatme.ERR_SERVER) {
+            if (data === eatme.ERR_SERVER) {
                 enableFindBtn();
                 showInfo("Server error. Please try again.");
-            } else if (body === eatme.ERR_WAITING_QUEUE_PUSH_FULL) {
+            } else if (data === eatme.ERR_WAITING_QUEUE_PUSH_FULL) {
                 enableFindBtn();
                 showInfo("Waiting pool is full. Please try again.");
-            } else if (body === eatme.ERR_WAITING_QUEUE_PUSH_INVALID) {
+            } else if (data === eatme.ERR_WAITING_QUEUE_PUSH_INVALID) {
                 enableFindBtn();
                 showInfo("Enqueue under invalid state. Please try again.");
             }
         } else if (type === eatme.MSG_BID) {
             enableFindBtn();
-            showInfo("Find battle: " + body);
+            showInfo("Find battle: " + data);
         }
     }
 

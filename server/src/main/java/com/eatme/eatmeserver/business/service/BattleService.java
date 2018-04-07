@@ -63,7 +63,7 @@ public class BattleService {
 
             String opponentId = isPlayer1 ? player2Id : player1Id;
             Player opponent = playerRepo.findById(opponentId);
-            if (opponent.getState() == PlayerState.OFFLINE) {   // Both offline
+            if (opponent.getState() == PlayerState.OFFLINE) {  // Both offline
                 // Delete battle and players
                 playerRepo.execute(new SessionCallback<Void>() {
                     @Override

@@ -17,9 +17,6 @@ public class WebSocketMessenger {
 
     private static final Logger LOG = LoggerFactory.getLogger(WebSocketMessenger.class);
 
-    private static final String HEADER_TYPE = "type";
-    private static final String HEADER_STATE = "state";
-
     public enum MsgType {
         ERR,
         BID,
@@ -28,17 +25,15 @@ public class WebSocketMessenger {
     @Autowired
     private SimpMessagingTemplate template;
 
-    public void sendErr(String playerId, PlayerState state, int errCode) {
-        send(playerId, state, MsgType.ERR, String.valueOf(errCode));
+    public void sendErr(String playerId, PlayerState nextState, int errCode) {
+        send(playerId, nextState, MsgType.ERR, String.valueOf(errCode));
         LOG.info("Send " + MsgType.ERR.name() + " " + errCode + " to " + playerId);
     }
 
-    public void send(String playerId, PlayerState state, MsgType type, String data) {
+    public void send(String playerId, PlayerState nextState, MsgType type, String data) {
         String dest = WebSocketConfig.PREFIX_SUBSCRIBE + "/" + playerId;
-        Map<String, Object> headers = new HashMap<>();
-        headers.put(HEADER_TYPE, type.ordinal());
-        headers.put(HEADER_STATE, state.ordinal());
-        template.convertAndSend(dest, data, headers);
+        String body = String.valueOf(nextState.ordinal()) + "|" + type.ordinal() + "|" + data;
+        template.convertAndSend(dest, body);
     }
 
 }
