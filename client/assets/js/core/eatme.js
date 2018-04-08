@@ -52,6 +52,7 @@ let eatme = (() => {
     const DEST_ENDPOINT = "/ws/ep";
     const DEST_SUBSCRIBE = "/ws/sb";
     const DEST_BATTLE_WAIT = "/btl/wait";
+    const DEST_BATTLE_READY = "/btl/ready";
     const DEST_BATTLE_QUIT_WAIT = "/btl/quit-wait";
     const DEST_BATTLE_QUIT_BATTLE = "/btl/quit-battle";
 
@@ -59,18 +60,24 @@ let eatme = (() => {
     const STATE_WAITING = "1";
     const STATE_NOT_READY = "2";
     const STATE_READY = "3";
-    const STATE_PLAYING = "4";
+    const STATE_ATTACKING = "4";
+    const STATE_DEFENDING = "5";
 
     const MSG_ERR = "0";
     const MSG_BID = "1";
+    const MSG_START = "2";
 
     const ERR_SERVER = "1"; 
-    const ERR_WAITING_QUEUE_PUSH_INVALID = "101";
-    const ERR_WAITING_QUEUE_PUSH_FULL = "102";
+    const ERR_INVALID_STATE = "2";
+    const ERR_INVALID_BATTLE = "3";
+    const ERR_WAITING_QUEUE_PUSH_FULL = "100";
+    const ERR_OPPONENT_QUIT = "200";
 
     let playerId = null;
-    let battleId = null;
     let playerState = STATE_OFFLINE;
+
+    let battleId = null;
+    let randSeed = null;
 
     const connect = (sucCb, errCb, subscribeCb) => {
         sktMgr.connect(
@@ -80,8 +87,7 @@ let eatme = (() => {
             DEST_SUBSCRIBE + "/" + playerId,
             (msg) => {
                 const chunks = msg.body.split("|", 3);
-                handleMsg(chunks[1], chunks[2], chunks[0]);
-                if (subscribeCb) subscribeCb(chunks[1], chunks[2], chunks[0]);
+                handleMsg(chunks[1], chunks[2], chunks[0], subscribeCb);
             }
         );
     }
@@ -100,8 +106,8 @@ let eatme = (() => {
 
     const wait = () => {
         if (playerState === STATE_OFFLINE) {
-            send(DEST_BATTLE_WAIT, {playerId: playerId});
             setPlayerState(STATE_WAITING);
+            send(DEST_BATTLE_WAIT, {playerId: playerId});
         } else {
             throw new Error("Call wait() in state " + playerState);
         }
@@ -109,18 +115,28 @@ let eatme = (() => {
 
     const quitWait = () => {
         if (playerState === STATE_WAITING) {
-            send(DEST_BATTLE_QUIT_WAIT, {playerId: playerId});
             setPlayerState(STATE_OFFLINE);
+            send(DEST_BATTLE_QUIT_WAIT, {playerId: playerId});
         } else {
             throw new Error("Call quitWait() in state " + playerState);
         }
     }
 
+    const ready = () => {
+        if (playerState === STATE_NOT_READY) {
+            setPlayerState(STATE_READY);
+            send(DEST_BATTLE_READY, {playerId: playerId, battleId: battleId});
+        } else {
+            throw new Error("Call ready() in state " + playerState);
+        }
+    }
+
     const quitBattle = () => {
         if (playerState !== STATE_OFFLINE && playerState !== STATE_WAITING) {
-            send(DEST_BATTLE_QUIT_BATTLE, {playerId: playerId, battleId: battleId});
             setPlayerState(STATE_OFFLINE);
+            send(DEST_BATTLE_QUIT_BATTLE, {playerId: playerId, battleId: battleId});
             battleId = null;
+            randSeed = null;
         } else {
             throw new Error("Call quitBattle() in state " + playerState);
         }
@@ -143,20 +159,26 @@ let eatme = (() => {
         console.log("state: " + state);
     }
 
-    const handleMsg = (type, data, nextState) => {
+    const handleMsg = (type, data, nextState, cb) => {
         setPlayerState(nextState);
         if (type === MSG_BID) {
             battleId = data;
+        } else if (type === MSG_START) {
+            randSeed = data;
         }
+        if (cb) cb(type, data);
     }
 
     return {
         connect: connect,
         disconnect: disconnect,
         isConnected: isConnected,
+
         wait: wait,
+        ready: ready,
         quitWait: quitWait,
         quitBattle: quitBattle,
+
         genPlayerId: genPlayerId,
         getPlayerId: getPlayerId,
         getPlayerState: getPlayerState,
@@ -165,14 +187,18 @@ let eatme = (() => {
         STATE_WAITING: STATE_WAITING,
         STATE_NOT_READY: STATE_NOT_READY,
         STATE_READY: STATE_READY,
-        STATE_PLAYING: STATE_PLAYING,
+        STATE_ATTACKING: STATE_ATTACKING,
+        STATE_DEFENDING: STATE_DEFENDING,
 
         MSG_ERR: MSG_ERR,
         MSG_BID: MSG_BID,
+        MSG_START: MSG_START,
 
         ERR_SERVER: ERR_SERVER,
-        ERR_WAITING_QUEUE_PUSH_INVALID: ERR_WAITING_QUEUE_PUSH_INVALID,
-        ERR_WAITING_QUEUE_PUSH_FULL: ERR_WAITING_QUEUE_PUSH_FULL
+        ERR_INVALID_STATE: ERR_INVALID_STATE,
+        ERR_INVALID_BATTLE: ERR_INVALID_BATTLE,
+        ERR_WAITING_QUEUE_PUSH_FULL: ERR_WAITING_QUEUE_PUSH_FULL,
+        ERR_OPPONENT_QUIT: ERR_OPPONENT_QUIT
     }
 
 })();

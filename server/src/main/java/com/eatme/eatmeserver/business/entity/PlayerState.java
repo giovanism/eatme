@@ -5,5 +5,6 @@ public enum PlayerState {
     WAITING,
     NOT_READY,
     READY,
-    PLAYING,
+    ATTACKING,
+    DEFENDING,
 }

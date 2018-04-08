@@ -2,30 +2,86 @@
 
 $(() => {
 
-    let btnFind = $("#find-btn");
-    let pPrompt = $("#prompt");
-
-    btnFind.click(findBattle);
-
     $(window).on("beforeunload", () => {
         quit();
         eatme.disconnect();
     });
 
-    function enableFindBtn() {
-        btnFind.prop("disabled", false);
-    }
+    let btnFind = $("button#find-btn");
+    let btnReady = $("button#ready-btn");
+    let pPrompt = $("p#prompt");
 
-    function disableFindBtn() {
-        btnFind.prop("disabled", true);
-    }
+    btnFind.click(() => {
+        disable(btnFind);
+        clrInfo();
+        startCountDown(btnFind, 5, () => {
+            if (eatme.getPlayerState() === eatme.STATE_WAITING) {
+                quit();
+                enable(btnFind);
+                setInfo("Timeout. Please try again.");
+            }
+        })
+        if (!eatme.getPlayerId()) {
+            eatme.genPlayerId();
+        }
+        if (eatme.isConnected()) {
+            eatme.wait();
+        } else {
+            eatme.connect(eatme.wait,
+                (err) => {
+                    enable(btnFind);
+                    setInfo("Failed to connect server. Please try again.");
+                },
+                (type, data) => {
+                    handleMsg(type, data);
+                }
+            );
+        }
+    });
 
-    function showInfo(info) {
-        pPrompt.text(info);
-    }
+    btnReady.click(() => {
+        disable(btnReady);
+        clrInfo();
+        startCountDown(btnReady, 10, () => {
+            if (eatme.getPlayerState() === eatme.STATE_READY) {
+                eatme.quitBattle();
+                hide(btnReady);
+                show(btnFind);
+                setInfo("Opponent no respond. Please try again.");
+            }
+        })
+        eatme.ready();
+    })
 
-    function clearInfo(info) {
-        pPrompt.text("");
+    function handleMsg(type, data) {
+        if (type === eatme.MSG_ERR) {
+            hide(btnReady);
+            show(btnFind);
+            if (data === eatme.ERR_SERVER) {
+                setInfo("Server error. Please try again.");
+            } else if (data === eatme.ERR_INVALID_STATE) {
+                setInfo("Invalid state. Please try again.");
+            } else if (data === eatme.ERR_INVALID_BATTLE) {
+                setInfo("Invalid battle and player ID. Please try again.");
+            } else if (data === eatme.ERR_WAITING_QUEUE_PUSH_FULL) {
+                setInfo("Waiting pool is full. Please try again.");
+            } else if (data === eatme.ERR_OPPONENT_QUIT) {
+                eatme.quitBattle();
+                setInfo("Opponent quit. Please try again.");
+            }
+        } else if (type === eatme.MSG_BID) {
+            hide(btnFind);
+            show(btnReady);
+            setInfo("Find battle: " + data);
+        } else if (type === eatme.MSG_START) {
+            hide(btnReady);
+            let state = eatme.getPlayerState();
+            if (state === eatme.STATE_ATTACKING) {
+                setInfo("Attacking!");
+            } else if (state === eatme.STATE_DEFENDING) {
+                setInfo("Defending!");
+            }
+        }
     }
 
     function quit() {
@@ -40,53 +96,45 @@ $(() => {
         }
     }
 
-    function findBattle() {
-        disableFindBtn();
-        clearInfo();
-
-        setTimeout(() => {
-            if (eatme.getPlayerState() === eatme.STATE_WAITING) {
-                quit();
-                enableFindBtn();
-                showInfo("Timeout. Please try again.");
+    function startCountDown(ele, seconds, cb) {
+        let oriContent = ele.html();
+        ele.html(--seconds);
+        let timer = setInterval(() => {
+            --seconds;
+            if (seconds === -1) {
+                clearInterval(timer);
+                ele.html(oriContent);
+                if (cb) cb();
+            } else {
+                ele.text(seconds);
             }
-        }, 10000);
-
-        if (!eatme.getPlayerId()) {
-            eatme.genPlayerId();
-        }
-
-        if (eatme.isConnected()) {
-            eatme.wait();
-        } else {
-            eatme.connect(eatme.wait,
-                (err) => {
-                    enableFindBtn();
-                    showInfo("Failed to connect server. Please try again.");
-                },
-                (type, data) => {
-                    handleMsg(type, data);
-                }
-            );
-        }
+        }, 1000);
     }
 
-    function handleMsg(type, data) {
-        if (type === eatme.MSG_ERR) {
-            if (data === eatme.ERR_SERVER) {
-                enableFindBtn();
-                showInfo("Server error. Please try again.");
-            } else if (data === eatme.ERR_WAITING_QUEUE_PUSH_FULL) {
-                enableFindBtn();
-                showInfo("Waiting pool is full. Please try again.");
-            } else if (data === eatme.ERR_WAITING_QUEUE_PUSH_INVALID) {
-                enableFindBtn();
-                showInfo("Enqueue under invalid state. Please try again.");
-            }
-        } else if (type === eatme.MSG_BID) {
-            enableFindBtn();
-            showInfo("Find battle: " + data);
-        }
+    function enable(ele) {
+        ele.prop("disabled", false);
+    }
+
+    function disable(ele) {
+        ele.prop("disabled", true);
+    }
+
+    function show(ele) {
+        enable(ele);
+        ele.show("slow");
+    }
+
+    function hide(ele) {
+        disable(ele);
+        ele.hide("slow");
+    }
+
+    function setInfo(info) {
+        pPrompt.text(info);
+    }
+
+    function clrInfo() {
+        pPrompt.text("");
     }
 
 })

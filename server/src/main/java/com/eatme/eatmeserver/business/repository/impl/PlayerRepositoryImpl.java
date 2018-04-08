@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
@@ -34,11 +33,6 @@ public class PlayerRepositoryImpl implements PlayerRepository {
     @PostConstruct
     private void init() {
         hashOps = redisTemplate.opsForHash();
-    }
-
-    @Override
-    public <T> T execute(SessionCallback<T> callback) {
-        return redisTemplate.execute(callback);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.eatme.eatmeserver.web.controller;
 
-import com.eatme.eatmeserver.business.entity.PlayerState;
 import com.eatme.eatmeserver.business.service.BattleService;
 import com.eatme.eatmeserver.business.service.PlayerService;
 import com.eatme.eatmeserver.util.WebSocketMessenger;
@@ -34,7 +33,7 @@ public class BattleController {
     public void wait(@Valid PlayerMsg msg) {
         int ret = playerService.wait(msg.getPlayerId());
         if (ret != 0) {
-            messenger.sendErr(msg.getPlayerId(), PlayerState.OFFLINE, ret);
+            messenger.sendErr(msg.getPlayerId(), ret);
         }
         LOG.info("/wait " + msg + " | ret: " + ret);
     }
@@ -43,16 +42,25 @@ public class BattleController {
     public void quitWait(@Valid PlayerMsg msg) {
         int ret = playerService.quitWait(msg.getPlayerId());
         if (ret != 0) {
-            messenger.sendErr(msg.getPlayerId(), PlayerState.OFFLINE, ret);
+            messenger.sendErr(msg.getPlayerId(), ret);
         }
         LOG.info("/quit-wait " + msg + " | ret: " + ret);
+    }
+
+    @MessageMapping("/ready")
+    public void ready(@Valid BattleMsg msg) {
+        int ret = battleService.ready(msg.getPlayerId(), msg.getBattleId());
+        if (ret != 0) {
+            messenger.sendErr(msg.getPlayerId(), ret);
+        }
+        LOG.info("/ready " + msg + " | ret: " + ret);
     }
 
     @MessageMapping("/quit-battle")
     public void quitBattle(@Valid BattleMsg msg) {
         int ret = battleService.quitBattle(msg.getPlayerId(), msg.getBattleId());
         if (ret != 0) {
-            messenger.sendErr(msg.getPlayerId(), PlayerState.OFFLINE, ret);
+            messenger.sendErr(msg.getPlayerId(), ret);
         }
         LOG.info("/quit-battle " + msg + " | ret: " + ret);
     }
