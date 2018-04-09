@@ -1,6 +1,5 @@
-"use strict";
-
 $(() => {
+    "use strict";
 
     $(window).on("beforeunload", () => {
         quit();
@@ -29,6 +28,7 @@ $(() => {
         } else {
             eatme.connect(eatme.wait,
                 (err) => {
+                    eatme.stopCountDown();
                     enable(btnFind);
                     setInfo("Failed to connect server. Please try again.");
                 },

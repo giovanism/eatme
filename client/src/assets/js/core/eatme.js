@@ -1,10 +1,9 @@
-"use strict";
-
 let eatme = (() => {
+    "use strict";
 
     // Manage websocket connection
     const sktMgr = (() => {
-        
+
         let stompClient = null;
 
         const connect = (connDest, sucCb, errCb, subscribeDest, subscribeCb) => {
