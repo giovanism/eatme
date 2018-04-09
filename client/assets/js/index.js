@@ -14,7 +14,7 @@ $(() => {
     btnFind.click(() => {
         disable(btnFind);
         clrInfo();
-        startCountDown(btnFind, 5, () => {
+        eatme.startCountDown(btnFind, 5, () => {
             if (eatme.getPlayerState() === eatme.STATE_WAITING) {
                 quit();
                 enable(btnFind);
@@ -42,7 +42,7 @@ $(() => {
     btnReady.click(() => {
         disable(btnReady);
         clrInfo();
-        startCountDown(btnReady, 10, () => {
+        eatme.startCountDown(btnReady, 10, () => {
             if (eatme.getPlayerState() === eatme.STATE_READY) {
                 eatme.quitBattle();
                 hide(btnReady);
@@ -54,6 +54,7 @@ $(() => {
     })
 
     function handleMsg(type, data) {
+        eatme.stopCountDown();
         if (type === eatme.MSG_ERR) {
             hide(btnReady);
             show(btnFind);
@@ -94,21 +95,6 @@ $(() => {
         } else {
             eatme.quitBattle();
         }
-    }
-
-    function startCountDown(ele, seconds, cb) {
-        let oriContent = ele.html();
-        ele.html(--seconds);
-        let timer = setInterval(() => {
-            --seconds;
-            if (seconds === -1) {
-                clearInterval(timer);
-                ele.html(oriContent);
-                if (cb) cb();
-            } else {
-                ele.text(seconds);
-            }
-        }, 1000);
     }
 
     function enable(ele) {

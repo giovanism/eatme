@@ -49,6 +49,46 @@ let eatme = (() => {
 
     })();
 
+    // Manage countdown
+    const timer = (function () {
+
+        let timerId = null;
+        let element = null;
+        let oriContent = null;
+
+        const startCountDown = (ele, seconds, cb) => {
+            stopCountDown();
+            element = ele;
+            oriContent = ele.html();
+            ele.html(--seconds);
+            timerId = setInterval(() => {
+                --seconds;
+                if (seconds === -1) {
+                    stopCountDown();
+                    if (cb) cb();
+                } else {
+                    ele.html(seconds);
+                }
+            }, 1000);
+        }
+
+        const stopCountDown = () => {
+            if (timerId) clearInterval(timerId);
+            if (element && oriContent) {
+                element.html(oriContent);
+            }
+            timerId = null;
+            element = null;
+            oriContent = null;
+        }
+
+        return {
+            startCountDown: startCountDown,
+            stopCountDown: stopCountDown
+        }
+
+    })();
+
     const DEST_ENDPOINT = "/ws/ep";
     const DEST_SUBSCRIBE = "/ws/sb";
     const DEST_BATTLE_WAIT = "/btl/wait";
@@ -182,6 +222,9 @@ let eatme = (() => {
         genPlayerId: genPlayerId,
         getPlayerId: getPlayerId,
         getPlayerState: getPlayerState,
+
+        startCountDown: timer.startCountDown,
+        stopCountDown: timer.stopCountDown,
 
         STATE_OFFLINE: STATE_OFFLINE,
         STATE_WAITING: STATE_WAITING,
