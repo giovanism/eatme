@@ -3,6 +3,6 @@
     padding: 0px;
 }
 
-button#ready-btn {
+button#ready-btn, button#quit-btn {
     display: none;
 }

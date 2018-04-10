@@ -8,14 +8,17 @@ $(() => {
 
     let btnFind = $("button#find-btn");
     let btnReady = $("button#ready-btn");
+    let btnQuit = $("button#quit-btn");
     let pPrompt = $("p#prompt");
 
     btnFind.click(() => {
         disable(btnFind);
         clrInfo();
+        show(btnQuit);
         eatme.startCountDown(btnFind, 5, () => {
             if (eatme.getPlayerState() === eatme.STATE_WAITING) {
                 quit();
+                hide(btnQuit);
                 enable(btnFind);
                 setInfo("Timeout. Please try again.");
             }
@@ -46,6 +49,7 @@ $(() => {
             if (eatme.getPlayerState() === eatme.STATE_READY) {
                 eatme.quitBattle();
                 hide(btnReady);
+                hide(btnQuit);
                 show(btnFind);
                 setInfo("Opponent no respond. Please try again.");
             }
@@ -53,10 +57,22 @@ $(() => {
         eatme.ready();
     })
 
+    btnQuit.click(() => {
+        if (confirm("Are you sure to quit?")) {
+            clrInfo();
+            eatme.stopCountDown();
+            quit();
+            hide(btnReady);
+            hide(btnQuit);
+            show(btnFind);
+        }
+    })
+
     function handleMsg(type, data) {
         eatme.stopCountDown();
         if (type === eatme.MSG_ERR) {
             hide(btnReady);
+            hide(btnQuit);
             show(btnFind);
             if (data === eatme.ERR_SERVER) {
                 setInfo("Server error. Please try again.");
@@ -73,6 +89,7 @@ $(() => {
         } else if (type === eatme.MSG_BID) {
             hide(btnFind);
             show(btnReady);
+            show(btnQuit);
             setInfo("Find battle: " + data);
         } else if (type === eatme.MSG_START) {
             hide(btnReady);
@@ -107,12 +124,12 @@ $(() => {
 
     function show(ele) {
         enable(ele);
-        ele.show("slow");
+        ele.show();
     }
 
     function hide(ele) {
         disable(ele);
-        ele.hide("slow");
+        ele.hide();
     }
 
     function setInfo(info) {
