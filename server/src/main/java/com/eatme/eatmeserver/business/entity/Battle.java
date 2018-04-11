@@ -13,11 +13,21 @@ public class Battle {
         this(id, player1Id, player2Id, new Random().nextLong());
     }
 
+    public Battle(String id, String player1Id, String player2Id, String rawSeed) {
+        this(id, player1Id, player2Id, Long.parseLong(rawSeed));
+    }
+
     public Battle(String id, String player1Id, String player2Id, long randSeed) {
         this.id = id;
         this.player1Id = player1Id;
         this.player2Id = player2Id;
         this.randSeed = randSeed;
+    }
+
+    @Override
+    public String toString() {
+        return "battleId=" + id + "&player1Id=" + player1Id
+            + "&player2Id=" + player2Id + "randSeed=" + randSeed;
     }
 
     public String getId() {

@@ -1,8 +1,10 @@
 package com.eatme.eatmeserver.web.controller;
 
+import com.eatme.eatmeserver.business.entity.PlayerAction;
 import com.eatme.eatmeserver.business.service.BattleService;
 import com.eatme.eatmeserver.business.service.PlayerService;
 import com.eatme.eatmeserver.util.WebSocketMessenger;
+import com.eatme.eatmeserver.web.message.ActionMsg;
 import com.eatme.eatmeserver.web.message.BattleMsg;
 import com.eatme.eatmeserver.web.message.PlayerMsg;
 import org.slf4j.Logger;
@@ -31,6 +33,7 @@ public class BattleController {
 
     @MessageMapping("/wait")
     public void wait(@Valid PlayerMsg msg) {
+        LOG.info("/wait " + msg);
         int ret = playerService.wait(msg.getPlayerId());
         if (ret != 0) {
             messenger.sendErr(msg.getPlayerId(), ret);
@@ -40,6 +43,7 @@ public class BattleController {
 
     @MessageMapping("/quit-wait")
     public void quitWait(@Valid PlayerMsg msg) {
+        LOG.info("/quit-wait " + msg);
         int ret = playerService.quitWait(msg.getPlayerId());
         if (ret != 0) {
             messenger.sendErr(msg.getPlayerId(), ret);
@@ -49,6 +53,7 @@ public class BattleController {
 
     @MessageMapping("/ready")
     public void ready(@Valid BattleMsg msg) {
+        LOG.info("/ready " + msg);
         int ret = battleService.ready(msg.getPlayerId(), msg.getBattleId());
         if (ret != 0) {
             messenger.sendErr(msg.getPlayerId(), ret);
@@ -56,13 +61,25 @@ public class BattleController {
         LOG.info("/ready " + msg + " | ret: " + ret);
     }
 
-    @MessageMapping("/quit-battle")
+    @MessageMapping("/action")
+    public void action(@Valid ActionMsg msg) {
+        LOG.info("/action " + msg);
+        int ret = battleService.action(msg.getPlayerId(),
+            msg.getBattleId(), PlayerAction.values()[msg.getAction()]);
+        if (ret != 0) {
+            messenger.sendErr(msg.getPlayerId(), ret);
+        }
+        LOG.info("/action " + msg + " | ret: " + ret);
+    }
+
+    @MessageMapping("/quit-btl")
     public void quitBattle(@Valid BattleMsg msg) {
+        LOG.info("/quit-btl " + msg);
         int ret = battleService.quitBattle(msg.getPlayerId(), msg.getBattleId());
         if (ret != 0) {
             messenger.sendErr(msg.getPlayerId(), ret);
         }
-        LOG.info("/quit-battle " + msg + " | ret: " + ret);
+        LOG.info("/quit-btl " + msg + " | ret: " + ret);
     }
 
 }

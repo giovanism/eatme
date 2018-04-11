@@ -20,7 +20,7 @@ public class RedisTransaction {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    public List<Object> execute(Callback cb) {
+    public List<Object> exec(Callback cb) {
         return redisTemplate.execute(new SessionCallback<List<Object>>() {
             @Override
             public <K, V> List<Object> execute(RedisOperations<K, V> operations) throws DataAccessException {

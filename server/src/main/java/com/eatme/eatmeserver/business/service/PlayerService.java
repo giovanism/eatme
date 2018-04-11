@@ -32,15 +32,22 @@ public class PlayerService {
     private RedisTransaction redisTransaction;
 
     public int wait(String playerId) {
+        final String LOG_HEADER = "wait() | playerId=" + playerId;
         try {
             Player player = playerRepo.findById(playerId);
+            LOG.info(LOG_HEADER + " | found player: " + player.toString());
             if (player.getState() != PlayerState.OFFLINE) {
                 return ErrCode.ERR_INVALID_STATE;
             }
-            if (waitingQueueRepo.size() >= eatMeProp.getWaitingQueue().getCapacity()) {
+
+            long size = waitingQueueRepo.size();
+            long capacity = eatMeProp.getWaitingQueue().getCapacity();
+            LOG.info(LOG_HEADER + " | queue_size=" + size + " | queue_capacity=" + capacity);
+            if (size > capacity) {
                 return ErrCode.ERR_WAITING_QUEUE_PUSH_FULL;
             }
-            redisTransaction.execute(new RedisTransaction.Callback() {
+
+            redisTransaction.exec(new RedisTransaction.Callback() {
                 @Override
                 public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
                     player.setState(PlayerState.WAITING);
@@ -56,12 +63,14 @@ public class PlayerService {
     }
 
     public int quitWait(String playerId) {
+        final String LOG_HEADER = "quitWait() | playerId=" + playerId;
         try {
             Player player = playerRepo.findById(playerId);
+            LOG.info(LOG_HEADER + " | found player: " + player.toString());
             if (player.getState() != PlayerState.WAITING) {
                 return ErrCode.ERR_INVALID_STATE;
             }
-            redisTransaction.execute(new RedisTransaction.Callback() {
+            redisTransaction.exec(new RedisTransaction.Callback() {
                 @Override
                 public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
                     playerRepo.delById(playerId);

@@ -11,7 +11,9 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("unused")
@@ -45,23 +47,15 @@ public class BattleRepositoryImpl implements BattleRepository {
 
     @Override
     public @Nullable Battle findById(String battleId) {
-        String k = key(battleId);
-        String player1Id = hashOps.get(k, KEY_HASH_PLAYER1_ID);
-        String player2Id = hashOps.get(k, KEY_HASH_PLAYER2_ID);
-        String seedStr = hashOps.get(k, KEY_HASH_RAND_SEED);
-
-        if (player1Id == null || player2Id == null || seedStr == null) {
+        List<String> res = hashOps.multiGet(key(battleId),
+            Arrays.asList(KEY_HASH_PLAYER1_ID, KEY_HASH_PLAYER2_ID, KEY_HASH_RAND_SEED));
+        String player1Id = res.get(0);
+        String player2Id = res.get(1);
+        String rawSeed = res.get(2);
+        if (player1Id == null || player2Id == null || rawSeed == null) {
             return null;
         }
-
-        try {
-            long seed = Long.parseLong(seedStr);
-            return new Battle(battleId, player1Id, player2Id, seed);
-        } catch (NumberFormatException e) {
-            LOG.error(e.toString(), e);
-        }
-
-        return null;
+        return new Battle(battleId, player1Id, player2Id, rawSeed);
     }
 
     @Override

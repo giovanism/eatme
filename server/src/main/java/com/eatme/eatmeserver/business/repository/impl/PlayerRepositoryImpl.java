@@ -10,10 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("unused")
@@ -45,29 +48,29 @@ public class PlayerRepositoryImpl implements PlayerRepository {
 
     @Override
     public @NonNull Player findById(String playerId) {
-        Player player = new Player(playerId, PlayerState.OFFLINE);
-
-        String k = key(playerId);
-        String stateStr = hashOps.get(k, KEY_HASH_STATE);
-        String actionStr = hashOps.get(k, KEY_HASH_ACTION);
-
-        if (stateStr == null || actionStr == null) {
-            return player;
+        List<String> res = hashOps.multiGet(key(playerId),
+            Arrays.asList(KEY_HASH_STATE, KEY_HASH_ACTION));
+        String rawState = res.get(0);
+        String rawAction = res.get(1);
+        if (rawState == null || rawAction == null) {
+            return new Player(playerId, PlayerState.OFFLINE);
         }
-
-        try {
-            player.setState(PlayerState.values()[Integer.parseInt(stateStr)]);
-            player.setAction(PlayerAction.values()[Integer.parseInt(actionStr)]);
-        } catch (NumberFormatException e) {
-            LOG.error(e.toString(), e);
-        }
-
-        return player;
+        return new Player(playerId, rawState, rawAction);
     }
 
     @Override
     public void delById(String playerId) {
         redisTemplate.delete(key(playerId));
+    }
+
+    @Override
+    public String findRawStateById(String playerId) {
+        return hashOps.get(key(playerId), KEY_HASH_STATE);
+    }
+
+    @Override
+    public @Nullable String findRawActionById(String playerId) {
+        return hashOps.get(key(playerId), KEY_HASH_ACTION);
     }
 
     private String key(String playerId) {

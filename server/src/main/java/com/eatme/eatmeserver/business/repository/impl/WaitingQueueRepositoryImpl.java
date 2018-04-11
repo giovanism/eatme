@@ -1,7 +1,11 @@
 package com.eatme.eatmeserver.business.repository.impl;
 
 import com.eatme.eatmeserver.business.repository.WaitingQueueRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.lang.Nullable;
@@ -13,6 +17,8 @@ import javax.annotation.PostConstruct;
 @Repository
 public class WaitingQueueRepositoryImpl implements WaitingQueueRepository {
 
+    private static final Logger LOG = LoggerFactory.getLogger(WaitingQueueRepositoryImpl.class);
+
     private static final String KEY = "eatme:wq";
 
     @Autowired
@@ -22,6 +28,18 @@ public class WaitingQueueRepositoryImpl implements WaitingQueueRepository {
     @PostConstruct
     private void init() {
         listOps = redisTemplate.opsForList();
+    }
+
+    @Override
+    public long size() {
+        return listOps.size(KEY);
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    @Override
+    public void clear() {
+        redisTemplate.delete(KEY);
+        LOG.info("clear() | waiting queue flushed");
     }
 
     @Override
@@ -37,11 +55,6 @@ public class WaitingQueueRepositoryImpl implements WaitingQueueRepository {
     @Override
     public void del(String playerId) {
        listOps.remove(KEY, 0, playerId);
-    }
-
-    @Override
-    public long size() {
-        return listOps.size(KEY);
     }
 
 }

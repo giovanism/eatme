@@ -6,3 +6,7 @@
 button#ready-btn, button#quit-btn {
     display: none;
 }
+
+p#prompt {
+    word-break: break-all;
+}

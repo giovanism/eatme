@@ -10,10 +10,20 @@ public class Player {
         this(id, state, PlayerAction.NO_ACTION);
     }
 
+    public Player(String id, String rawState, String rawAction) {
+        this(id, PlayerState.values()[Integer.parseInt(rawState)],
+            PlayerAction.values()[Integer.parseInt(rawAction)]);
+    }
+
     public Player(String id, PlayerState state, PlayerAction action) {
         this.id = id;
         this.state = state;
         this.action = action;
+    }
+
+    @Override
+    public String toString() {
+        return "playerId=" + id + "&state=" + state.ordinal() + "&action=" + action.ordinal();
     }
 
     public String getId() {
