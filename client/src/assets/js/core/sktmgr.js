@@ -5,12 +5,12 @@ module.exports = (() => {
     const connect = (connDest, sucCb, errCb, subscribeDest, subscribeCb) => {
         stompClient = Stomp.over(new SockJS(connDest));
         stompClient.connect({},
-            (frame) => {
+            frame => {
                 console.log("[WebSocketManager] connect suc:\n" + frame);
                 stompClient.subscribe(subscribeDest, subscribeCb);
                 if (sucCb) sucCb(frame);
             },
-            (err) => {
+            err => {
                 console.log("[WebSocketManager] connect fail:\n" + err);
                 stompClient = null;
                 if (errCb) errCb(err);
@@ -19,20 +19,14 @@ module.exports = (() => {
     }
 
     const disconnect = () => {
-        if (stompClient) {
-            stompClient.disconnect();
-        }
+        if (stompClient) stompClient.disconnect();
         console.log("[WebSocketManager] disconnected");
     }
 
-    const isConnected = () => {
-        return !!stompClient;
-    }
+    const isConnected = () => !!stompClient
 
     const send = (dest, obj) => {
-        if (stompClient) {
-            stompClient.send(dest, {}, JSON.stringify(obj));
-        }
+        if (stompClient) stompClient.send(dest, {}, JSON.stringify(obj));
     }
 
     return {

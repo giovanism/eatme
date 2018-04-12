@@ -30,21 +30,19 @@ $(() => {
         disable(btnFind);
         clrInfo();
         show(btnQuit);
-        eatme.startCountDown(btnFind, 5, () => {
+        eatme.startCountDown(btnFind, 4, 0, () => {
             if (eatme.getPlayerState() === eatme.STATE_WAITING) {
                 resetToFind();
                 quit();
                 setInfo("Timeout. Please try again.");
             }
         })
-        if (!eatme.getPlayerId()) {
-            eatme.genPlayerId();
-        }
+        eatme.genPlayerId();
         if (eatme.isConnected()) {
             eatme.wait();
         } else {
             eatme.connect(eatme.wait,
-                (err) => {
+                err => {
                     resetToFind();
                     setInfo("Failed to connect server. Please try again.");
                 },
@@ -56,7 +54,7 @@ $(() => {
     btnReady.click(() => {
         disable(btnReady);
         clrInfo();
-        eatme.startCountDown(btnReady, 10, () => {
+        eatme.startCountDown(btnReady, 9, 0, () => {
             if (eatme.getPlayerState() === eatme.STATE_READY) {
                 resetToFind();
                 eatme.quitBattle();
@@ -74,8 +72,21 @@ $(() => {
         }
     })
 
-    eatme.setOnBothActionPrepared((myAction, opponentAction) => {
+    eatme.setOnTakingActions((myAction, opponentAction) => {
         appendInfo("(" + myAction + "," + opponentAction + ")");
+    })
+
+    eatme.setOnCreatingFood((foodPos) => {
+        appendInfo("Food: " + foodPos);
+    })
+
+    eatme.setOnSwitchingRole(() => {
+        const state = eatme.getPlayerState();
+        if (state === eatme.STATE_ATTACKING) {
+            appendInfo("Attack!");
+        } else if (state === eatme.STATE_DEFENDING) {
+            appendInfo("Defend!");
+        }
     })
 
     function handleData(type, data1, data2) {
@@ -103,14 +114,23 @@ $(() => {
             setInfo("Find battle: " + battleId);
         } else if (type === eatme.MSG_START) {
             hide(btnReady);
-            const state = eatme.getPlayerState();
-            if (state === eatme.STATE_ATTACKING) {
-                setInfo("Attacking!");
-            } else if (state === eatme.STATE_DEFENDING) {
-                setInfo("Defending!");
-            }
-            eatme.startMainLoop();
+            startGame();
         }
+    }
+
+    function startGame() {
+        eatme.startCountDown(pPrompt, 3, 1, () => {
+            setInfo("Start!");
+            setTimeout(() => {
+                const state = eatme.getPlayerState();
+                if (state === eatme.STATE_ATTACKING) {
+                    setInfo("Attacking!");
+                } else if (state === eatme.STATE_DEFENDING) {
+                    setInfo("Defending!");
+                }
+                eatme.startMainLoop();
+            }, 1000);
+        })
     }
 
     function resetToFind() {
