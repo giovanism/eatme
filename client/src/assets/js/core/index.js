@@ -1,5 +1,10 @@
 $(() => {
 
+    // seconds
+    const TIME_WAIT = 5;
+    const TIME_READY = 10;
+    const TIME_CONFIRM = 10;
+
     const eatme = require("./eatme.js");
 
     const btnFind = $("button#find-btn");
@@ -30,7 +35,7 @@ $(() => {
         disable(btnFind);
         clrInfo();
         show(btnQuit);
-        eatme.startCountDown(btnFind, 4, 0, () => {
+        eatme.startCountDown(btnFind, TIME_WAIT - 1, 0, () => {
             if (eatme.getPlayerState() === eatme.STATE_WAITING) {
                 resetToFind();
                 quit();
@@ -54,7 +59,7 @@ $(() => {
     btnReady.click(() => {
         disable(btnReady);
         clrInfo();
-        eatme.startCountDown(btnReady, 9, 0, () => {
+        eatme.startCountDown(btnReady, TIME_READY - 1, 0, () => {
             if (eatme.getPlayerState() === eatme.STATE_READY) {
                 resetToFind();
                 eatme.quitBattle();
@@ -65,11 +70,32 @@ $(() => {
     })
 
     btnQuit.click(() => {
-        if (confirm("Are you sure to quit?")) {
-            resetToFind();
-            clrInfo();
-            quit();
-        }
+        $.confirm({
+            title: "Confirm",
+            content: 'Are you sure to quit?',
+            autoClose: "cancel|" + (TIME_CONFIRM * 1000),
+            draggable: false,
+            theme: "bootstrap",
+            animateFromElement: false,
+            animation: "scale",
+            closeAnimation: "scale",
+            animationSpeed: 200,
+            buttons: {
+                confirm: {
+                    text: "Yes",
+                    action: () => {
+                        resetToFind();
+                        clrInfo();
+                        quit();
+                    }
+                },
+                cancel: {
+                    text: "No",
+                    btnClass: 'btn-blue',
+                    action: () => {}
+                }
+            }
+        });
     })
 
     eatme.setOnTakingActions((myAction, opponentAction) => {

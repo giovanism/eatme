@@ -29,9 +29,16 @@ gulp.task("pages", function () {
         .pipe(gulp.dest("dist"));
 })
 
-gulp.task("css", function () {
-    return gulp.src("src/assets/css/*.css")
+gulp.task("css-core", function () {
+    return gulp.src("src/assets/css/core/*.css")
         .pipe(csso())
+        .pipe(concat("index.css"))
+        .pipe(gulp.dest("dist/assets/css"));
+})
+
+gulp.task("css-lib", function () {
+    return gulp.src("src/assets/css/lib/*.css")
+        .pipe(concat("lib.css"))
         .pipe(gulp.dest("dist/assets/css"));
 })
 
@@ -54,19 +61,21 @@ gulp.task("js-core", function () {
 })
 
 gulp.task("js-lib", function () {
-    return gulp.src("src/assets/js/lib/*.js")
+    return gulp.src(["src/assets/js/lib/jquery.min.js", "src/assets/js/lib/*.js"])
         .pipe(concat("lib.js"))
         .pipe(gulp.dest("dist/assets/js"));
 })
 
 gulp.task("watch", function () {
 	gulp.watch("src/pages/*.html", ["pages"]);
-	gulp.watch("src/assets/css/*.css", ["css"]);
+	gulp.watch("src/assets/css/core/*.css", ["css-core"]);
+	gulp.watch("src/assets/css/lib/*.css", ["css-lib"]);
 	gulp.watch("src/assets/js/core/*.js", ["js-core"]);
 	gulp.watch("src/assets/js/lib/*.js", ["js-lib"]);
 })
 
 gulp.task("build", function () {
     runSequence.options.ignoreUndefinedTasks = true;
-    runSequence("clean", "pages", "css", "js-core", "js-lib", isDev() ? "watch" : "");
+    runSequence("clean", "pages", "css-core", "css-lib",
+        "js-core", "js-lib", isDev() ? "watch" : "");
 });
