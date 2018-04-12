@@ -1,107 +1,4 @@
-let eatme = (() => {
-    "use strict";
-
-    // Manage websocket connection
-    const sktMgr = (() => {
-
-        let stompClient = null;
-
-        const connect = (connDest, sucCb, errCb, subscribeDest, subscribeCb) => {
-            stompClient = Stomp.over(new SockJS(connDest));
-            stompClient.connect({},
-                (frame) => {
-                    console.log("[WebSocketManager] connect suc:\n" + frame);
-                    stompClient.subscribe(subscribeDest, subscribeCb);
-                    if (sucCb) sucCb(frame);
-                },
-                (err) => {
-                    console.log("[WebSocketManager] connect fail:\n" + err);
-                    stompClient = null;
-                    if (errCb) errCb(err);
-                }
-            );
-        }
-
-        const disconnect = () => {
-            if (stompClient) {
-                stompClient.disconnect();
-            }
-            console.log("[WebSocketManager] disconnected");
-        }
-
-        const isConnected = () => {
-            return !!stompClient;
-        }
-
-        const send = (dest, obj) => {
-            if (stompClient) {
-                stompClient.send(dest, {}, JSON.stringify(obj));
-            }
-        }
-
-        return {
-            connect: connect,
-            disconnect: disconnect,
-            isConnected: isConnected,
-            send: send
-        }
-
-    })();
-
-    // Manage countdown
-    const timer = (function () {
-
-        let countDownTimerId = null;
-        let element = null;
-        let oriContent = null;
-
-        let loopTimerId = null;
-
-        const startCountDown = (ele, seconds, cb) => {
-            stopCountDown();
-            element = ele;
-            oriContent = ele.html();
-            ele.html(--seconds);
-            countDownTimerId = setInterval(() => {
-                --seconds;
-                if (seconds === -1) {
-                    stopCountDown();
-                    if (cb) cb();
-                } else {
-                    ele.html(seconds);
-                }
-            }, 1000);
-        }
-
-        const stopCountDown = () => {
-            if (countDownTimerId) clearInterval(countDownTimerId);
-            if (element && oriContent) {
-                element.html(oriContent);
-            }
-            countDownTimerId = null;
-            element = null;
-            oriContent = null;
-        }
-
-        const startLoop = (interval, cb) => {
-            loopTimerId = setInterval(() => {
-                cb();
-            }, interval);
-        }
-
-        const stopLoop = () => {
-            if (loopTimerId) clearInterval(loopTimerId);
-            loopTimerId = null;
-        }
-
-        return {
-            startCountDown: startCountDown,
-            stopCountDown: stopCountDown,
-            startLoop: startLoop,
-            stopLoop: stopLoop
-        }
-
-    })();
+module.exports = (() => {
 
     const DEST_ENDPOINT = "/ws/ep";
     const DEST_SUBSCRIBE = "/ws/sb";
@@ -136,6 +33,9 @@ let eatme = (() => {
     const ERR_OPPONENT_QUIT = "200";
 
     const INTERVAL_ACTION = 1000;  // ms
+
+    const sktMgr = require("./sktmgr.js");  // Manage websocket connection
+    const timer = require("./timer.js");
 
     let playerId = null;
     let playerState = STATE_OFFLINE;

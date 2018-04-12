@@ -8,6 +8,7 @@ var htmlmin = require('gulp-htmlmin');
 var csso = require('gulp-csso');
 var uglify = require('gulp-uglify');
 var babel = require('gulp-babel');
+var browserify = require('gulp-browserify');
 var concat = require('gulp-concat');
 var sourcemaps = require('gulp-sourcemaps');
 
@@ -35,8 +36,9 @@ gulp.task("css", function () {
 })
 
 gulp.task("js-core", function () {
-    return gulp.src("src/assets/js/core/*.js")
+    return gulp.src("src/assets/js/core/index.js")
         .pipe(gulpif(isDev(), sourcemaps.init))
+        .pipe(browserify())
         .pipe(babel({
             presets: [["env", {
                 "targets": {
@@ -44,7 +46,6 @@ gulp.task("js-core", function () {
                 }
             }]]
         }))
-        .pipe(concat("index.js"))
         .pipe(uglify({
             "toplevel": true
         }))

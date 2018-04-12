@@ -1,5 +1,11 @@
 $(() => {
-    "use strict";
+
+    const eatme = require("./eatme.js");
+
+    const btnFind = $("button#find-btn");
+    const btnReady = $("button#ready-btn");
+    const btnQuit = $("button#quit-btn");
+    const pPrompt = $("p#prompt");
 
     $(window).on("beforeunload", () => {
         quit();
@@ -19,11 +25,6 @@ $(() => {
             }
         }
     })
-
-    let btnFind = $("button#find-btn");
-    let btnReady = $("button#ready-btn");
-    let btnQuit = $("button#quit-btn");
-    let pPrompt = $("p#prompt");
 
     btnFind.click(() => {
         disable(btnFind);
@@ -102,7 +103,7 @@ $(() => {
             setInfo("Find battle: " + battleId);
         } else if (type === eatme.MSG_START) {
             hide(btnReady);
-            let state = eatme.getPlayerState();
+            const state = eatme.getPlayerState();
             if (state === eatme.STATE_ATTACKING) {
                 setInfo("Attacking!");
             } else if (state === eatme.STATE_DEFENDING) {
@@ -121,7 +122,7 @@ $(() => {
     }
 
     function quit() {
-        let state = eatme.getPlayerState();
+        const state = eatme.getPlayerState();
         if (state === eatme.STATE_OFFLINE) {
             return;
         }
