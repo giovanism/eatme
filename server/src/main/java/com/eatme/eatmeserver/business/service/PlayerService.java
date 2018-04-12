@@ -39,22 +39,22 @@ public class PlayerService {
             if (player.getState() != PlayerState.OFFLINE) {
                 return ErrCode.ERR_INVALID_STATE;
             }
-
-            long size = waitingQueueRepo.size();
-            long capacity = eatMeProp.getWaitingQueue().getCapacity();
-            LOG.info(LOG_HEADER + " | queue_size=" + size + " | queue_capacity=" + capacity);
-            if (size > capacity) {
-                return ErrCode.ERR_WAITING_QUEUE_PUSH_FULL;
-            }
-
-            redisTransaction.exec(new RedisTransaction.Callback() {
-                @Override
-                public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
-                    player.setState(PlayerState.WAITING);
-                    playerRepo.createOrUpdate(player);
-                    waitingQueueRepo.push(player.getId());
+            synchronized (PlayerService.class) {  // Ensure queue size consistency
+                long size = waitingQueueRepo.size();
+                long capacity = eatMeProp.getWaitingQueue().getCapacity();
+                LOG.info(LOG_HEADER + " | queue_size=" + size + " | queue_capacity=" + capacity);
+                if (size >= capacity) {
+                    return ErrCode.ERR_WAITING_QUEUE_PUSH_FULL;
                 }
-            });
+                redisTransaction.exec(new RedisTransaction.Callback() {
+                    @Override
+                    public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
+                        player.setState(PlayerState.WAITING);
+                        playerRepo.createOrUpdate(player);
+                        waitingQueueRepo.push(player.getId());
+                    }
+                });
+            }
             return 0;
         } catch (Exception e) {
             LOG.error(e.toString(), e);
