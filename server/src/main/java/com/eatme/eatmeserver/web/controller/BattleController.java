@@ -2,7 +2,6 @@ package com.eatme.eatmeserver.web.controller;
 
 import com.eatme.eatmeserver.business.entity.PlayerAction;
 import com.eatme.eatmeserver.business.service.BattleService;
-import com.eatme.eatmeserver.business.service.PlayerService;
 import com.eatme.eatmeserver.util.WebSocketMessenger;
 import com.eatme.eatmeserver.web.message.ActionMsg;
 import com.eatme.eatmeserver.web.message.BattleMsg;
@@ -23,9 +22,6 @@ public class BattleController {
     private static final Logger log = LoggerFactory.getLogger(BattleController.class);
 
     @Autowired
-    private PlayerService playerService;
-
-    @Autowired
     private BattleService battleService;
 
     @Autowired
@@ -34,7 +30,7 @@ public class BattleController {
     @MessageMapping("/wait")
     public void wait(@Valid PlayerMsg msg) {
         log.info("/wait " + msg);
-        int ret = playerService.wait(msg.getPlayerId());
+        int ret = battleService.wait(msg.getPlayerId());
         if (ret != 0) {
             messenger.sendErr(msg.getPlayerId(), ret);
         }
@@ -44,7 +40,7 @@ public class BattleController {
     @MessageMapping("/quit-wait")
     public void quitWait(@Valid PlayerMsg msg) {
         log.info("/quit-wait " + msg);
-        int ret = playerService.quitWait(msg.getPlayerId());
+        int ret = battleService.quitWait(msg.getPlayerId());
         if (ret != 0) {
             messenger.sendErr(msg.getPlayerId(), ret);
         }

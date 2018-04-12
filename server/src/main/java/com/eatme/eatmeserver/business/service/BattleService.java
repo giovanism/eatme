@@ -8,6 +8,7 @@ import com.eatme.eatmeserver.business.entity.PlayerState;
 import com.eatme.eatmeserver.business.repository.BattleRepository;
 import com.eatme.eatmeserver.business.repository.PlayerRepository;
 import com.eatme.eatmeserver.business.repository.WaitingQueueRepository;
+import com.eatme.eatmeserver.config.EatMeProperty;
 import com.eatme.eatmeserver.util.RedisTransaction;
 import com.eatme.eatmeserver.util.WebSocketMessenger;
 import org.slf4j.Logger;
@@ -28,6 +29,15 @@ public class BattleService {
     private static final Logger log = LoggerFactory.getLogger(BattleService.class);
 
     @Autowired
+    private EatMeProperty eatMeProp;
+
+    @Autowired
+    private WebSocketMessenger messenger;
+
+    @Autowired
+    private RedisTransaction redisTransaction;
+
+    @Autowired
     private PlayerRepository playerRepo;
 
     @Autowired
@@ -36,11 +46,58 @@ public class BattleService {
     @Autowired
     private BattleRepository battleRepo;
 
-    @Autowired
-    private WebSocketMessenger messenger;
+    public int wait(String playerId) {
+        final String LOG_HEADER = "wait() | playerId=" + playerId;
+        try {
+            Player player = playerRepo.findById(playerId);
+            log.info(LOG_HEADER + " | found player: " + player.toString());
+            if (player.getState() != PlayerState.OFFLINE) {
+                return ErrCode.ERR_INVALID_STATE;
+            }
+            synchronized (BattleService.class) {  // Ensure queue size consistency
+                long size = waitingQueueRepo.size();
+                long capacity = eatMeProp.getWaitingQueue().getCapacity();
+                log.info(LOG_HEADER + " | queue_size=" + size + " | queue_capacity=" + capacity);
+                if (size >= capacity) {
+                    return ErrCode.ERR_WAITING_QUEUE_PUSH_FULL;
+                }
+                redisTransaction.exec(new RedisTransaction.Callback() {
+                    @Override
+                    public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
+                        player.setState(PlayerState.WAITING);
+                        playerRepo.createOrUpdate(player);
+                        waitingQueueRepo.push(player.getId());
+                    }
+                });
+            }
+            return 0;
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return ErrCode.ERR_SERVER;
+        }
+    }
 
-    @Autowired
-    private RedisTransaction redisTransaction;
+    public int quitWait(String playerId) {
+        final String LOG_HEADER = "quitWait() | playerId=" + playerId;
+        try {
+            Player player = playerRepo.findById(playerId);
+            log.info(LOG_HEADER + " | found player: " + player.toString());
+            if (player.getState() != PlayerState.WAITING) {
+                return ErrCode.ERR_INVALID_STATE;
+            }
+            redisTransaction.exec(new RedisTransaction.Callback() {
+                @Override
+                public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
+                    playerRepo.delById(playerId);
+                    waitingQueueRepo.del(playerId);
+                }
+            });
+            return 0;
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return ErrCode.ERR_SERVER;
+        }
+    }
 
     public int ready(String playerId, String battleId) {
         final String LOG_HEADER = "ready() | playerId=" + playerId + " | battleId=" + battleId;
@@ -144,11 +201,6 @@ public class BattleService {
             // Check both action received
             if (opponent.getAction() != PlayerAction.NO_ACTION) {
                 log.info(LOG_HEADER + " | both action received");
-                // Broadcast
-                messenger.send(playerId, WebSocketMessenger.MsgType.OPPONENT_ACTION,
-                    opponent.getAction().ordinal());
-                messenger.send(opponentId, WebSocketMessenger.MsgType.OPPONENT_ACTION,
-                    action.ordinal());
                 // Clear both actions
                 redisTransaction.exec(new RedisTransaction.Callback() {
                     @Override
@@ -159,6 +211,11 @@ public class BattleService {
                         playerRepo.createOrUpdate(opponent);
                     }
                 });
+                // Broadcast
+                messenger.send(playerId, WebSocketMessenger.MsgType.OPPONENT_ACTION,
+                    Integer.parseInt(rawAction));
+                messenger.send(opponentId, WebSocketMessenger.MsgType.OPPONENT_ACTION,
+                    action.ordinal());
             }
             return 0;
         } catch (Exception e) {
