@@ -3,9 +3,10 @@ module.exports = (() => {
     const DEST_ENDPOINT = "/ws/ep";
     const DEST_SUBSCRIBE = "/ws/sb";
     const DEST_WAIT = "/btl/wait";
+    const DEST_QUIT_WAIT = "/btl/quit-wait";
     const DEST_READY = "/btl/ready";
     const DEST_ACTION = "/btl/action";
-    const DEST_QUIT_WAIT = "/btl/quit-wait";
+    const DEST_DONE = "/btl/done";
     const DEST_QUIT_BATTLE = "/btl/quit-btl";
 
     const STATE_OFFLINE = "0";
@@ -32,7 +33,7 @@ module.exports = (() => {
     const ERR_WAITING_QUEUE_PUSH_FULL = "100";
     const ERR_OPPONENT_QUIT = "200";
 
-    const INTERVAL_ACTION = 1000;  // ms
+    const STEP_INTERVAL = 1000;  // ms
 
     const FREQ_SWITCH = 10;
     const FREQ_FOOD = 5;
@@ -81,10 +82,19 @@ module.exports = (() => {
         if (!playerId) playerId = UUID.generate().replace(/-/g, "");
     }
 
-    const reset = clrPlayerId => {
+    const resetToWait = clrPlayerId => {
         if (clrPlayerId === true) playerId = null;
         setPlayerState(STATE_OFFLINE);
         battleId = null;
+        random = null;
+        steps = 0;
+        lastAction = null;
+        nextAction = null;
+        lastActionFinished = true;
+    }
+
+    const resetToReady = () => {
+        setPlayerState(STATE_NOT_READY);
         random = null;
         steps = 0;
         lastAction = null;
@@ -97,7 +107,7 @@ module.exports = (() => {
             DEST_ENDPOINT,
             sucCb,
             err => {
-                reset(true);
+                resetToWait(true);
                 if (errCb) errCb(err);
             },
             DEST_SUBSCRIBE + "/" + playerId,
@@ -133,7 +143,7 @@ module.exports = (() => {
             send(DEST_QUIT_WAIT, {
                 playerId: playerId
             });
-            reset();
+            resetToWait();
         } else {
             throw new Error("Call quitWait() in state " + playerState);
         }
@@ -152,7 +162,7 @@ module.exports = (() => {
     }
 
     const action = () => {
-        if (playerState === STATE_ATTACKING || playerState === STATE_DEFENDING) {
+        if (isPlaying()) {
             send(DEST_ACTION, {
                 playerId: playerId,
                 battleId: battleId,
@@ -165,20 +175,40 @@ module.exports = (() => {
         }
     }
 
+    const done = () => {
+        if (isPlaying()) {
+            send(DEST_DONE, {
+                playerId: playerId,
+                battleId: battleId
+            });
+            resetToReady();
+        } else {
+            throw new Error("Call done() in state " + playerState);
+        }
+    }
+
     const quitBattle = () => {
         if (playerState !== STATE_OFFLINE && playerState !== STATE_WAITING) {
             send(DEST_QUIT_BATTLE, {
                 playerId: playerId,
                 battleId: battleId
             });
-            reset();
+            resetToWait();
         } else {
             throw new Error("Call quitBattle() in state " + playerState);
         }
     }
 
+    const startCountDown = (ele, beg, end, cb) => {
+        timer.startCountDown(ele, beg, end, cb);
+    }
+
+    const stopCountDown = () => {
+        timer.stopCountDown();
+    }
+
     const startMainLoop = () => {
-        timer.startLoop(INTERVAL_ACTION, () => {
+        timer.startLoop(STEP_INTERVAL, () => {
             if (isPlaying() && lastActionFinished && nextAction) action();
         });
     }
@@ -192,11 +222,11 @@ module.exports = (() => {
         if (type === MSG_ERR) {
             handleErrMsg(data1);
         } else if (type === MSG_BID) {
-            handleBattleMsg(data1);
+            if (playerState === STATE_WAITING) handleBattleMsg(data1);
         } else if (type === MSG_START) {
-            handleStartMsg(data1, data2 === "1");
+            if (playerState === STATE_READY) handleStartMsg(data1, data2 === "1");
         } else if (type === MSG_OPPONENT_ACTION) {
-            handleOpponentActionMsg(data1);
+            if (isPlaying()) handleOpponentActionMsg(data1);
         }
         if (cb) cb(type, data1, data2);
     }
@@ -279,10 +309,11 @@ module.exports = (() => {
         wait: wait,
         quitWait: quitWait,
         ready: ready,
+        done: done,
         quitBattle: quitBattle,
 
-        startCountDown: timer.startCountDown,
-        stopCountDown: timer.stopCountDown,
+        startCountDown: startCountDown,
+        stopCountDown: stopCountDown,
 
         startMainLoop: startMainLoop,
         stopMainLoop: stopMainLoop

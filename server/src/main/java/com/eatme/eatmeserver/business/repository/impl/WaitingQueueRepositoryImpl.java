@@ -17,7 +17,7 @@ import javax.annotation.PostConstruct;
 @Repository
 public class WaitingQueueRepositoryImpl implements WaitingQueueRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WaitingQueueRepositoryImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(WaitingQueueRepositoryImpl.class);
 
     private static final String KEY = "eatme:wq";
 
@@ -39,7 +39,7 @@ public class WaitingQueueRepositoryImpl implements WaitingQueueRepository {
     @Override
     public void clear() {
         redisTemplate.delete(KEY);
-        LOG.info("clear() | waiting queue flushed");
+        log.info("clear() | waiting queue flushed");
     }
 
     @Override

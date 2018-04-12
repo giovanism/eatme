@@ -20,7 +20,7 @@ import java.util.Map;
 @Repository
 public class BattleRepositoryImpl implements BattleRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BattleRepositoryImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(BattleRepositoryImpl.class);
 
     private static final String KEY_PREFIX = "eatme:btl:";
     private static final String KEY_HASH_PLAYER1_ID = "p1id";

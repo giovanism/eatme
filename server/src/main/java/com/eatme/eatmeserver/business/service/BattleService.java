@@ -25,7 +25,7 @@ import java.util.UUID;
 @Service
 public class BattleService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BattleService.class);
+    private static final Logger log = LoggerFactory.getLogger(BattleService.class);
 
     @Autowired
     private PlayerRepository playerRepo;
@@ -46,19 +46,19 @@ public class BattleService {
         final String LOG_HEADER = "ready() | playerId=" + playerId + " | battleId=" + battleId;
         try {
             Player player = playerRepo.findById(playerId);
-            LOG.info(LOG_HEADER + " | found player: " + player.toString());
+            log.info(LOG_HEADER + " | found player: " + player.toString());
             if (player.getState() != PlayerState.NOT_READY) {
                 return ErrCode.ERR_INVALID_STATE;
             }
 
             Battle battle = battleRepo.findById(battleId);
-            LOG.info(LOG_HEADER + " | found battle: " + (battle == null ? null : battle.toString()));
+            log.info(LOG_HEADER + " | found battle: " + (battle == null ? null : battle.toString()));
             if (battle == null) {
                 return ErrCode.ERR_INVALID_BATTLE;
             }
 
             String opponentId = getOpponentId(playerId, battle);
-            LOG.info(LOG_HEADER + " | found opponent id: " + opponentId);
+            log.info(LOG_HEADER + " | found opponent id: " + opponentId);
             if (opponentId == null) {
                 return ErrCode.ERR_INVALID_BATTLE;
             }
@@ -67,20 +67,21 @@ public class BattleService {
                 @Override
                 public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
                     player.setState(PlayerState.READY);
+                    player.setAction(PlayerAction.NO_ACTION);
                     playerRepo.createOrUpdate(player);
                     playerRepo.findRawStateById(opponentId);
                     playerRepo.findRawActionById(opponentId);
                 }
             });
-            LOG.debug(LOG_HEADER + " | transaction results size: " + results.size());
+            log.debug(LOG_HEADER + " | transaction results size: " + results.size());
             String rawState = (String) results.get(0);
             String rawAction = (String) results.get(1);
             Player opponent = new Player(opponentId, rawState, rawAction);
-            LOG.info(LOG_HEADER + " | found opponent: " + opponent.toString());
+            log.info(LOG_HEADER + " | found opponent: " + opponent.toString());
 
             // Check both ready
             if (opponent.getState() == PlayerState.READY) {
-                LOG.info(LOG_HEADER + " | both ready");
+                log.info(LOG_HEADER + " | both ready");
                 redisTransaction.exec(new RedisTransaction.Callback() {
                     @Override
                     public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
@@ -97,7 +98,7 @@ public class BattleService {
             }
             return 0;
         } catch (Exception e) {
-            LOG.error(e.toString(), e);
+            log.error(e.toString(), e);
             return ErrCode.ERR_SERVER;
         }
     }
@@ -107,20 +108,20 @@ public class BattleService {
             + " | battleId=" + battleId + " | action=" + action.ordinal();
         try {
             Player player = playerRepo.findById(playerId);
-            LOG.info(LOG_HEADER + " | found player: " + player.toString());
+            log.info(LOG_HEADER + " | found player: " + player.toString());
             if (player.getState() != PlayerState.ATTACKING
                 && player.getState() != PlayerState.DEFENDING) {
                 return ErrCode.ERR_INVALID_STATE;
             }
 
             Battle battle = battleRepo.findById(battleId);
-            LOG.info(LOG_HEADER + " | found battle: " + (battle == null ? null : battle.toString()));
+            log.info(LOG_HEADER + " | found battle: " + (battle == null ? null : battle.toString()));
             if (battle == null) {
                 return ErrCode.ERR_INVALID_BATTLE;
             }
 
             String opponentId = getOpponentId(playerId, battle);
-            LOG.info(LOG_HEADER + " | found opponent id: " + opponentId);
+            log.info(LOG_HEADER + " | found opponent id: " + opponentId);
             if (opponentId == null) {
                 return ErrCode.ERR_INVALID_BATTLE;
             }
@@ -134,15 +135,15 @@ public class BattleService {
                     playerRepo.findRawActionById(opponentId);
                 }
             });
-            LOG.debug(LOG_HEADER + " | transaction results size: " + results.size());
+            log.debug(LOG_HEADER + " | transaction results size: " + results.size());
             String rawState = (String) results.get(0);
             String rawAction = (String) results.get(1);
             Player opponent = new Player(opponentId, rawState, rawAction);
-            LOG.info(LOG_HEADER + " | found opponent: " + opponent.toString());
+            log.info(LOG_HEADER + " | found opponent: " + opponent.toString());
 
             // Check both action received
             if (opponent.getAction() != PlayerAction.NO_ACTION) {
-                LOG.info(LOG_HEADER + " | both action received");
+                log.info(LOG_HEADER + " | both action received");
                 // Broadcast
                 messenger.send(playerId, WebSocketMessenger.MsgType.OPPONENT_ACTION,
                     opponent.getAction().ordinal());
@@ -161,7 +162,58 @@ public class BattleService {
             }
             return 0;
         } catch (Exception e) {
-            LOG.error(e.toString(), e);
+            log.error(e.toString(), e);
+            return ErrCode.ERR_SERVER;
+        }
+    }
+
+    public int done(String playerId, String battleId) {
+        final String LOG_HEADER = "done() | playerId=" + playerId + " | battleId=" + battleId;
+        try {
+            Player player = playerRepo.findById(playerId);
+            log.info(LOG_HEADER + " | found player: " + player.toString());
+            if (!player.isPlaying()) {
+                return ErrCode.ERR_INVALID_STATE;
+            }
+
+            Battle battle = battleRepo.findById(battleId);
+            log.info(LOG_HEADER + " | found battle: " + (battle == null ? null : battle.toString()));
+            if (battle == null) {
+                return ErrCode.ERR_INVALID_BATTLE;
+            }
+
+            String opponentId = getOpponentId(playerId, battle);
+            log.info(LOG_HEADER + " | found opponent id: " + opponentId);
+            if (opponentId == null) {
+                return ErrCode.ERR_INVALID_BATTLE;
+            }
+
+            List<Object> results = redisTransaction.exec(new RedisTransaction.Callback() {
+                @Override
+                public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
+                    player.setState(PlayerState.NOT_READY);
+                    player.setAction(PlayerAction.NO_ACTION);
+                    playerRepo.createOrUpdate(player);
+                    playerRepo.findRawStateById(opponentId);
+                    playerRepo.findRawActionById(opponentId);
+                }
+            });
+            log.debug(LOG_HEADER + " | transaction results size: " + results.size());
+            String rawState = (String) results.get(0);
+            String rawAction = (String) results.get(1);
+            Player opponent = new Player(opponentId, rawState, rawAction);
+            log.info(LOG_HEADER + " | found opponent: " + opponent.toString());
+
+            // Check both done
+            if (!opponent.isPlaying()) {
+                log.info(LOG_HEADER + " | both done");
+                // Reset battle
+                battle.resetSeed();
+                battleRepo.createOrUpdate(battle);
+            }
+            return 0;
+        } catch (Exception e) {
+            log.error(e.toString(), e);
             return ErrCode.ERR_SERVER;
         }
     }
@@ -170,20 +222,20 @@ public class BattleService {
         final String LOG_HEADER = "quitBattle() | playerId=" + playerId + " | battleId=" + battleId;
         try {
             Player player = playerRepo.findById(playerId);
-            LOG.info(LOG_HEADER + " | found player: " + player.toString());
+            log.info(LOG_HEADER + " | found player: " + player.toString());
             if (player.getState() == PlayerState.OFFLINE
                 || player.getState() == PlayerState.WAITING) {
                 return ErrCode.ERR_INVALID_STATE;
             }
 
             Battle battle = battleRepo.findById(battleId);
-            LOG.info(LOG_HEADER + " | found battle: " + (battle == null ? null : battle.toString()));
+            log.info(LOG_HEADER + " | found battle: " + (battle == null ? null : battle.toString()));
             if (battle == null) {
                 return ErrCode.ERR_INVALID_BATTLE;
             }
 
             String opponentId = getOpponentId(playerId, battle);
-            LOG.info(LOG_HEADER + " | found opponent id: " + opponentId);
+            log.info(LOG_HEADER + " | found opponent id: " + opponentId);
             if (opponentId == null) {
                 return ErrCode.ERR_INVALID_BATTLE;
             }
@@ -192,19 +244,20 @@ public class BattleService {
                 @Override
                 public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
                     player.setState(PlayerState.OFFLINE);
+                    player.setAction(PlayerAction.NO_ACTION);
                     playerRepo.createOrUpdate(player);
                     playerRepo.findRawStateById(opponentId);
                     playerRepo.findRawActionById(opponentId);
                 }
             });
-            LOG.debug(LOG_HEADER + " | transaction results size: " + results.size());
+            log.debug(LOG_HEADER + " | transaction results size: " + results.size());
             String rawState = (String) results.get(0);
             String rawAction = (String) results.get(1);
             Player opponent = new Player(opponentId, rawState, rawAction);
-            LOG.info(LOG_HEADER + " | found opponent: " + opponent.toString());
+            log.info(LOG_HEADER + " | found opponent: " + opponent.toString());
 
             if (opponent.getState() == PlayerState.OFFLINE) {  // Both offline
-                LOG.info(LOG_HEADER + " | both offline");
+                log.info(LOG_HEADER + " | both offline");
                 // Delete battle and players
                 redisTransaction.exec(new RedisTransaction.Callback() {
                     @Override
@@ -217,15 +270,22 @@ public class BattleService {
             } else {
                 // Notify opponent quit
                 messenger.sendErr(opponentId, ErrCode.ERR_OPPONENT_QUIT);
-                LOG.info(LOG_HEADER + " | send opponent quit to player: " + opponentId);
+                log.info(LOG_HEADER + " | send opponent quit to player: " + opponentId);
             }
             return 0;
         } catch (Exception e) {
-            LOG.error(e.toString(), e);
+            log.error(e.toString(), e);
             return ErrCode.ERR_SERVER;
         }
     }
 
+    /**
+     * Get the id of the player's opponent.
+     *
+     * @param playerId The id of the player
+     * @param battle The battle of the two players
+     * @return The id of the opponent, or null if player id not belong to the battle.
+     */
     private @Nullable String getOpponentId(String playerId, Battle battle) {
         String player1Id = battle.getPlayer1Id();
         String player2Id = battle.getPlayer2Id();
@@ -251,14 +311,14 @@ public class BattleService {
             } else if (player1.getState() == PlayerState.WAITING) {
                 String id = player1.getId();
                 waitingQueueRepo.push(id);
-                LOG.info("scheduleBattle() | push back player id: " + id);
+                log.info("scheduleBattle() | push back player id: " + id);
             } else if (player2.getState() == PlayerState.WAITING) {
                 String id = player2.getId();
                 waitingQueueRepo.push(id);
-                LOG.info("scheduleBattle() | push back player id: " + id);
+                log.info("scheduleBattle() | push back player id: " + id);
             }
         } catch (Exception e) {
-            LOG.error(e.toString(), e);
+            log.error(e.toString(), e);
         }
     }
 
@@ -270,12 +330,14 @@ public class BattleService {
             public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
                 battleRepo.createOrUpdate(battle);
                 player1.setState(PlayerState.NOT_READY);
+                player1.setAction(PlayerAction.NO_ACTION);
                 playerRepo.createOrUpdate(player1);
                 player2.setState(PlayerState.NOT_READY);
+                player2.setAction(PlayerAction.NO_ACTION);
                 playerRepo.createOrUpdate(player2);
             }
         });
-        LOG.info("createBattle() | create battle: " + battle.toString());
+        log.info("createBattle() | create battle: " + battle.toString());
         // Broadcast
         messenger.send(player1.getId(), WebSocketMessenger.MsgType.BID, battleId);
         messenger.send(player2.getId(), WebSocketMessenger.MsgType.BID, battleId);

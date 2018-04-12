@@ -4,13 +4,15 @@ import java.util.Random;
 
 public class Battle {
 
+    private static final Random random = new Random();
+
     private String id;
     private String player1Id;
     private String player2Id;
     private long randSeed;
 
     public Battle(String id, String player1Id, String player2Id) {
-        this(id, player1Id, player2Id, new Random().nextLong());
+        this(id, player1Id, player2Id, random.nextLong());
     }
 
     public Battle(String id, String player1Id, String player2Id, String rawSeed) {
@@ -28,6 +30,10 @@ public class Battle {
     public String toString() {
         return "battleId=" + id + "&player1Id=" + player1Id
             + "&player2Id=" + player2Id + "randSeed=" + randSeed;
+    }
+
+    public void resetSeed() {
+        randSeed = random.nextLong();
     }
 
     public String getId() {

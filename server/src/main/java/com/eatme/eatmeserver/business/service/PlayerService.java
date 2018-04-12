@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class PlayerService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PlayerService.class);
+    private static final Logger log = LoggerFactory.getLogger(PlayerService.class);
 
     @Autowired
     private EatMeProperty eatMeProp;
@@ -35,14 +35,14 @@ public class PlayerService {
         final String LOG_HEADER = "wait() | playerId=" + playerId;
         try {
             Player player = playerRepo.findById(playerId);
-            LOG.info(LOG_HEADER + " | found player: " + player.toString());
+            log.info(LOG_HEADER + " | found player: " + player.toString());
             if (player.getState() != PlayerState.OFFLINE) {
                 return ErrCode.ERR_INVALID_STATE;
             }
             synchronized (PlayerService.class) {  // Ensure queue size consistency
                 long size = waitingQueueRepo.size();
                 long capacity = eatMeProp.getWaitingQueue().getCapacity();
-                LOG.info(LOG_HEADER + " | queue_size=" + size + " | queue_capacity=" + capacity);
+                log.info(LOG_HEADER + " | queue_size=" + size + " | queue_capacity=" + capacity);
                 if (size >= capacity) {
                     return ErrCode.ERR_WAITING_QUEUE_PUSH_FULL;
                 }
@@ -57,7 +57,7 @@ public class PlayerService {
             }
             return 0;
         } catch (Exception e) {
-            LOG.error(e.toString(), e);
+            log.error(e.toString(), e);
             return ErrCode.ERR_SERVER;
         }
     }
@@ -66,7 +66,7 @@ public class PlayerService {
         final String LOG_HEADER = "quitWait() | playerId=" + playerId;
         try {
             Player player = playerRepo.findById(playerId);
-            LOG.info(LOG_HEADER + " | found player: " + player.toString());
+            log.info(LOG_HEADER + " | found player: " + player.toString());
             if (player.getState() != PlayerState.WAITING) {
                 return ErrCode.ERR_INVALID_STATE;
             }
@@ -79,7 +79,7 @@ public class PlayerService {
             });
             return 0;
         } catch (Exception e) {
-            LOG.error(e.toString(), e);
+            log.error(e.toString(), e);
             return ErrCode.ERR_SERVER;
         }
     }

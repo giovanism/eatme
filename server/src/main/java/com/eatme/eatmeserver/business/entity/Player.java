@@ -21,6 +21,10 @@ public class Player {
         this.action = action;
     }
 
+    public boolean isPlaying() {
+        return state == PlayerState.ATTACKING || state == PlayerState.DEFENDING;
+    }
+
     @Override
     public String toString() {
         return "playerId=" + id + "&state=" + state.ordinal() + "&action=" + action.ordinal();

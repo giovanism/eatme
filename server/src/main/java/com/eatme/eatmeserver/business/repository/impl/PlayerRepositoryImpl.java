@@ -23,7 +23,7 @@ import java.util.Map;
 @Repository
 public class PlayerRepositoryImpl implements PlayerRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PlayerRepositoryImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(PlayerRepositoryImpl.class);
 
     private static final String KEY_PREFIX = "eatme:plyr:";
     private static final String KEY_HASH_STATE = "state";

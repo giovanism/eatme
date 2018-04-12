@@ -20,7 +20,7 @@ import javax.validation.Valid;
 @MessageMapping("/btl")
 public class BattleController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BattleController.class);
+    private static final Logger log = LoggerFactory.getLogger(BattleController.class);
 
     @Autowired
     private PlayerService playerService;
@@ -33,53 +33,63 @@ public class BattleController {
 
     @MessageMapping("/wait")
     public void wait(@Valid PlayerMsg msg) {
-        LOG.info("/wait " + msg);
+        log.info("/wait " + msg);
         int ret = playerService.wait(msg.getPlayerId());
         if (ret != 0) {
             messenger.sendErr(msg.getPlayerId(), ret);
         }
-        LOG.info("/wait " + msg + " | ret: " + ret);
+        log.info("/wait " + msg + " | ret: " + ret);
     }
 
     @MessageMapping("/quit-wait")
     public void quitWait(@Valid PlayerMsg msg) {
-        LOG.info("/quit-wait " + msg);
+        log.info("/quit-wait " + msg);
         int ret = playerService.quitWait(msg.getPlayerId());
         if (ret != 0) {
             messenger.sendErr(msg.getPlayerId(), ret);
         }
-        LOG.info("/quit-wait " + msg + " | ret: " + ret);
+        log.info("/quit-wait " + msg + " | ret: " + ret);
     }
 
     @MessageMapping("/ready")
     public void ready(@Valid BattleMsg msg) {
-        LOG.info("/ready " + msg);
+        log.info("/ready " + msg);
         int ret = battleService.ready(msg.getPlayerId(), msg.getBattleId());
         if (ret != 0) {
             messenger.sendErr(msg.getPlayerId(), ret);
         }
-        LOG.info("/ready " + msg + " | ret: " + ret);
+        log.info("/ready " + msg + " | ret: " + ret);
     }
 
     @MessageMapping("/action")
     public void action(@Valid ActionMsg msg) {
-        LOG.info("/action " + msg);
+        log.info("/action " + msg);
         int ret = battleService.action(msg.getPlayerId(),
             msg.getBattleId(), PlayerAction.values()[msg.getAction()]);
         if (ret != 0) {
             messenger.sendErr(msg.getPlayerId(), ret);
         }
-        LOG.info("/action " + msg + " | ret: " + ret);
+        log.info("/action " + msg + " | ret: " + ret);
+    }
+
+    @MessageMapping("/done")
+    public void done(@Valid BattleMsg msg) {
+        log.info("/done " + msg);
+        int ret = battleService.done(msg.getPlayerId(), msg.getBattleId());
+        if (ret != 0) {
+            messenger.sendErr(msg.getPlayerId(), ret);
+        }
+        log.info("/done " + msg + " | ret: " + ret);
     }
 
     @MessageMapping("/quit-btl")
     public void quitBattle(@Valid BattleMsg msg) {
-        LOG.info("/quit-btl " + msg);
+        log.info("/quit-btl " + msg);
         int ret = battleService.quitBattle(msg.getPlayerId(), msg.getBattleId());
         if (ret != 0) {
             messenger.sendErr(msg.getPlayerId(), ret);
         }
-        LOG.info("/quit-btl " + msg + " | ret: " + ret);
+        log.info("/quit-btl " + msg + " | ret: " + ret);
     }
 
 }

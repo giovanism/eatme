@@ -37,7 +37,7 @@ $(() => {
         show(btnQuit);
         eatme.startCountDown(btnFind, TIME_WAIT - 1, 0, () => {
             if (eatme.getPlayerState() === eatme.STATE_WAITING) {
-                resetToFind();
+                resetToWait();
                 quit();
                 setInfo("Timeout. Please try again.");
             }
@@ -48,7 +48,7 @@ $(() => {
         } else {
             eatme.connect(eatme.wait,
                 err => {
-                    resetToFind();
+                    resetToWait();
                     setInfo("Failed to connect server. Please try again.");
                 },
                 handleData
@@ -61,7 +61,7 @@ $(() => {
         clrInfo();
         eatme.startCountDown(btnReady, TIME_READY - 1, 0, () => {
             if (eatme.getPlayerState() === eatme.STATE_READY) {
-                resetToFind();
+                resetToWait();
                 eatme.quitBattle();
                 setInfo("Opponent no respond. Please try again.");
             }
@@ -84,7 +84,7 @@ $(() => {
                 confirm: {
                     text: "Yes",
                     action: () => {
-                        resetToFind();
+                        resetToWait();
                         clrInfo();
                         quit();
                     }
@@ -100,6 +100,11 @@ $(() => {
 
     eatme.setOnTakingActions((myAction, opponentAction) => {
         appendInfo("(" + myAction + "," + opponentAction + ")");
+        if (myAction === eatme.ACTION_DOWN && opponentAction === eatme.ACTION_DOWN) {  // Test done()
+            resetToReady();
+            setInfo(eatme.getPlayerState() === eatme.STATE_ATTACKING ? "You win!" : "You lose!");
+            eatme.done();
+        }
     })
 
     eatme.setOnCreatingFood((foodPos) => {
@@ -119,7 +124,7 @@ $(() => {
         eatme.stopCountDown();
         if (type === eatme.MSG_ERR) {
             const errCode = data1;
-            resetToFind();
+            resetToWait();
             if (errCode === eatme.ERR_SERVER) {
                 setInfo("Server error. Please try again.");
             } else if (errCode === eatme.ERR_INVALID_STATE) {
@@ -159,12 +164,20 @@ $(() => {
         })
     }
 
-    function resetToFind() {
+    function resetToWait() {
         eatme.stopCountDown();
         eatme.stopMainLoop();
         hide(btnReady);
         hide(btnQuit);
         show(btnFind);
+    }
+
+    function resetToReady() {
+        eatme.stopCountDown();
+        eatme.stopMainLoop();
+        hide(btnFind);
+        show(btnReady);
+        show(btnQuit);
     }
 
     function quit() {
