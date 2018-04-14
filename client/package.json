@@ -5,13 +5,20 @@
   "scripts": {
     "build": "cross-env NODE_ENV=dev gulp build",
     "build-prod": "cross-env NODE_ENV=prod gulp build",
-    "clean": "gulp clean"
+    "clean": "gulp clean",
+    "lint": "eslint src/assets/js/core/*.js"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "cross-env": "^5.1.4",
     "del": "^3.0.0",
+    "eslint": "^4.19.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.0.1",
     "gulp": "^3.9.1",
     "gulp-babel": "^7.0.1",
     "gulp-browserify": "^0.5.1",

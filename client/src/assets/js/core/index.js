@@ -1,225 +1,223 @@
 $(() => {
+  // seconds
+  const TIME_WAIT = 5
+  const TIME_READY = 10
+  const TIME_CONFIRM = 10
 
-    // seconds
-    const TIME_WAIT = 5;
-    const TIME_READY = 10;
-    const TIME_CONFIRM = 10;
+  const eatme = require('./eatme.js')
 
-    const eatme = require("./eatme.js");
+  const btnFind = $('button#find-btn')
+  const btnReady = $('button#ready-btn')
+  const btnQuit = $('button#quit-btn')
+  const pPrompt = $('p#prompt')
 
-    const btnFind = $("button#find-btn");
-    const btnReady = $("button#ready-btn");
-    const btnQuit = $("button#quit-btn");
-    const pPrompt = $("p#prompt");
+  $(window).on('beforeunload', () => {
+    quit()
+    eatme.disconnect()
+  })
 
-    $(window).on("beforeunload", () => {
-        quit();
-        eatme.disconnect();
-    });
+  $(document).keydown((event) => {
+    if (eatme.isPlaying()) {
+      if (event.which === 37) {
+        eatme.setNextAction(eatme.ACTION_LEFT)
+      } else if (event.which === 38) {
+        eatme.setNextAction(eatme.ACTION_UP)
+      } else if (event.which === 39) {
+        eatme.setNextAction(eatme.ACTION_RIGHT)
+      } else if (event.which === 40) {
+        eatme.setNextAction(eatme.ACTION_DOWN)
+      }
+    }
+  })
 
-    $(document).keydown((event) => {
-        if (eatme.isPlaying()) {
-            if (event.which === 37) {
-                eatme.setNextAction(eatme.ACTION_LEFT);
-            } else if (event.which === 38) {
-                eatme.setNextAction(eatme.ACTION_UP);
-            } else if (event.which === 39) {
-                eatme.setNextAction(eatme.ACTION_RIGHT);
-            } else if (event.which === 40) {
-                eatme.setNextAction(eatme.ACTION_DOWN);
-            }
+  btnFind.click(() => {
+    disable(btnFind)
+    clrInfo()
+    show(btnQuit)
+    eatme.startCountDown(btnFind, TIME_WAIT - 1, 0, () => {
+      if (eatme.getPlayerState() === eatme.STATE_WAITING) {
+        resetToWait()
+        quit()
+        setInfo('Timeout. Please try again.')
+      }
+    })
+    eatme.genPlayerId()
+    if (eatme.isConnected()) {
+      eatme.wait()
+    } else {
+      eatme.connect(eatme.wait,
+        () => {
+          resetToWait()
+          setInfo('Failed to connect server. Please try again.')
+        },
+        handleData
+      )
+    }
+  })
+
+  btnReady.click(() => {
+    disable(btnReady)
+    clrInfo()
+    eatme.startCountDown(btnReady, TIME_READY - 1, 0, () => {
+      if (eatme.getPlayerState() === eatme.STATE_READY) {
+        resetToWait()
+        eatme.quitBattle()
+        setInfo('Opponent no respond. Please try again.')
+      }
+    })
+    eatme.ready()
+  })
+
+  btnQuit.click(() => {
+    $.confirm({
+      title: 'Confirm',
+      content: 'Are you sure to quit?',
+      autoClose: 'cancel|' + (TIME_CONFIRM * 1000),
+      draggable: false,
+      theme: 'bootstrap',
+      animateFromElement: false,
+      animation: 'scale',
+      closeAnimation: 'scale',
+      animationSpeed: 200,
+      buttons: {
+        confirm: {
+          text: 'Yes',
+          action: () => {
+            resetToWait()
+            clrInfo()
+            quit()
+          }
+        },
+        cancel: {
+          text: 'No',
+          btnClass: 'btn-blue',
+          action: () => {}
         }
+      }
     })
+  })
 
-    btnFind.click(() => {
-        disable(btnFind);
-        clrInfo();
-        show(btnQuit);
-        eatme.startCountDown(btnFind, TIME_WAIT - 1, 0, () => {
-            if (eatme.getPlayerState() === eatme.STATE_WAITING) {
-                resetToWait();
-                quit();
-                setInfo("Timeout. Please try again.");
-            }
-        })
-        eatme.genPlayerId();
-        if (eatme.isConnected()) {
-            eatme.wait();
-        } else {
-            eatme.connect(eatme.wait,
-                err => {
-                    resetToWait();
-                    setInfo("Failed to connect server. Please try again.");
-                },
-                handleData
-            );
-        }
-    });
+  eatme.setOnTakingActions((myAction, opponentAction) => {
+    appendInfo('(' + myAction + ',' + opponentAction + ')')
+    if (myAction === eatme.ACTION_DOWN && opponentAction === eatme.ACTION_DOWN) { // Test done()
+      resetToReady()
+      setInfo(eatme.getPlayerState() === eatme.STATE_ATTACKING ? 'You win!' : 'You lose!')
+      eatme.done()
+    }
+  })
 
-    btnReady.click(() => {
-        disable(btnReady);
-        clrInfo();
-        eatme.startCountDown(btnReady, TIME_READY - 1, 0, () => {
-            if (eatme.getPlayerState() === eatme.STATE_READY) {
-                resetToWait();
-                eatme.quitBattle();
-                setInfo("Opponent no respond. Please try again.");
-            }
-        })
-        eatme.ready();
-    })
+  eatme.setOnCreatingFood((foodPos) => {
+    appendInfo('Food: ' + foodPos)
+  })
 
-    btnQuit.click(() => {
-        $.confirm({
-            title: "Confirm",
-            content: 'Are you sure to quit?',
-            autoClose: "cancel|" + (TIME_CONFIRM * 1000),
-            draggable: false,
-            theme: "bootstrap",
-            animateFromElement: false,
-            animation: "scale",
-            closeAnimation: "scale",
-            animationSpeed: 200,
-            buttons: {
-                confirm: {
-                    text: "Yes",
-                    action: () => {
-                        resetToWait();
-                        clrInfo();
-                        quit();
-                    }
-                },
-                cancel: {
-                    text: "No",
-                    btnClass: 'btn-blue',
-                    action: () => {}
-                }
-            }
-        });
-    })
+  eatme.setOnSwitchingRole(() => {
+    const state = eatme.getPlayerState()
+    if (state === eatme.STATE_ATTACKING) {
+      appendInfo('Attack!')
+    } else if (state === eatme.STATE_DEFENDING) {
+      appendInfo('Defend!')
+    }
+  })
 
-    eatme.setOnTakingActions((myAction, opponentAction) => {
-        appendInfo("(" + myAction + "," + opponentAction + ")");
-        if (myAction === eatme.ACTION_DOWN && opponentAction === eatme.ACTION_DOWN) {  // Test done()
-            resetToReady();
-            setInfo(eatme.getPlayerState() === eatme.STATE_ATTACKING ? "You win!" : "You lose!");
-            eatme.done();
-        }
-    })
+  function handleData(type, data1, data2) {
+    eatme.stopCountDown()
+    if (type === eatme.MSG_ERR) {
+      const errCode = data1
+      resetToWait()
+      if (errCode === eatme.ERR_SERVER) {
+        setInfo('Server error. Please try again.')
+      } else if (errCode === eatme.ERR_INVALID_STATE) {
+        setInfo('Invalid state. Please try again.')
+      } else if (errCode === eatme.ERR_INVALID_BATTLE) {
+        setInfo('Invalid battle and player ID. Please try again.')
+      } else if (errCode === eatme.ERR_WAITING_QUEUE_PUSH_FULL) {
+        setInfo('Waiting pool is full. Please try again.')
+      } else if (errCode === eatme.ERR_OPPONENT_QUIT) {
+        eatme.quitBattle()
+        setInfo('Opponent quit. Please try again.')
+      }
+    } else if (type === eatme.MSG_BID) {
+      const battleId = data1
+      hide(btnFind)
+      show(btnReady)
+      show(btnQuit)
+      setInfo('Find battle: ' + battleId)
+    } else if (type === eatme.MSG_START) {
+      hide(btnReady)
+      startGame()
+    }
+  }
 
-    eatme.setOnCreatingFood((foodPos) => {
-        appendInfo("Food: " + foodPos);
-    })
-
-    eatme.setOnSwitchingRole(() => {
-        const state = eatme.getPlayerState();
+  function startGame() {
+    eatme.startCountDown(pPrompt, 3, 1, () => {
+      setInfo('Start!')
+      setTimeout(() => {
+        const state = eatme.getPlayerState()
         if (state === eatme.STATE_ATTACKING) {
-            appendInfo("Attack!");
+          setInfo('Attacking!')
         } else if (state === eatme.STATE_DEFENDING) {
-            appendInfo("Defend!");
+          setInfo('Defending!')
         }
+        eatme.startMainLoop()
+      }, 1000)
     })
+  }
 
-    function handleData(type, data1, data2) {
-        eatme.stopCountDown();
-        if (type === eatme.MSG_ERR) {
-            const errCode = data1;
-            resetToWait();
-            if (errCode === eatme.ERR_SERVER) {
-                setInfo("Server error. Please try again.");
-            } else if (errCode === eatme.ERR_INVALID_STATE) {
-                setInfo("Invalid state. Please try again.");
-            } else if (errCode === eatme.ERR_INVALID_BATTLE) {
-                setInfo("Invalid battle and player ID. Please try again.");
-            } else if (errCode === eatme.ERR_WAITING_QUEUE_PUSH_FULL) {
-                setInfo("Waiting pool is full. Please try again.");
-            } else if (errCode === eatme.ERR_OPPONENT_QUIT) {
-                eatme.quitBattle();
-                setInfo("Opponent quit. Please try again.");
-            }
-        } else if (type === eatme.MSG_BID) {
-            const battleId = data1;
-            hide(btnFind);
-            show(btnReady);
-            show(btnQuit);
-            setInfo("Find battle: " + battleId);
-        } else if (type === eatme.MSG_START) {
-            hide(btnReady);
-            startGame();
-        }
+  function resetToWait() {
+    eatme.stopCountDown()
+    eatme.stopMainLoop()
+    hide(btnReady)
+    hide(btnQuit)
+    show(btnFind)
+  }
+
+  function resetToReady() {
+    eatme.stopCountDown()
+    eatme.stopMainLoop()
+    hide(btnFind)
+    show(btnReady)
+    show(btnQuit)
+  }
+
+  function quit() {
+    const state = eatme.getPlayerState()
+    if (state === eatme.STATE_OFFLINE) {
+      return
     }
-
-    function startGame() {
-        eatme.startCountDown(pPrompt, 3, 1, () => {
-            setInfo("Start!");
-            setTimeout(() => {
-                const state = eatme.getPlayerState();
-                if (state === eatme.STATE_ATTACKING) {
-                    setInfo("Attacking!");
-                } else if (state === eatme.STATE_DEFENDING) {
-                    setInfo("Defending!");
-                }
-                eatme.startMainLoop();
-            }, 1000);
-        })
+    if (state === eatme.STATE_WAITING) {
+      eatme.quitWait()
+    } else {
+      eatme.quitBattle()
     }
+  }
 
-    function resetToWait() {
-        eatme.stopCountDown();
-        eatme.stopMainLoop();
-        hide(btnReady);
-        hide(btnQuit);
-        show(btnFind);
-    }
+  function enable(ele) {
+    ele.prop('disabled', false)
+  }
 
-    function resetToReady() {
-        eatme.stopCountDown();
-        eatme.stopMainLoop();
-        hide(btnFind);
-        show(btnReady);
-        show(btnQuit);
-    }
+  function disable(ele) {
+    ele.prop('disabled', true)
+  }
 
-    function quit() {
-        const state = eatme.getPlayerState();
-        if (state === eatme.STATE_OFFLINE) {
-            return;
-        }
-        if (state === eatme.STATE_WAITING) {
-            eatme.quitWait();
-        } else {
-            eatme.quitBattle();
-        }
-    }
+  function show(ele) {
+    enable(ele)
+    ele.show()
+  }
 
-    function enable(ele) {
-        ele.prop("disabled", false);
-    }
+  function hide(ele) {
+    disable(ele)
+    ele.hide()
+  }
 
-    function disable(ele) {
-        ele.prop("disabled", true);
-    }
+  function setInfo(info) {
+    pPrompt.html(info)
+  }
 
-    function show(ele) {
-        enable(ele);
-        ele.show();
-    }
+  function appendInfo(info) {
+    pPrompt.html(pPrompt.html() + info)
+  }
 
-    function hide(ele) {
-        disable(ele);
-        ele.hide();
-    }
-
-    function setInfo(info) {
-        pPrompt.html(info);
-    }
-
-    function appendInfo(info) {
-        pPrompt.html(pPrompt.html() + info);
-    }
-
-    function clrInfo() {
-        pPrompt.text("");
-    }
-
+  function clrInfo() {
+    pPrompt.text('')
+  }
 })
