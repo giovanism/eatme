@@ -39,7 +39,7 @@ module.exports = (() => {
   const FREQ_SWITCH = 10
   const FREQ_FOOD = 5
 
-  const sktMgr = require('./sktmgr.js') // Manage websocket connection
+  const messenger = require('./messenger.js')
   const timer = require('./timer.js')
 
   let playerId = null
@@ -109,7 +109,7 @@ module.exports = (() => {
   }
 
   const connect = (sucCb, errCb, subscribeCb) => {
-    sktMgr.connect(
+    messenger.connect(
       DEST_ENDPOINT,
       sucCb,
       () => {
@@ -117,25 +117,23 @@ module.exports = (() => {
         if (errCb) errCb()
       },
       DEST_SUBSCRIBE + '/' + playerId,
-      msg => { handleMsg(msg.body, subscribeCb) }
+      msg => {
+        handleMsg(msg.body, subscribeCb)
+      }
     )
   }
 
   const disconnect = () => {
-    sktMgr.disconnect()
+    messenger.disconnect()
   }
 
   const isConnected = () => {
-    return sktMgr.isConnected()
-  }
-
-  const send = (dest, obj) => {
-    sktMgr.send(dest, obj)
+    return messenger.isConnected()
   }
 
   const wait = () => {
     if (playerState === STATE_OFFLINE) {
-      send(DEST_WAIT, {
+      messenger.send(DEST_WAIT, {
         playerId: playerId
       })
       setPlayerState(STATE_WAITING)
@@ -146,7 +144,7 @@ module.exports = (() => {
 
   const quitWait = () => {
     if (playerState === STATE_WAITING) {
-      send(DEST_QUIT_WAIT, {
+      messenger.send(DEST_QUIT_WAIT, {
         playerId: playerId
       })
       resetToWait()
@@ -157,7 +155,7 @@ module.exports = (() => {
 
   const ready = () => {
     if (playerState === STATE_NOT_READY) {
-      send(DEST_READY, {
+      messenger.send(DEST_READY, {
         playerId: playerId,
         battleId: battleId
       })
@@ -169,7 +167,7 @@ module.exports = (() => {
 
   const action = () => {
     if (isPlaying()) {
-      send(DEST_ACTION, {
+      messenger.send(DEST_ACTION, {
         playerId: playerId,
         battleId: battleId,
         action: Number(nextAction)
@@ -183,7 +181,7 @@ module.exports = (() => {
 
   const done = () => {
     if (isPlaying()) {
-      send(DEST_DONE, {
+      messenger.send(DEST_DONE, {
         playerId: playerId,
         battleId: battleId
       })
@@ -195,7 +193,7 @@ module.exports = (() => {
 
   const quitBattle = () => {
     if (playerState !== STATE_OFFLINE && playerState !== STATE_WAITING) {
-      send(DEST_QUIT_BATTLE, {
+      messenger.send(DEST_QUIT_BATTLE, {
         playerId: playerId,
         battleId: battleId
       })
