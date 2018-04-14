@@ -29,6 +29,7 @@ public class EatMeProperty {
     }
 
     private WaitingQueue waitingQueue;
+    private boolean delayRequests;
 
     public WaitingQueue getWaitingQueue() {
         return waitingQueue;
@@ -36,6 +37,14 @@ public class EatMeProperty {
 
     public void setWaitingQueue(WaitingQueue waitingQueue) {
         this.waitingQueue = waitingQueue;
+    }
+
+    public boolean isDelayRequests() {
+        return delayRequests;
+    }
+
+    public void setDelayRequests(boolean delayRequests) {
+        this.delayRequests = delayRequests;
     }
 
 }

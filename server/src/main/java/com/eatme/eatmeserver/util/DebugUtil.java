@@ -1,0 +1,42 @@
+package com.eatme.eatmeserver.util;
+
+import com.eatme.eatmeserver.config.EatMeProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.concurrent.ThreadLocalRandom;
+
+@SuppressWarnings("unused")
+@Component
+public class DebugUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(DebugUtil.class);
+    private static final long DELAY_MIN = 0;     // ms
+    private static final long DELAY_MAX = 1000;  // ms
+
+    @Autowired
+    private EatMeProperty eatMeProperty;
+
+    /**
+     * 50% probability: sleep current thread.
+     * 50% probability: do nothing.
+     *
+     * @return Slept milliseconds
+     */
+    public long randDelay() {
+        if (!eatMeProperty.isDelayRequests()
+            || ThreadLocalRandom.current().nextInt(10000) < 5000) {
+            return 0;
+        }
+        long ms = ThreadLocalRandom.current().nextLong(DELAY_MIN, DELAY_MAX);
+        try {
+            Thread.sleep(ms);
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return ms;
+    }
+
+}
