@@ -1,4 +1,4 @@
-package com.eatme.eatmeserver.util;
+package com.eatme.eatmeserver.business.component;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;

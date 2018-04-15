@@ -1,5 +1,6 @@
 package com.eatme.eatmeserver.util;
 
+import com.eatme.eatmeserver.config.EatMeProperty;
 import com.eatme.eatmeserver.config.WebSocketConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -19,6 +20,12 @@ public class WebSocketMessenger {
     }
 
     @Autowired
+    private EatMeProperty eatMeProp;
+
+    @Autowired
+    private DebugUtil debugUtil;
+
+    @Autowired
     private SimpMessagingTemplate template;
 
     public void sendErr(String playerId, int errCode) {
@@ -27,6 +34,9 @@ public class WebSocketMessenger {
 
     @SafeVarargs
     public final <T> void send(String playerId, MsgType type, T... data) {
+        if (eatMeProp.getDebug().isDelayResponse()) {
+            debugUtil.randDelay();
+        }
         String dest = WebSocketConfig.PREFIX_SUBSCRIBE + "/" + playerId;
         StringBuilder body = new StringBuilder();
         body.append(type.ordinal());

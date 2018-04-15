@@ -3,12 +3,12 @@
 module.exports = (() => {
   const DEST_ENDPOINT = '/ws/ep'
   const DEST_SUBSCRIBE = '/ws/sb'
-  const DEST_WAIT = '/btl/wait'
-  const DEST_QUIT_WAIT = '/btl/quit-wait'
-  const DEST_READY = '/btl/ready'
-  const DEST_ACTION = '/btl/action'
-  const DEST_DONE = '/btl/done'
-  const DEST_QUIT_BATTLE = '/btl/quit-btl'
+  const DEST_WAIT = '/plyr/wait'
+  const DEST_QUIT_WAIT = '/plyr/quit-wait'
+  const DEST_READY = '/plyr/ready'
+  const DEST_ACTION = '/plyr/action'
+  const DEST_DONE = '/plyr/done'
+  const DEST_QUIT_BATTLE = '/plyr/quit-btl'
 
   const STATE_OFFLINE = '0'
   const STATE_WAITING = '1'
@@ -256,10 +256,12 @@ module.exports = (() => {
     steps = 0
     random = new Math.seedrandom(randSeed)
     setPlayerState(attack ? STATE_ATTACKING : STATE_DEFENDING)
+    setNextAction(attack ? ACTION_RIGHT : ACTION_LEFT)
   }
 
   const handleOpponentActionMsg = opponentAction => {
     if (onTakingActions) onTakingActions(lastAction, opponentAction)
+    if (!isPlaying()) return
     ++steps
     if (steps % FREQ_FOOD === 0) {
       const foodPos = random.int32()

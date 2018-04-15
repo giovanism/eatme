@@ -1,4 +1,4 @@
-package com.eatme.eatmeserver.business.service;
+package com.eatme.eatmeserver.business.service.impl;
 
 import com.eatme.eatmeserver.ErrCode;
 import com.eatme.eatmeserver.business.entity.Battle;
@@ -8,25 +8,24 @@ import com.eatme.eatmeserver.business.entity.PlayerState;
 import com.eatme.eatmeserver.business.repository.BattleRepository;
 import com.eatme.eatmeserver.business.repository.PlayerRepository;
 import com.eatme.eatmeserver.business.repository.WaitingQueueRepository;
+import com.eatme.eatmeserver.business.service.PlayerService;
 import com.eatme.eatmeserver.config.EatMeProperty;
-import com.eatme.eatmeserver.util.RedisTransaction;
+import com.eatme.eatmeserver.business.component.RedisTransaction;
 import com.eatme.eatmeserver.util.WebSocketMessenger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.lang.Nullable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @SuppressWarnings("unused")
 @Service
-public class BattleService {
+public class PlayerServiceImpl implements PlayerService {
 
-    private static final Logger log = LoggerFactory.getLogger(BattleService.class);
+    private static final Logger log = LoggerFactory.getLogger(PlayerServiceImpl.class);
 
     @Autowired
     private EatMeProperty eatMeProp;
@@ -46,6 +45,7 @@ public class BattleService {
     @Autowired
     private BattleRepository battleRepo;
 
+    @Override
     public int wait(String playerId) {
         final String LOG_HEADER = "wait() | playerId=" + playerId;
         try {
@@ -54,7 +54,7 @@ public class BattleService {
             if (player.getState() != PlayerState.OFFLINE) {
                 return ErrCode.ERR_INVALID_STATE;
             }
-            synchronized (BattleService.class) {  // Ensure queue size consistency
+            synchronized (PlayerServiceImpl.class) {  // Ensure queue size consistency
                 long size = waitingQueueRepo.size();
                 long capacity = eatMeProp.getWaitingQueue().getCapacity();
                 log.info(LOG_HEADER + " | queue_size=" + size + " | queue_capacity=" + capacity);
@@ -77,6 +77,7 @@ public class BattleService {
         }
     }
 
+    @Override
     public int quitWait(String playerId) {
         final String LOG_HEADER = "quitWait() | playerId=" + playerId;
         try {
@@ -99,6 +100,7 @@ public class BattleService {
         }
     }
 
+    @Override
     public int ready(String playerId, String battleId) {
         final String LOG_HEADER = "ready() | playerId=" + playerId + " | battleId=" + battleId;
         try {
@@ -160,6 +162,7 @@ public class BattleService {
         }
     }
 
+    @Override
     public int action(String playerId, String battleId, PlayerAction action) {
         final String LOG_HEADER = "action() | playerId=" + playerId
             + " | battleId=" + battleId + " | action=" + action.ordinal();
@@ -224,6 +227,7 @@ public class BattleService {
         }
     }
 
+    @Override
     public int done(String playerId, String battleId) {
         final String LOG_HEADER = "done() | playerId=" + playerId + " | battleId=" + battleId;
         try {
@@ -275,6 +279,7 @@ public class BattleService {
         }
     }
 
+    @Override
     public int quitBattle(String playerId, String battleId) {
         final String LOG_HEADER = "quitBattle() | playerId=" + playerId + " | battleId=" + battleId;
         try {
@@ -352,52 +357,6 @@ public class BattleService {
             return null;
         }
         return isPlayer1 ? player2Id : player1Id;
-    }
-
-    @Scheduled(fixedRateString = "${eatme.waiting-queue.schedule-freq}")
-    private void scheduleBattle() {
-        if (waitingQueueRepo.size() < 2) {
-            return;  // Not enough players
-        }
-        try {
-            Player player1 = playerRepo.findById(waitingQueueRepo.pop());
-            Player player2 = playerRepo.findById(waitingQueueRepo.pop());
-            if (player1.getState() == PlayerState.WAITING
-                && player2.getState() == PlayerState.WAITING) {
-                createBattle(player1, player2);
-            } else if (player1.getState() == PlayerState.WAITING) {
-                String id = player1.getId();
-                waitingQueueRepo.push(id);
-                log.info("scheduleBattle() | push back player id: " + id);
-            } else if (player2.getState() == PlayerState.WAITING) {
-                String id = player2.getId();
-                waitingQueueRepo.push(id);
-                log.info("scheduleBattle() | push back player id: " + id);
-            }
-        } catch (Exception e) {
-            log.error(e.toString(), e);
-        }
-    }
-
-    private void createBattle(Player player1, Player player2) {
-        String battleId = UUID.randomUUID().toString().replaceAll("-", "");
-        Battle battle = new Battle(battleId, player1.getId(), player2.getId());
-        redisTransaction.exec(new RedisTransaction.Callback() {
-            @Override
-            public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
-                battleRepo.createOrUpdate(battle);
-                player1.setState(PlayerState.NOT_READY);
-                player1.setAction(PlayerAction.NO_ACTION);
-                playerRepo.createOrUpdate(player1);
-                player2.setState(PlayerState.NOT_READY);
-                player2.setAction(PlayerAction.NO_ACTION);
-                playerRepo.createOrUpdate(player2);
-            }
-        });
-        log.info("createBattle() | create battle: " + battle.toString());
-        // Broadcast
-        messenger.send(player1.getId(), WebSocketMessenger.MsgType.BID, battleId);
-        messenger.send(player2.getId(), WebSocketMessenger.MsgType.BID, battleId);
     }
 
 }

@@ -2,13 +2,33 @@ package com.eatme.eatmeserver.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+@SuppressWarnings("unused")
 @ConfigurationProperties(value = "eatme", ignoreUnknownFields = false)
 public class EatMeProperty {
 
-    public static class WaitingQueue {
+    public static class Debug {
+        private boolean delayRequest;
+        private boolean delayResponse;
 
+        public boolean isDelayRequest() {
+            return delayRequest;
+        }
+
+        public void setDelayRequest(boolean delayRequest) {
+            this.delayRequest = delayRequest;
+        }
+
+        public boolean isDelayResponse() {
+            return delayResponse;
+        }
+
+        public void setDelayResponse(boolean delayResponse) {
+            this.delayResponse = delayResponse;
+        }
+    }
+
+    public static class WaitingQueue {
         private long capacity;
-        private long scheduleFreq;  // ms
 
         public long getCapacity() {
             return capacity;
@@ -17,19 +37,53 @@ public class EatMeProperty {
         public void setCapacity(long capacity) {
             this.capacity = capacity;
         }
-
-        public long getScheduleFreq() {
-            return scheduleFreq;
-        }
-
-        public void setScheduleFreq(long scheduleFreq) {
-            this.scheduleFreq = scheduleFreq;
-        }
-
     }
 
+    public static class Schedule {
+
+        public static class Freq {
+            private long battle;  // ms
+            private long action;  // ms
+
+            public long getBattle() {
+                return battle;
+            }
+
+            public void setBattle(long battle) {
+                this.battle = battle;
+            }
+
+            public long getAction() {
+                return action;
+            }
+
+            public void setAction(long action) {
+                this.action = action;
+            }
+        }
+
+        private Freq freq;
+
+        public Freq getFreq() {
+            return freq;
+        }
+
+        public void setFreq(Freq freq) {
+            this.freq = freq;
+        }
+    }
+
+    private Debug debug;
     private WaitingQueue waitingQueue;
-    private boolean delayRequests;
+    private Schedule schedule;
+
+    public Debug getDebug() {
+        return debug;
+    }
+
+    public void setDebug(Debug debug) {
+        this.debug = debug;
+    }
 
     public WaitingQueue getWaitingQueue() {
         return waitingQueue;
@@ -39,12 +93,12 @@ public class EatMeProperty {
         this.waitingQueue = waitingQueue;
     }
 
-    public boolean isDelayRequests() {
-        return delayRequests;
+    public Schedule getSchedule() {
+        return schedule;
     }
 
-    public void setDelayRequests(boolean delayRequests) {
-        this.delayRequests = delayRequests;
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
     }
 
 }

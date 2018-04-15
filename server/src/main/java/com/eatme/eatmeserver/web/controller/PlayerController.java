@@ -1,7 +1,8 @@
 package com.eatme.eatmeserver.web.controller;
 
 import com.eatme.eatmeserver.business.entity.PlayerAction;
-import com.eatme.eatmeserver.business.service.BattleService;
+import com.eatme.eatmeserver.business.service.PlayerService;
+import com.eatme.eatmeserver.config.EatMeProperty;
 import com.eatme.eatmeserver.util.DebugUtil;
 import com.eatme.eatmeserver.util.WebSocketMessenger;
 import com.eatme.eatmeserver.web.message.ActionMsg;
@@ -17,10 +18,13 @@ import javax.validation.Valid;
 
 @SuppressWarnings("unused")
 @RestController
-@MessageMapping("/btl")
-public class BattleController {
+@MessageMapping("/plyr")
+public class PlayerController {
 
-    private static final Logger log = LoggerFactory.getLogger(BattleController.class);
+    private static final Logger log = LoggerFactory.getLogger(PlayerController.class);
+
+    @Autowired
+    private EatMeProperty eatMeProp;
 
     @Autowired
     private DebugUtil debugUtil;
@@ -29,12 +33,12 @@ public class BattleController {
     private WebSocketMessenger messenger;
 
     @Autowired
-    private BattleService battleService;
+    private PlayerService playerService;
 
     @MessageMapping("/wait")
     public void wait(@Valid PlayerMsg msg) {
         process("/wait " + msg, () -> {
-            int ret = battleService.wait(msg.getPlayerId());
+            int ret = playerService.wait(msg.getPlayerId());
             if (ret != 0) {
                 messenger.sendErr(msg.getPlayerId(), ret);
             }
@@ -45,7 +49,7 @@ public class BattleController {
     @MessageMapping("/quit-wait")
     public void quitWait(@Valid PlayerMsg msg) {
         process("/quit-wait " + msg, () -> {
-            int ret = battleService.quitWait(msg.getPlayerId());
+            int ret = playerService.quitWait(msg.getPlayerId());
             if (ret != 0) {
                 messenger.sendErr(msg.getPlayerId(), ret);
             }
@@ -56,7 +60,7 @@ public class BattleController {
     @MessageMapping("/ready")
     public void ready(@Valid BattleMsg msg) {
         process("/ready " + msg, () -> {
-            int ret = battleService.ready(msg.getPlayerId(), msg.getBattleId());
+            int ret = playerService.ready(msg.getPlayerId(), msg.getBattleId());
             if (ret != 0) {
                 messenger.sendErr(msg.getPlayerId(), ret);
             }
@@ -67,7 +71,7 @@ public class BattleController {
     @MessageMapping("/action")
     public void action(@Valid ActionMsg msg) {
         process("/action " + msg, () -> {
-            int ret = battleService.action(msg.getPlayerId(), msg.getBattleId(),
+            int ret = playerService.action(msg.getPlayerId(), msg.getBattleId(),
                 PlayerAction.values()[msg.getAction()]);
             if (ret != 0) {
                 messenger.sendErr(msg.getPlayerId(), ret);
@@ -79,7 +83,7 @@ public class BattleController {
     @MessageMapping("/done")
     public void done(@Valid BattleMsg msg) {
         process("/done " + msg, () -> {
-            int ret = battleService.done(msg.getPlayerId(), msg.getBattleId());
+            int ret = playerService.done(msg.getPlayerId(), msg.getBattleId());
             if (ret != 0) {
                 messenger.sendErr(msg.getPlayerId(), ret);
             }
@@ -90,7 +94,7 @@ public class BattleController {
     @MessageMapping("/quit-btl")
     public void quitBattle(@Valid BattleMsg msg) {
         process("/quit-btl " + msg, () -> {
-            int ret = battleService.quitBattle(msg.getPlayerId(), msg.getBattleId());
+            int ret = playerService.quitBattle(msg.getPlayerId(), msg.getBattleId());
             if (ret != 0) {
                 messenger.sendErr(msg.getPlayerId(), ret);
             }
@@ -103,7 +107,9 @@ public class BattleController {
     }
 
     private void process(String msgId, ProcessCallback cb) {
-        log.debug(msgId + " | delay: " + debugUtil.randDelay() + " ms");
+        if (eatMeProp.getDebug().isDelayRequest()) {
+            log.debug(msgId + " | delay: " + debugUtil.randDelay() + " ms");
+        }
         log.info(msgId);
         long begTime = System.nanoTime();
         int ret = cb.process();

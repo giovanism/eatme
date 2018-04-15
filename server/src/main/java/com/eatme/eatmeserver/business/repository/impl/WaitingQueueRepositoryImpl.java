@@ -4,8 +4,6 @@ import com.eatme.eatmeserver.business.repository.WaitingQueueRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.lang.Nullable;
@@ -35,11 +33,9 @@ public class WaitingQueueRepositoryImpl implements WaitingQueueRepository {
         return listOps.size(KEY);
     }
 
-    @EventListener(ApplicationReadyEvent.class)
     @Override
     public void clear() {
         redisTemplate.delete(KEY);
-        log.info("clear() | waiting queue flushed");
     }
 
     @Override

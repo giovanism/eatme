@@ -1,7 +1,6 @@
 package com.eatme.eatmeserver.business.repository.impl;
 
 import com.eatme.eatmeserver.business.entity.Player;
-import com.eatme.eatmeserver.business.entity.PlayerAction;
 import com.eatme.eatmeserver.business.entity.PlayerState;
 import com.eatme.eatmeserver.business.repository.PlayerRepository;
 import org.slf4j.Logger;
