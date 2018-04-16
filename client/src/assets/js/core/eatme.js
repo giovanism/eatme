@@ -3,12 +3,12 @@
 module.exports = (() => {
   const DEST_ENDPOINT = '/ws/ep'
   const DEST_SUBSCRIBE = '/ws/sb'
-  const DEST_WAIT = '/plyr/wait'
-  const DEST_QUIT_WAIT = '/plyr/quit-wait'
-  const DEST_READY = '/plyr/ready'
-  const DEST_ACTION = '/plyr/action'
-  const DEST_DONE = '/plyr/done'
-  const DEST_QUIT_BATTLE = '/plyr/quit-btl'
+  const DEST_WAIT = '/game/wait'
+  const DEST_QUIT_WAIT = '/game/quit-wait'
+  const DEST_READY = '/game/ready'
+  const DEST_ACTION = '/game/action'
+  const DEST_DONE = '/game/done'
+  const DEST_QUIT_BATTLE = '/game/quit-btl'
 
   const STATE_OFFLINE = '0'
   const STATE_WAITING = '1'
@@ -26,15 +26,13 @@ module.exports = (() => {
   const MSG_ERR = '0'
   const MSG_BID = '1'
   const MSG_START = '2'
-  const MSG_OPPONENT_ACTION = '3'
+  const MSG_ACTION = '3'
 
   const ERR_SERVER = '1'
   const ERR_INVALID_STATE = '2'
   const ERR_INVALID_BATTLE = '3'
   const ERR_WAITING_QUEUE_PUSH_FULL = '100'
   const ERR_OPPONENT_QUIT = '200'
-
-  const STEP_INTERVAL = 1000 // ms
 
   const FREQ_SWITCH = 10
   const FREQ_FOOD = 5
@@ -51,7 +49,6 @@ module.exports = (() => {
   let steps = 0
   let lastAction = null
   let nextAction = null
-  let lastActionFinished = true
 
   let onTakingActions = null
   let onCreatingFood = null
@@ -96,7 +93,6 @@ module.exports = (() => {
     steps = 0
     lastAction = null
     nextAction = null
-    lastActionFinished = true
   }
 
   const resetToReady = () => {
@@ -105,7 +101,6 @@ module.exports = (() => {
     steps = 0
     lastAction = null
     nextAction = null
-    lastActionFinished = true
   }
 
   const connect = (sucCb, errCb, subscribeCb) => {
@@ -167,13 +162,14 @@ module.exports = (() => {
 
   const action = () => {
     if (isPlaying()) {
-      messenger.send(DEST_ACTION, {
-        playerId: playerId,
-        battleId: battleId,
-        action: Number(nextAction)
-      })
-      lastAction = nextAction
-      lastActionFinished = false
+      if (nextAction !== lastAction) {
+        messenger.send(DEST_ACTION, {
+          playerId: playerId,
+          battleId: battleId,
+          action: Number(nextAction)
+        })
+        lastAction = nextAction
+      }
     } else {
       throw new Error('Call action() in state ' + playerState)
     }
@@ -211,16 +207,6 @@ module.exports = (() => {
     timer.stopCountDown()
   }
 
-  const startMainLoop = () => {
-    timer.startLoop(STEP_INTERVAL, () => {
-      if (isPlaying() && lastActionFinished && nextAction) action()
-    })
-  }
-
-  const stopMainLoop = () => {
-    timer.stopLoop()
-  }
-
   const handleMsg = (msgBody, cb) => {
     const [type, data1, data2] = msgBody.split(MSG_SEPARATOR, 3)
     if (type === MSG_ERR) {
@@ -229,8 +215,8 @@ module.exports = (() => {
       if (playerState === STATE_WAITING) handleBattleMsg(data1)
     } else if (type === MSG_START) {
       if (playerState === STATE_READY) handleStartMsg(data1, data2 === '1')
-    } else if (type === MSG_OPPONENT_ACTION) {
-      if (isPlaying()) handleOpponentActionMsg(data1)
+    } else if (type === MSG_ACTION) {
+      if (isPlaying()) handleActionMsg(data1, data2)
     }
     if (cb) cb(type, data1, data2)
   }
@@ -259,8 +245,8 @@ module.exports = (() => {
     setNextAction(attack ? ACTION_RIGHT : ACTION_LEFT)
   }
 
-  const handleOpponentActionMsg = opponentAction => {
-    if (onTakingActions) onTakingActions(lastAction, opponentAction)
+  const handleActionMsg = (myAction, opponentAction) => {
+    if (onTakingActions) onTakingActions(myAction, opponentAction)
     if (!isPlaying()) return
     ++steps
     if (steps % FREQ_FOOD === 0) {
@@ -271,7 +257,6 @@ module.exports = (() => {
       setPlayerState(playerState === STATE_ATTACKING ? STATE_DEFENDING : STATE_ATTACKING)
       if (onSwitchingRole) onSwitchingRole()
     }
-    lastActionFinished = true
   }
 
   return {
@@ -290,7 +275,7 @@ module.exports = (() => {
     MSG_ERR: MSG_ERR,
     MSG_BID: MSG_BID,
     MSG_START: MSG_START,
-    MSG_OPPONENT_ACTION: MSG_OPPONENT_ACTION,
+    MSG_ACTION: MSG_ACTION,
 
     ERR_SERVER: ERR_SERVER,
     ERR_INVALID_STATE: ERR_INVALID_STATE,
@@ -315,13 +300,11 @@ module.exports = (() => {
     wait: wait,
     quitWait: quitWait,
     ready: ready,
+    action: action,
     done: done,
     quitBattle: quitBattle,
 
     startCountDown: startCountDown,
-    stopCountDown: stopCountDown,
-
-    startMainLoop: startMainLoop,
-    stopMainLoop: stopMainLoop
+    stopCountDown: stopCountDown
   }
 })()

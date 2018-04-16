@@ -42,8 +42,17 @@ public class EatMeProperty {
     public static class Schedule {
 
         public static class Freq {
+            private long info;    // ms
             private long battle;  // ms
             private long action;  // ms
+
+            public long getInfo() {
+                return info;
+            }
+
+            public void setInfo(long info) {
+                this.info = info;
+            }
 
             public long getBattle() {
                 return battle;
@@ -63,6 +72,7 @@ public class EatMeProperty {
         }
 
         private Freq freq;
+        private int poolSize;
 
         public Freq getFreq() {
             return freq;
@@ -70,6 +80,14 @@ public class EatMeProperty {
 
         public void setFreq(Freq freq) {
             this.freq = freq;
+        }
+
+        public int getPoolSize() {
+            return poolSize;
+        }
+
+        public void setPoolSize(int poolSize) {
+            this.poolSize = poolSize;
         }
     }
 

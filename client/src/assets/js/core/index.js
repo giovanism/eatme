@@ -11,21 +11,27 @@ $(() => {
   const btnQuit = $('button#quit-btn')
   const pPrompt = $('p#prompt')
 
+  let gameStarted = false
+
   $(window).on('beforeunload', () => {
     quit()
     eatme.disconnect()
   })
 
   $(document).keydown((event) => {
-    if (eatme.isPlaying()) {
+    if (gameStarted && eatme.isPlaying()) {
       if (event.which === 37) {
         eatme.setNextAction(eatme.ACTION_LEFT)
+        eatme.action()
       } else if (event.which === 38) {
         eatme.setNextAction(eatme.ACTION_UP)
+        eatme.action()
       } else if (event.which === 39) {
         eatme.setNextAction(eatme.ACTION_RIGHT)
+        eatme.action()
       } else if (event.which === 40) {
         eatme.setNextAction(eatme.ACTION_DOWN)
+        eatme.action()
       }
     }
   })
@@ -101,21 +107,21 @@ $(() => {
     appendInfo('(' + myAction + ',' + opponentAction + ')')
     if (myAction === eatme.ACTION_DOWN && opponentAction === eatme.ACTION_DOWN) { // Test done()
       resetToReady()
-      setInfo(eatme.getPlayerState() === eatme.STATE_ATTACKING ? 'You win!' : 'You lose!')
+      appendInfo(eatme.getPlayerState() === eatme.STATE_ATTACKING ? 'WIN' : 'LOSE')
       eatme.done()
     }
   })
 
   eatme.setOnCreatingFood((foodPos) => {
-    appendInfo('Food: ' + foodPos)
+    appendInfo('(' + foodPos + ')')
   })
 
   eatme.setOnSwitchingRole(() => {
     const state = eatme.getPlayerState()
     if (state === eatme.STATE_ATTACKING) {
-      appendInfo('Attack!')
+      appendInfo('ATTACK')
     } else if (state === eatme.STATE_DEFENDING) {
-      appendInfo('Defend!')
+      appendInfo('DEFEND')
     }
   })
 
@@ -150,22 +156,23 @@ $(() => {
 
   function startGame() {
     eatme.startCountDown(pPrompt, 3, 1, () => {
-      setInfo('Start!')
+      setInfo('START')
       setTimeout(() => {
         const state = eatme.getPlayerState()
         if (state === eatme.STATE_ATTACKING) {
-          setInfo('Attacking!')
+          setInfo('ATTACK')
         } else if (state === eatme.STATE_DEFENDING) {
-          setInfo('Defending!')
+          setInfo('DEFEND')
         }
-        eatme.startMainLoop()
+        eatme.action()
+        gameStarted = true
       }, 1000)
     })
   }
 
   function resetToWait() {
     eatme.stopCountDown()
-    eatme.stopMainLoop()
+    gameStarted = false
     hide(btnReady)
     hide(btnQuit)
     show(btnFind)
@@ -173,7 +180,7 @@ $(() => {
 
   function resetToReady() {
     eatme.stopCountDown()
-    eatme.stopMainLoop()
+    gameStarted = false
     hide(btnFind)
     show(btnReady)
     show(btnQuit)
@@ -211,10 +218,12 @@ $(() => {
 
   function setInfo(info) {
     pPrompt.html(info)
+    window.scrollTo(0, document.body.scrollHeight)
   }
 
   function appendInfo(info) {
     pPrompt.html(pPrompt.html() + info)
+    window.scrollTo(0, document.body.scrollHeight)
   }
 
   function clrInfo() {

@@ -1,19 +1,7 @@
 module.exports = (() => {
-  let loopTimerId = null
   let countDownTimerId = null
   let element = null
   let oriContent = null
-
-  const startLoop = (interval, cb) => {
-    loopTimerId = setInterval(() => {
-      cb()
-    }, interval)
-  }
-
-  const stopLoop = () => {
-    if (loopTimerId) clearInterval(loopTimerId)
-    loopTimerId = null
-  }
 
   const startCountDown = (ele, beg, end, cb) => {
     stopCountDown()
@@ -40,8 +28,6 @@ module.exports = (() => {
   }
 
   return {
-    startLoop: startLoop,
-    stopLoop: stopLoop,
     startCountDown: startCountDown,
     stopCountDown: stopCountDown
   }

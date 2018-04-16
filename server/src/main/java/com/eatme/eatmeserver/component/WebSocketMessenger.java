@@ -1,4 +1,4 @@
-package com.eatme.eatmeserver.util;
+package com.eatme.eatmeserver.component;
 
 import com.eatme.eatmeserver.config.EatMeProperty;
 import com.eatme.eatmeserver.config.WebSocketConfig;
@@ -16,7 +16,7 @@ public class WebSocketMessenger {
         ERR,
         BID,
         START,
-        OPPONENT_ACTION,
+        ACTION,
     }
 
     @Autowired

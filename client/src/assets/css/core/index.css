@@ -5,7 +5,8 @@
 
 body {
   font-family: "Segoe UI", Frutiger, "Frutiger Linotype",
-    "Dejavu Sans", "Helvetica Neue", Arial, sans-serif
+    "Dejavu Sans", "Helvetica Neue", Arial, sans-serif;
+  font-size: 10px;
 }
 
 button#ready-btn, button#quit-btn {

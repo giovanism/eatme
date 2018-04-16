@@ -3,8 +3,8 @@ package com.eatme.eatmeserver.web.controller;
 import com.eatme.eatmeserver.business.entity.PlayerAction;
 import com.eatme.eatmeserver.business.service.PlayerService;
 import com.eatme.eatmeserver.config.EatMeProperty;
-import com.eatme.eatmeserver.util.DebugUtil;
-import com.eatme.eatmeserver.util.WebSocketMessenger;
+import com.eatme.eatmeserver.component.DebugUtil;
+import com.eatme.eatmeserver.component.WebSocketMessenger;
 import com.eatme.eatmeserver.web.message.ActionMsg;
 import com.eatme.eatmeserver.web.message.BattleMsg;
 import com.eatme.eatmeserver.web.message.PlayerMsg;
@@ -18,10 +18,10 @@ import javax.validation.Valid;
 
 @SuppressWarnings("unused")
 @RestController
-@MessageMapping("/plyr")
-public class PlayerController {
+@MessageMapping("/game")
+public class GameController {
 
-    private static final Logger log = LoggerFactory.getLogger(PlayerController.class);
+    private static final Logger log = LoggerFactory.getLogger(GameController.class);
 
     @Autowired
     private EatMeProperty eatMeProp;
