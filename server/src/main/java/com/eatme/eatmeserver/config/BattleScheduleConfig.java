@@ -34,7 +34,7 @@ public class BattleScheduleConfig implements SchedulingConfigurer {
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {  // Schedule battle
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(Runtime.getRuntime().availableProcessors());
+        scheduler.setPoolSize(1);
         scheduler.setThreadNamePrefix("BattleSched-");
         scheduler.setRemoveOnCancelPolicy(true);
         scheduler.initialize();
