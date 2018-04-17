@@ -58,22 +58,23 @@ public class PlayerServiceImpl implements PlayerService {
             if (player.getState() != PlayerState.OFFLINE) {
                 return ErrCode.ERR_INVALID_STATE;
             }
-            synchronized (PlayerServiceImpl.class) {  // Ensure queue size consistency
-                long size = waitingQueueRepo.size();
-                long capacity = eatMeProp.getWaitingQueue().getCapacity();
-                log.info(LOG_HEADER + " | queue_size=" + size + " | queue_capacity=" + capacity);
-                if (size >= capacity) {
-                    return ErrCode.ERR_WAITING_QUEUE_PUSH_FULL;
-                }
-                redisTransaction.exec(new RedisTransaction.Callback() {
-                    @Override
-                    public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
-                        player.setState(PlayerState.WAITING);
-                        playerRepo.createOrUpdate(player);
-                        waitingQueueRepo.push(player.getId());
-                    }
-                });
+
+            long cnt = battleRepo.count();
+            long capacity = eatMeProp.getBattle().getCapacity();
+            log.info(LOG_HEADER + " | battle_count=" + cnt + " | battle_capacity=" + capacity);
+            if (cnt >= capacity) {
+                return ErrCode.ERR_BATTLE_FULL;
             }
+
+            // Add to waiting queue
+            redisTransaction.exec(new RedisTransaction.Callback() {
+                @Override
+                public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
+                    player.setState(PlayerState.WAITING);
+                    playerRepo.createOrUpdate(player);
+                    waitingQueueRepo.push(player.getId());
+                }
+            });
             return 0;
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -90,6 +91,7 @@ public class PlayerServiceImpl implements PlayerService {
             if (player.getState() != PlayerState.WAITING) {
                 return ErrCode.ERR_INVALID_STATE;
             }
+
             redisTransaction.exec(new RedisTransaction.Callback() {
                 @Override
                 public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {

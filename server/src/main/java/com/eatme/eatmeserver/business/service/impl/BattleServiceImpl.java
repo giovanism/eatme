@@ -116,8 +116,21 @@ public class BattleServiceImpl implements BattleService {
             return;  // Not enough players
         }
         try {
-            Player player1 = playerRepo.findById(waitingQueueRepo.pop());
-            Player player2 = playerRepo.findById(waitingQueueRepo.pop());
+            List<Object> results = redisTransaction.exec(new RedisTransaction.Callback() {
+                @Override
+                public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
+                    waitingQueueRepo.pop();
+                    waitingQueueRepo.pop();
+                }
+            });
+            String player1Id = (String) results.get(0);
+            String player2Id = (String) results.get(1);
+            if (player1Id == null || player2Id == null) {
+                return;
+            }
+
+            Player player1 = playerRepo.findById(player1Id);
+            Player player2 = playerRepo.findById(player2Id);
             if (player1.getState() == PlayerState.WAITING
                 && player2.getState() == PlayerState.WAITING) {
                 createBattle(player1, player2);

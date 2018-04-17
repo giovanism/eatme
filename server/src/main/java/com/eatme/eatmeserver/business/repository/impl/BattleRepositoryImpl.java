@@ -63,6 +63,11 @@ public class BattleRepositoryImpl implements BattleRepository {
         redisTemplate.delete(key(battleId));
     }
 
+    @Override
+    public int count() {
+        return redisTemplate.keys(KEY_PREFIX + "*").size();
+    }
+
     private String key(String battleId) {
         return KEY_PREFIX + battleId;
     }

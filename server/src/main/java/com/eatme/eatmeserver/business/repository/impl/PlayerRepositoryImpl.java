@@ -63,7 +63,7 @@ public class PlayerRepositoryImpl implements PlayerRepository {
     }
 
     @Override
-    public String findRawStateById(String playerId) {
+    public @Nullable String findRawStateById(String playerId) {
         return hashOps.get(key(playerId), KEY_HASH_STATE);
     }
 

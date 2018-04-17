@@ -31,7 +31,7 @@ module.exports = (() => {
   const ERR_SERVER = '1'
   const ERR_INVALID_STATE = '2'
   const ERR_INVALID_BATTLE = '3'
-  const ERR_WAITING_QUEUE_PUSH_FULL = '100'
+  const ERR_BATTLE_FULL = '100'
   const ERR_OPPONENT_QUIT = '200'
 
   const FREQ_SWITCH = 10
@@ -228,7 +228,7 @@ module.exports = (() => {
       setPlayerState(STATE_OFFLINE)
     } else if (errCode === ERR_INVALID_BATTLE) {
       setPlayerState(STATE_OFFLINE)
-    } else if (errCode === ERR_WAITING_QUEUE_PUSH_FULL) {
+    } else if (errCode === ERR_BATTLE_FULL) {
       setPlayerState(STATE_OFFLINE)
     }
   }
@@ -280,7 +280,7 @@ module.exports = (() => {
     ERR_SERVER: ERR_SERVER,
     ERR_INVALID_STATE: ERR_INVALID_STATE,
     ERR_INVALID_BATTLE: ERR_INVALID_BATTLE,
-    ERR_WAITING_QUEUE_PUSH_FULL: ERR_WAITING_QUEUE_PUSH_FULL,
+    ERR_BATTLE_FULL: ERR_BATTLE_FULL,
     ERR_OPPONENT_QUIT: ERR_OPPONENT_QUIT,
 
     getPlayerState: getPlayerState,

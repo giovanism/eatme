@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class EatMeProperty {
 
     public static class Debug {
+
         private boolean delayRequest;
         private boolean delayResponse;
 
@@ -27,14 +28,15 @@ public class EatMeProperty {
         }
     }
 
-    public static class WaitingQueue {
-        private long capacity;
+    public static class Battle {
 
-        public long getCapacity() {
+        private int capacity;
+
+        public int getCapacity() {
             return capacity;
         }
 
-        public void setCapacity(long capacity) {
+        public void setCapacity(int capacity) {
             this.capacity = capacity;
         }
     }
@@ -92,7 +94,7 @@ public class EatMeProperty {
     }
 
     private Debug debug;
-    private WaitingQueue waitingQueue;
+    private Battle battle;
     private Schedule schedule;
 
     public Debug getDebug() {
@@ -103,12 +105,12 @@ public class EatMeProperty {
         this.debug = debug;
     }
 
-    public WaitingQueue getWaitingQueue() {
-        return waitingQueue;
+    public Battle getBattle() {
+        return battle;
     }
 
-    public void setWaitingQueue(WaitingQueue waitingQueue) {
-        this.waitingQueue = waitingQueue;
+    public void setBattle(Battle battle) {
+        this.battle = battle;
     }
 
     public Schedule getSchedule() {

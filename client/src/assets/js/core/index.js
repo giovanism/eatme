@@ -1,6 +1,6 @@
 $(() => {
   // seconds
-  const TIME_WAIT = 5
+  const TIME_WAIT = 10
   const TIME_READY = 10
   const TIME_CONFIRM = 10
 
@@ -136,8 +136,8 @@ $(() => {
         setInfo('Invalid state. Please try again.')
       } else if (errCode === eatme.ERR_INVALID_BATTLE) {
         setInfo('Invalid battle and player ID. Please try again.')
-      } else if (errCode === eatme.ERR_WAITING_QUEUE_PUSH_FULL) {
-        setInfo('Waiting pool is full. Please try again.')
+      } else if (errCode === eatme.ERR_BATTLE_FULL) {
+        setInfo('Too much players. Please try again.')
       } else if (errCode === eatme.ERR_OPPONENT_QUIT) {
         eatme.quitBattle()
         setInfo('Opponent quit. Please try again.')

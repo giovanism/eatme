@@ -11,4 +11,6 @@ public interface BattleRepository {
 
     void delById(String battleId);
 
+    int count();
+
 }
