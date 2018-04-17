@@ -230,6 +230,8 @@ module.exports = (() => {
       setPlayerState(STATE_OFFLINE)
     } else if (errCode === ERR_BATTLE_FULL) {
       setPlayerState(STATE_OFFLINE)
+    } else if (errCode === ERR_OPPONENT_QUIT) {
+      quitBattle()
     }
   }
 

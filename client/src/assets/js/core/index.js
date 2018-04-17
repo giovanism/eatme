@@ -1,10 +1,17 @@
 $(() => {
+  const eatme = require('./eatme.js')
+
+  const KEYBOARD_ACTION = {
+    37: eatme.ACTION_LEFT,
+    38: eatme.ACTION_UP,
+    39: eatme.ACTION_RIGHT,
+    40: eatme.ACTION_DOWN
+  }
+
   // seconds
   const TIME_WAIT = 10
   const TIME_READY = 10
   const TIME_CONFIRM = 10
-
-  const eatme = require('./eatme.js')
 
   const btnFind = $('button#find-btn')
   const btnReady = $('button#ready-btn')
@@ -19,19 +26,11 @@ $(() => {
   })
 
   $(document).keydown((event) => {
-    if (gameStarted && eatme.isPlaying()) {
-      if (event.which === 37) {
-        eatme.setNextAction(eatme.ACTION_LEFT)
-        eatme.action()
-      } else if (event.which === 38) {
-        eatme.setNextAction(eatme.ACTION_UP)
-        eatme.action()
-      } else if (event.which === 39) {
-        eatme.setNextAction(eatme.ACTION_RIGHT)
-        eatme.action()
-      } else if (event.which === 40) {
-        eatme.setNextAction(eatme.ACTION_DOWN)
-        eatme.action()
+    if (eatme.isPlaying()) {
+      const action = KEYBOARD_ACTION[event.which]
+      if (action) {
+        eatme.setNextAction(action)
+        if (gameStarted) eatme.action()
       }
     }
   })
@@ -67,7 +66,7 @@ $(() => {
     eatme.startCountDown(btnReady, TIME_READY - 1, 0, () => {
       if (eatme.getPlayerState() === eatme.STATE_READY) {
         resetToWait()
-        eatme.quitBattle()
+        quit()
         setInfo('Opponent no respond. Please try again.')
       }
     })
@@ -139,7 +138,6 @@ $(() => {
       } else if (errCode === eatme.ERR_BATTLE_FULL) {
         setInfo('Too much players. Please try again.')
       } else if (errCode === eatme.ERR_OPPONENT_QUIT) {
-        eatme.quitBattle()
         setInfo('Opponent quit. Please try again.')
       }
     } else if (type === eatme.MSG_BID) {

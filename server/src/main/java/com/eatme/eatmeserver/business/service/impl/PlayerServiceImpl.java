@@ -223,6 +223,8 @@ public class PlayerServiceImpl implements PlayerService {
                 return ErrCode.ERR_INVALID_BATTLE;
             }
 
+            battleService.stopActionBroadcast(battleId);
+
             List<Object> results = redisTransaction.exec(new RedisTransaction.Callback() {
                 @Override
                 public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
@@ -241,7 +243,6 @@ public class PlayerServiceImpl implements PlayerService {
             // Check both done
             if (!opponent.isPlaying()) {
                 log.info(LOG_HEADER + " | both done");
-                battleService.stopActionBroadcast(battleId);
                 // Reset battle
                 battle.resetSeed();
                 battleRepo.createOrUpdate(battle);
@@ -276,6 +277,8 @@ public class PlayerServiceImpl implements PlayerService {
                 return ErrCode.ERR_INVALID_BATTLE;
             }
 
+            battleService.stopActionBroadcast(battleId);
+
             List<Object> results = redisTransaction.exec(new RedisTransaction.Callback() {
                 @Override
                 public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
@@ -293,7 +296,6 @@ public class PlayerServiceImpl implements PlayerService {
 
             if (opponent.getState() == PlayerState.OFFLINE) {  // Both offline
                 log.info(LOG_HEADER + " | both offline");
-                battleService.stopActionBroadcast(battleId);
                 // Delete battle and players
                 redisTransaction.exec(new RedisTransaction.Callback() {
                     @Override
