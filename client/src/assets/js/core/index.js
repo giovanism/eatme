@@ -22,7 +22,6 @@ $(() => {
 
   $(window).on('beforeunload', () => {
     quit()
-    eatme.disconnect()
   })
 
   $(document).keydown((event) => {
@@ -138,6 +137,7 @@ $(() => {
       } else if (errCode === eatme.ERR_BATTLE_FULL) {
         setInfo('Too much players. Please try again.')
       } else if (errCode === eatme.ERR_OPPONENT_QUIT) {
+        quit()
         setInfo('Opponent quit. Please try again.')
       }
     } else if (type === eatme.MSG_BID) {
@@ -194,6 +194,7 @@ $(() => {
     } else {
       eatme.quitBattle()
     }
+    eatme.disconnect()
   }
 
   function enable(ele) {

@@ -11,6 +11,7 @@
     },
     "rules": {
         "space-before-function-paren": ["error", "never"],
-        "new-cap": "off"
+        "new-cap": "off",
+        "handle-callback-err": "off"
     }
 }

@@ -7,12 +7,10 @@ module.exports = (() => {
     stompClient = Stomp.over(new SockJS(connDest))
     stompClient.connect({},
       frame => {
-        console.log('[WebSocketManager] connect suc:\n' + frame)
         stompClient.subscribe(subscribeDest, subscribeCb)
         if (sucCb) sucCb(frame)
       },
       err => {
-        console.log('[WebSocketManager] connect fail:\n' + err)
         stompClient = null
         if (errCb) errCb()
       }
@@ -20,8 +18,12 @@ module.exports = (() => {
   }
 
   const disconnect = () => {
-    if (stompClient) stompClient.disconnect()
-    console.log('[WebSocketManager] disconnected')
+    if (stompClient) {
+      stompClient.disconnect(() => {
+        console.log('[messenger] Disconnected')
+      })
+      stompClient = null
+    }
   }
 
   const isConnected = () => !!stompClient
