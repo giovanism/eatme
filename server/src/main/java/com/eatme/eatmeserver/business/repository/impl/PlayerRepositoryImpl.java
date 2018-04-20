@@ -1,7 +1,6 @@
 package com.eatme.eatmeserver.business.repository.impl;
 
 import com.eatme.eatmeserver.business.entity.Player;
-import com.eatme.eatmeserver.business.entity.PlayerState;
 import com.eatme.eatmeserver.business.repository.PlayerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +26,8 @@ public class PlayerRepositoryImpl implements PlayerRepository {
     private static final String KEY_PREFIX = "eatme:plyr:";
     private static final String KEY_HASH_STATE = "state";
     private static final String KEY_HASH_ACTION = "action";
+    private static final String KEY_HASH_SERVER_IP = "ip";
+    private static final String KEY_HASH_SERVER_PORT = "port";
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -42,34 +43,25 @@ public class PlayerRepositoryImpl implements PlayerRepository {
         Map<String, String> m = new HashMap<>();
         m.put(KEY_HASH_STATE, String.valueOf(player.getState().ordinal()));
         m.put(KEY_HASH_ACTION, String.valueOf(player.getAction().ordinal()));
+        m.put(KEY_HASH_SERVER_IP, player.getServerIp());
+        m.put(KEY_HASH_SERVER_PORT, String.valueOf(player.getServerPort()));
         hashOps.putAll(key(player.getId()), m);
     }
 
     @Override
     public @NonNull Player findById(String playerId) {
-        List<String> res = hashOps.multiGet(key(playerId),
-            Arrays.asList(KEY_HASH_STATE, KEY_HASH_ACTION));
-        String rawState = res.get(0);
-        String rawAction = res.get(1);
-        if (rawState == null || rawAction == null) {
-            return new Player(playerId, PlayerState.OFFLINE);
-        }
-        return new Player(playerId, rawState, rawAction);
+        return new Player(playerId, findRawById(playerId));
+    }
+
+    @Override
+    public @Nullable List<String> findRawById(String playerId) {
+        return hashOps.multiGet(key(playerId), Arrays.asList(KEY_HASH_STATE,
+            KEY_HASH_ACTION, KEY_HASH_SERVER_IP, KEY_HASH_SERVER_PORT));
     }
 
     @Override
     public void delById(String playerId) {
         redisTemplate.delete(key(playerId));
-    }
-
-    @Override
-    public @Nullable String findRawStateById(String playerId) {
-        return hashOps.get(key(playerId), KEY_HASH_STATE);
-    }
-
-    @Override
-    public @Nullable String findRawActionById(String playerId) {
-        return hashOps.get(key(playerId), KEY_HASH_ACTION);
     }
 
     private String key(String playerId) {

@@ -67,24 +67,29 @@ public class BattleServiceImpl implements BattleService {
                 List<Object> results = redisTransaction.exec(new RedisTransaction.Callback() {
                     @Override
                     public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
-                        playerRepo.findRawActionById(player1Id);
-                        playerRepo.findRawActionById(player2Id);
+                        playerRepo.findRawById(player1Id);
+                        playerRepo.findRawById(player2Id);
                     }
                 });
-                String rawAction1 = (String) results.get(0);
-                String rawAction2 = (String) results.get(1);
-                if (rawAction1 == null || rawAction2 == null) {
+                Player player1 = new Player(player1Id, (List<String>) results.get(0));
+                Player player2 = new Player(player2Id, (List<String>) results.get(1));
+
+                if (player1.getState() == PlayerState.OFFLINE
+                    || player2.getState() == PlayerState.OFFLINE) {
                     return;
                 }
 
-                PlayerAction action1 = PlayerAction.values()[Integer.parseInt(rawAction1)];
-                PlayerAction action2 = PlayerAction.values()[Integer.parseInt(rawAction2)];
-                if (action1 != PlayerAction.NO_ACTION && action2 != PlayerAction.NO_ACTION) {
-                    messenger.send(player1Id, WebSocketMessenger.MsgType.ACTION,
-                        action1.ordinal(), action2.ordinal());
-                    messenger.send(player2Id, WebSocketMessenger.MsgType.ACTION,
-                        action2.ordinal(), action1.ordinal());
+                PlayerAction action1 = player1.getAction();
+                PlayerAction action2 = player2.getAction();
+                if (action1 == PlayerAction.NO_ACTION
+                    || action2 == PlayerAction.NO_ACTION) {
+                    return;
                 }
+
+                messenger.send(player1, WebSocketMessenger.MsgType.ACTION,
+                        action1.ordinal(), action2.ordinal());
+                messenger.send(player2, WebSocketMessenger.MsgType.ACTION,
+                        action2.ordinal(), action1.ordinal());
 
             }, eatMeProp.getSchedule().getFreq().getAction()));
         }
@@ -165,8 +170,8 @@ public class BattleServiceImpl implements BattleService {
         });
         log.info("createBattle() | create battle: " + battle.toString());
         // Broadcast
-        messenger.send(player1.getId(), WebSocketMessenger.MsgType.BID, battleId);
-        messenger.send(player2.getId(), WebSocketMessenger.MsgType.BID, battleId);
+        messenger.send(player1, WebSocketMessenger.MsgType.BID, battleId);
+        messenger.send(player2, WebSocketMessenger.MsgType.BID, battleId);
     }
 
 }

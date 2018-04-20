@@ -3,7 +3,7 @@ package com.eatme.eatmeserver.web.controller;
 import com.eatme.eatmeserver.business.entity.PlayerAction;
 import com.eatme.eatmeserver.business.service.PlayerService;
 import com.eatme.eatmeserver.config.EatMeProperty;
-import com.eatme.eatmeserver.component.DebugUtil;
+import com.eatme.eatmeserver.component.DelayUtil;
 import com.eatme.eatmeserver.component.WebSocketMessenger;
 import com.eatme.eatmeserver.web.message.ActionMsg;
 import com.eatme.eatmeserver.web.message.BattleMsg;
@@ -27,7 +27,7 @@ public class GameController {
     private EatMeProperty eatMeProp;
 
     @Autowired
-    private DebugUtil debugUtil;
+    private DelayUtil delayUtil;
 
     @Autowired
     private WebSocketMessenger messenger;
@@ -108,7 +108,7 @@ public class GameController {
 
     private void process(String msgId, ProcessCallback cb) {
         if (eatMeProp.getDebug().isDelayRequest()) {
-            log.debug(msgId + " | delay: " + debugUtil.randDelay() + " ms");
+            log.debug(msgId + " | delay: " + delayUtil.randDelay() + " ms");
         }
         log.info(msgId);
         long begTime = System.nanoTime();

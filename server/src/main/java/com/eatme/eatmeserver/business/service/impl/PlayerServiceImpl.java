@@ -16,6 +16,7 @@ import com.eatme.eatmeserver.component.WebSocketMessenger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,12 @@ import java.util.List;
 public class PlayerServiceImpl implements PlayerService {
 
     private static final Logger log = LoggerFactory.getLogger(PlayerServiceImpl.class);
+
+    @Value("${server.address}")
+    private String serverIp;
+
+    @Value("${server.port}")
+    private int serverPort;
 
     @Autowired
     private EatMeProperty eatMeProp;
@@ -71,6 +78,8 @@ public class PlayerServiceImpl implements PlayerService {
                 @Override
                 public <K, V> void enqueueOperations(RedisOperations<K, V> operations) {
                     player.setState(PlayerState.WAITING);
+                    player.setServerIp(serverIp);
+                    player.setServerPort(serverPort);
                     playerRepo.createOrUpdate(player);
                     waitingQueueRepo.push(player.getId());
                 }
@@ -134,13 +143,10 @@ public class PlayerServiceImpl implements PlayerService {
                     player.setState(PlayerState.READY);
                     player.setAction(PlayerAction.NO_ACTION);
                     playerRepo.createOrUpdate(player);
-                    playerRepo.findRawStateById(opponentId);
-                    playerRepo.findRawActionById(opponentId);
+                    playerRepo.findRawById(opponentId);
                 }
             });
-            String rawState = (String) results.get(0);
-            String rawAction = (String) results.get(1);
-            Player opponent = new Player(opponentId, rawState, rawAction);
+            Player opponent = new Player(opponentId, (List<String>) results.get(0));
             log.info(LOG_HEADER + " | found opponent: " + opponent.toString());
 
             // Check both ready
@@ -157,8 +163,8 @@ public class PlayerServiceImpl implements PlayerService {
                 });
                 // Broadcast (data: seed|attack?)
                 long seed = battle.getRandSeed();
-                messenger.send(playerId, WebSocketMessenger.MsgType.START, seed, 0);
-                messenger.send(opponentId, WebSocketMessenger.MsgType.START, seed, 1);
+                messenger.send(player, WebSocketMessenger.MsgType.START, seed, 0);
+                messenger.send(opponent, WebSocketMessenger.MsgType.START, seed, 1);
                 battleService.startActionBroadcast(battleId, battle.getPlayer1Id(), battle.getPlayer2Id());
             }
             return 0;
@@ -231,13 +237,10 @@ public class PlayerServiceImpl implements PlayerService {
                     player.setState(PlayerState.NOT_READY);
                     player.setAction(PlayerAction.NO_ACTION);
                     playerRepo.createOrUpdate(player);
-                    playerRepo.findRawStateById(opponentId);
-                    playerRepo.findRawActionById(opponentId);
+                    playerRepo.findRawById(opponentId);
                 }
             });
-            String rawState = (String) results.get(0);
-            String rawAction = (String) results.get(1);
-            Player opponent = new Player(opponentId, rawState, rawAction);
+            Player opponent = new Player(opponentId, (List<String>) results.get(0));
             log.info(LOG_HEADER + " | found opponent: " + opponent.toString());
 
             // Check both done
@@ -285,13 +288,10 @@ public class PlayerServiceImpl implements PlayerService {
                     player.setState(PlayerState.OFFLINE);
                     player.setAction(PlayerAction.NO_ACTION);
                     playerRepo.createOrUpdate(player);
-                    playerRepo.findRawStateById(opponentId);
-                    playerRepo.findRawActionById(opponentId);
+                    playerRepo.findRawById(opponentId);
                 }
             });
-            String rawState = (String) results.get(0);
-            String rawAction = (String) results.get(1);
-            Player opponent = new Player(opponentId, rawState, rawAction);
+            Player opponent = new Player(opponentId, (List<String>) results.get(0));
             log.info(LOG_HEADER + " | found opponent: " + opponent.toString());
 
             if (opponent.getState() == PlayerState.OFFLINE) {  // Both offline
@@ -307,7 +307,7 @@ public class PlayerServiceImpl implements PlayerService {
                 });
             } else {
                 // Notify opponent quit
-                messenger.sendErr(opponentId, ErrCode.ERR_OPPONENT_QUIT);
+                messenger.sendErr(opponent, ErrCode.ERR_OPPONENT_QUIT);
                 log.info(LOG_HEADER + " | send opponent quit to player: " + opponentId);
             }
             return 0;

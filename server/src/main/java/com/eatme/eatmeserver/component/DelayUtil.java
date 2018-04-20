@@ -8,9 +8,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @SuppressWarnings("unused")
 @Component
-public class DebugUtil {
+public class DelayUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(DebugUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(DelayUtil.class);
     private static final long DELAY_MIN = 0;     // ms
     private static final long DELAY_MAX = 1000;  // ms
 

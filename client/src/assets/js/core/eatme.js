@@ -22,7 +22,7 @@ module.exports = (() => {
   const ACTION_RIGHT = '3'
   const ACTION_DOWN = '4'
 
-  const MSG_SEPARATOR = '|'
+  const MSG_SEPARATOR = '_'
   const MSG_ERR = '0'
   const MSG_BID = '1'
   const MSG_START = '2'
