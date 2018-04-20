@@ -20,7 +20,7 @@ module.exports = (() => {
   const disconnect = () => {
     if (stompClient) {
       stompClient.disconnect(() => {
-        console.log('[messenger] Disconnected')
+        console.log('[messenger] disconnected')
       })
       stompClient = null
     }

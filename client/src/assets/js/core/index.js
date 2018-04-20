@@ -126,8 +126,8 @@ $(() => {
   function handleData(type, data1, data2) {
     eatme.stopCountDown()
     if (type === eatme.MSG_ERR) {
-      const errCode = data1
       resetToWait()
+      const errCode = data1
       if (errCode === eatme.ERR_SERVER) {
         setInfo('Server error. Please try again.')
       } else if (errCode === eatme.ERR_INVALID_STATE) {
@@ -137,7 +137,7 @@ $(() => {
       } else if (errCode === eatme.ERR_BATTLE_FULL) {
         setInfo('Too much players. Please try again.')
       } else if (errCode === eatme.ERR_OPPONENT_QUIT) {
-        quit()
+        eatme.disconnect()
         setInfo('Opponent quit. Please try again.')
       }
     } else if (type === eatme.MSG_BID) {

@@ -62,7 +62,7 @@ module.exports = (() => {
 
   const setPlayerState = state => {
     playerState = state
-    console.log('state: ' + state)
+    console.log('[eatme] state: ' + state)
   }
 
   const setNextAction = action => {
@@ -222,15 +222,8 @@ module.exports = (() => {
   }
 
   const handleErrMsg = errCode => {
-    if (errCode === ERR_SERVER) {
-      setPlayerState(STATE_OFFLINE)
-    } else if (errCode === ERR_INVALID_STATE) {
-      setPlayerState(STATE_OFFLINE)
-    } else if (errCode === ERR_INVALID_BATTLE) {
-      setPlayerState(STATE_OFFLINE)
-    } else if (errCode === ERR_BATTLE_FULL) {
-      setPlayerState(STATE_OFFLINE)
-    }
+    console.log('[eatme] err: ' + errCode)
+    resetToWait()
   }
 
   const handleBattleMsg = id => {

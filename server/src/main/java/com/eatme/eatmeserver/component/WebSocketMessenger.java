@@ -81,11 +81,11 @@ public class WebSocketMessenger {
 
     @SafeVarargs
     public final <T> void send(String playerId, MsgType type, T... data) {
-        if (eatMeProp.getDebug().isDelayResponse()) delayUtil.randDelay();
         send(playerId, stringify(type, data));
     }
 
     public void send(String playerId, String msg) {
+        if (eatMeProp.getDebug().isDelayResponse()) delayUtil.randDelay();
         String dest = WebSocketConfig.PREFIX_SUBSCRIBE + "/" + playerId;
         messagingTemplate.convertAndSend(dest, msg);
     }

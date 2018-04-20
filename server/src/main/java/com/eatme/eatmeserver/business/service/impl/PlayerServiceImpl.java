@@ -294,8 +294,10 @@ public class PlayerServiceImpl implements PlayerService {
             Player opponent = new Player(opponentId, (List<String>) results.get(0));
             log.info(LOG_HEADER + " | found opponent: " + opponent.toString());
 
-            if (opponent.getState() == PlayerState.OFFLINE) {  // Both offline
-                log.info(LOG_HEADER + " | both offline");
+            if (opponent.getState() != PlayerState.OFFLINE) {
+                // Notify opponent quit
+                messenger.sendErr(opponent, ErrCode.ERR_OPPONENT_QUIT);
+                log.info(LOG_HEADER + " | send opponent quit to player: " + opponentId);
                 // Delete battle and players
                 redisTransaction.exec(new RedisTransaction.Callback() {
                     @Override
@@ -305,10 +307,6 @@ public class PlayerServiceImpl implements PlayerService {
                         playerRepo.delById(opponentId);
                     }
                 });
-            } else {
-                // Notify opponent quit
-                messenger.sendErr(opponent, ErrCode.ERR_OPPONENT_QUIT);
-                log.info(LOG_HEADER + " | send opponent quit to player: " + opponentId);
             }
             return 0;
         } catch (Exception e) {
