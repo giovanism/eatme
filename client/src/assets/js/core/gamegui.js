@@ -6,6 +6,7 @@ module.exports = (() => {
 
   const gameCtrl = require('./gamectrl.js')
   const timer = require('./timer.js')
+  const playground = require('./playground.js')('playground')
 
   const KEYBOARD_ACTION = {
     37: gameCtrl.ACTION.LEFT,
@@ -20,6 +21,8 @@ module.exports = (() => {
   const pPrompt = $('p#prompt')
 
   const init = () => {
+    playground.init()
+
     $(window).on('beforeunload', () => {
       gameCtrl.quit()
     })
