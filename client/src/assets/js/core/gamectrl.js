@@ -72,7 +72,7 @@ module.exports = (() => {
 
   const _setPlayerState = state => {
     playerState = state
-    console.log('[eatme] state: ' + state)
+    console.log('[gamectrl] state: ' + state)
   }
 
   const setStarted = s => { started = s }
@@ -137,7 +137,7 @@ module.exports = (() => {
       })
       _setPlayerState(STATE.WAITING)
     } else {
-      throw new Error('Call wait() in state ' + playerState)
+      throw new Error('[gamectrl] call wait() in state ' + playerState)
     }
   }
 
@@ -148,7 +148,7 @@ module.exports = (() => {
       })
       _resetToWait()
     } else {
-      throw new Error('Call quitWait() in state ' + playerState)
+      throw new Error('[gamectrl] call quitWait() in state ' + playerState)
     }
   }
 
@@ -160,7 +160,7 @@ module.exports = (() => {
       })
       _setPlayerState(STATE.READY)
     } else {
-      throw new Error('Call ready() in state ' + playerState)
+      throw new Error('[gamectrl] call ready() in state ' + playerState)
     }
   }
 
@@ -172,7 +172,7 @@ module.exports = (() => {
         action: Number(nextAction)
       })
     } else {
-      throw new Error('Call action() in state ' + playerState)
+      throw new Error('[gamectrl] call action() in state ' + playerState)
     }
   }
 
@@ -184,7 +184,7 @@ module.exports = (() => {
       })
       _resetToReady()
     } else {
-      throw new Error('Call done() in state ' + playerState)
+      throw new Error('[gamectrl] call done() in state ' + playerState)
     }
   }
 
@@ -196,7 +196,7 @@ module.exports = (() => {
       })
       _resetToWait()
     } else {
-      throw new Error('Call quitBattle() in state ' + playerState)
+      throw new Error('[gamectrl] call quitBattle() in state ' + playerState)
     }
   }
 
@@ -225,7 +225,7 @@ module.exports = (() => {
   }
 
   const _handleErrMsg = errCode => {
-    console.log('[eatme] err: ' + errCode)
+    console.log('[gamectrl] err: ' + errCode)
     _resetToWait()
   }
 
