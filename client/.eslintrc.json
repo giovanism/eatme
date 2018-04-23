@@ -1,17 +1,17 @@
 {
-    "env": {
-        "browser": true,
-        "commonjs": true,
-        "es6": true,
-        "jquery": true
-    },
-    "extends": "standard",
-    "parserOptions": {
-        "sourceType": "script"
-    },
-    "rules": {
-        "space-before-function-paren": ["error", "never"],
-        "new-cap": "off",
-        "handle-callback-err": "off"
-    }
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es6": true,
+    "jquery": true
+  },
+  "extends": "standard",
+  "parserOptions": {
+    "sourceType": "script"
+  },
+  "rules": {
+    "space-before-function-paren": ["error", "never"],
+    "new-cap": "off",
+    "handle-callback-err": "off"
+  }
 }
