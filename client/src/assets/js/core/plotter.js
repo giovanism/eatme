@@ -18,6 +18,7 @@ module.exports = (numRows, numCols) => {
   const DY = BLOCK_HEIGHT * SCALE_FACTOR
 
   const COLOR_BG = '#FFFDE7'
+  const COLOR_FOOD = '#81C784'
   const COLOR_BODY_SELF = '#F44336'
   const COLOR_BODY_OPPONENT = '#3F51B5'
   const COLOR_HEAD_SELF = COLOR_BODY_SELF
@@ -52,7 +53,7 @@ module.exports = (numRows, numCols) => {
       throw new Error('[plotter] unsupported canvas')
     }
 
-    ctx = obj.getContext('2d')
+    ctx = obj.getContext('2d', {alpha: false})
     clearAll()
   }
 
@@ -62,6 +63,10 @@ module.exports = (numRows, numCols) => {
 
   const clearAll = () => {
     _drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, COLOR_BG)
+  }
+
+  const drawFood = (row, col) => {
+    _drawFood(row, col, COLOR_FOOD)
   }
 
   const drawSelfHead = (row, col, type) => {
@@ -78,6 +83,19 @@ module.exports = (numRows, numCols) => {
 
   const drawOpponentBody = (row, col, type) => {
     _drawBody(row, col, type, COLOR_BODY_OPPONENT)
+  }
+
+  const _drawFood = (row, col, color) => {
+    const xBeg = _colToX(col)
+    const yBeg = _rowToY(row)
+    const xMid = xBeg + 0.5 * BLOCK_WIDTH
+    const yMid = yBeg + 0.5 * BLOCK_HEIGHT
+    const r = 0.25 * (BLOCK_WIDTH - 1.5 * DX + BLOCK_HEIGHT - 1.5 * DY)
+
+    ctx.fillStyle = color
+    ctx.beginPath()
+    ctx.arc(xMid, yMid, r, 0, 2 * Math.PI)
+    ctx.fill()
   }
 
   const _drawHead = (row, col, type, color) => {
@@ -221,6 +239,11 @@ module.exports = (numRows, numCols) => {
     drawOpponentBody(3, 5, BODY.DL)
     drawOpponentBody(3, 4, BODY.RD)
     drawOpponentHead(4, 4, HEAD.DOWN)
+
+    clear(1, 1)
+    drawFood(1, 1)
+    clear(4, 4)
+    drawFood(4, 4)
   }
 
   return {
@@ -232,6 +255,7 @@ module.exports = (numRows, numCols) => {
     clear: clear,
     clearAll: clearAll,
 
+    drawFood: drawFood,
     drawSelfHead: drawSelfHead,
     drawOpponentHead: drawOpponentHead,
     drawSelfBody: drawSelfBody,
