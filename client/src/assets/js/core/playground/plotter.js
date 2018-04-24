@@ -19,10 +19,10 @@ module.exports = (numRows, numCols) => {
 
   const COLOR_BG = '#FFFDE7'
   const COLOR_FOOD = '#81C784'
-  const COLOR_BODY_SELF = '#F44336'
-  const COLOR_BODY_OPPONENT = '#3F51B5'
-  const COLOR_HEAD_SELF = COLOR_BODY_SELF
-  const COLOR_HEAD_OPPONENT = COLOR_BODY_OPPONENT
+  const COLOR_SELF_HEAD = '#F44336'
+  const COLOR_SELF_BODY = COLOR_SELF_HEAD
+  const COLOR_OPPONENT_HEAD = '#3F51B5'
+  const COLOR_OPPONENT_BODY = COLOR_OPPONENT_HEAD
 
   const HEAD = {
     LEFT: 0,
@@ -70,19 +70,19 @@ module.exports = (numRows, numCols) => {
   }
 
   const drawSelfHead = (row, col, type) => {
-    _drawHead(row, col, type, COLOR_HEAD_SELF)
-  }
-
-  const drawOpponentHead = (row, col, type) => {
-    _drawHead(row, col, type, COLOR_HEAD_OPPONENT)
+    _drawHead(row, col, type, COLOR_SELF_HEAD)
   }
 
   const drawSelfBody = (row, col, type) => {
-    _drawBody(row, col, type, COLOR_BODY_SELF)
+    _drawBody(row, col, type, COLOR_SELF_BODY)
+  }
+
+  const drawOpponentHead = (row, col, type) => {
+    _drawHead(row, col, type, COLOR_OPPONENT_HEAD)
   }
 
   const drawOpponentBody = (row, col, type) => {
-    _drawBody(row, col, type, COLOR_BODY_OPPONENT)
+    _drawBody(row, col, type, COLOR_OPPONENT_BODY)
   }
 
   const _drawFood = (row, col, color) => {
@@ -257,8 +257,8 @@ module.exports = (numRows, numCols) => {
 
     drawFood: drawFood,
     drawSelfHead: drawSelfHead,
-    drawOpponentHead: drawOpponentHead,
     drawSelfBody: drawSelfBody,
+    drawOpponentHead: drawOpponentHead,
     drawOpponentBody: drawOpponentBody,
 
     drawTestContents: drawTestContents

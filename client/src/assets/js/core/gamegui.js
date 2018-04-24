@@ -5,8 +5,8 @@ module.exports = (() => {
   const TIME_CONFIRM = 10
 
   const gameCtrl = require('./gamectrl.js')
-  const timer = require('./timer.js')
-  const playground = require('./playground.js')('playground')
+  const timer = require('./util/timer.js')
+  const playground = require('./playground/playground.js')('playground')
 
   const KEYBOARD_ACTION = {
     37: gameCtrl.ACTION.LEFT,
@@ -158,6 +158,7 @@ module.exports = (() => {
   }
 
   const _startGame = () => {
+    playground.resetSnakes()
     timer.startCountDown(pPrompt, 3, 1, () => {
       _setInfo('START')
       setTimeout(() => {

@@ -47,7 +47,7 @@ module.exports = (() => {
 
   const MSG_SEPARATOR = '_'
 
-  const messenger = require('./messenger.js')
+  const messenger = require('./util/messenger.js')
 
   let playerId = null
   let playerState = STATE.OFFLINE

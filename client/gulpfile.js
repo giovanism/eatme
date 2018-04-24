@@ -21,7 +21,7 @@ gulp.task('clean', function() {
 })
 
 gulp.task('pages', function() {
-  return gulp.src('src/pages/*.html')
+  return gulp.src('src/pages/**/*.html')
     .pipe(htmlmin({
       collapseWhitespace: true,
       removeComments: true
@@ -30,14 +30,14 @@ gulp.task('pages', function() {
 })
 
 gulp.task('css-core', function() {
-  return gulp.src('src/assets/css/core/*.css')
+  return gulp.src('src/assets/css/core/**/*.css')
     .pipe(csso())
     .pipe(concat('index.css'))
     .pipe(gulp.dest('dist/assets/css'))
 })
 
 gulp.task('css-lib', function() {
-  return gulp.src('src/assets/css/lib/*.css')
+  return gulp.src('src/assets/css/lib/**/*.css')
     .pipe(concat('lib.css'))
     .pipe(gulp.dest('dist/assets/css'))
 })
@@ -61,17 +61,17 @@ gulp.task('js-core', function() {
 })
 
 gulp.task('js-lib', function() {
-  return gulp.src(['src/assets/js/lib/jquery.min.js', 'src/assets/js/lib/*.js'])
+  return gulp.src(['src/assets/js/lib/jquery.min.js', 'src/assets/js/lib/**/*.js'])
     .pipe(concat('lib.js'))
     .pipe(gulp.dest('dist/assets/js'))
 })
 
 gulp.task('watch', function() {
-  gulp.watch('src/pages/*.html', ['pages'])
-  gulp.watch('src/assets/css/core/*.css', ['css-core'])
-  gulp.watch('src/assets/css/lib/*.css', ['css-lib'])
-  gulp.watch('src/assets/js/core/*.js', ['js-core'])
-  gulp.watch('src/assets/js/lib/*.js', ['js-lib'])
+  gulp.watch('src/pages/**/*.html', ['pages'])
+  gulp.watch('src/assets/css/core/**/*.css', ['css-core'])
+  gulp.watch('src/assets/css/lib/**/*.css', ['css-lib'])
+  gulp.watch('src/assets/js/core/**/*.js', ['js-core'])
+  gulp.watch('src/assets/js/lib/**/*.js', ['js-lib'])
 })
 
 gulp.task('build', function() {
