@@ -1,4 +1,6 @@
 module.exports = (() => {
+  'use strict'
+
   let countDownTimerId = null
   let element = null
   let oriContent = null

@@ -1,5 +1,7 @@
 module.exports = (() => {
-  const Direc = require('./direc.js')
+  'use strict'
+
+  const DIREC = require('./direc.js')
 
   function Pos(row, col) {
     this._row = Math.floor(row || 0)
@@ -21,17 +23,16 @@ module.exports = (() => {
   }
 
   Pos.prototype.adj = function(direc) {
-    if (direc === Direc.LEFT) {
+    if (direc === DIREC.LEFT) {
       return new Pos(this._row, this._col - 1)
-    } else if (direc === Direc.RIGHT) {
+    } else if (direc === DIREC.RIGHT) {
       return new Pos(this._row, this._col + 1)
-    } else if (direc === Direc.UP) {
+    } else if (direc === DIREC.UP) {
       return new Pos(this._row - 1, this._col)
-    } else if (direc === Direc.DOWN) {
+    } else if (direc === DIREC.DOWN) {
       return new Pos(this._row + 1, this._col)
-    } else {
-      return Direc.NONE
     }
+    return DIREC.NONE
   }
 
   return Pos

@@ -1,4 +1,6 @@
 module.exports = (() => {
+  'use strict'
+
   // seconds
   const TIME_WAIT = 10
   const TIME_READY = 10
@@ -8,17 +10,23 @@ module.exports = (() => {
   const timer = require('./util/timer.js')
   const playground = require('./playground/playground.js')('playground')
 
-  const KEYBOARD_ACTION = {
+  const MAP_KEY_ACTION = {
     37: gameCtrl.ACTION.LEFT,
     38: gameCtrl.ACTION.UP,
     39: gameCtrl.ACTION.RIGHT,
     40: gameCtrl.ACTION.DOWN
   }
 
+  const MAP_ACTION_DIREC = {}
+  MAP_ACTION_DIREC[gameCtrl.ACTION.LEFT] = playground.DIREC.LEFT
+  MAP_ACTION_DIREC[gameCtrl.ACTION.UP] = playground.DIREC.UP
+  MAP_ACTION_DIREC[gameCtrl.ACTION.RIGHT] = playground.DIREC.RIGHT
+  MAP_ACTION_DIREC[gameCtrl.ACTION.DOWN] = playground.DIREC.DOWN
+
   const btnFind = $('button#find-btn')
   const btnReady = $('button#ready-btn')
   const btnQuit = $('button#quit-btn')
-  const pPrompt = $('p#prompt')
+  const pInfo = $('p#info')
 
   const init = () => {
     playground.init()
@@ -29,10 +37,12 @@ module.exports = (() => {
 
     $(document).keydown((event) => {
       if (gameCtrl.isPlaying()) {
-        const action = KEYBOARD_ACTION[event.which]
-        if (action) {
+        const action = MAP_KEY_ACTION[event.which]
+        const direc = MAP_ACTION_DIREC[action]
+        const lastDirec = playground.lastSelfDirec()
+        if (!playground.DIREC.isOpposite(direc, lastDirec)) {
           gameCtrl.setNextAction(action)
-          if (gameCtrl.isStarted()) gameCtrl.action()
+          if (gameCtrl.isGameStarted()) gameCtrl.action()
         }
       }
     })
@@ -42,7 +52,7 @@ module.exports = (() => {
       _clrInfo()
       _show(btnQuit)
       timer.startCountDown(btnFind, TIME_WAIT - 1, 0, () => {
-        if (gameCtrl.getPlayerState() === gameCtrl.STATE.WAITING) {
+        if (gameCtrl.isWaiting()) {
           _resetToWait()
           gameCtrl.quit()
           _setInfo('Timeout. Please try again.')
@@ -66,7 +76,7 @@ module.exports = (() => {
       _disable(btnReady)
       _clrInfo()
       timer.startCountDown(btnReady, TIME_READY - 1, 0, () => {
-        if (gameCtrl.getPlayerState() === gameCtrl.STATE.READY) {
+        if (gameCtrl.isReady()) {
           _resetToWait()
           gameCtrl.quit()
           _setInfo('Opponent no respond. Please try again.')
@@ -104,12 +114,46 @@ module.exports = (() => {
       })
     })
 
-    gameCtrl.setOnTakingActions((myAction, opponentAction) => {
-      _appendInfo('(' + myAction + ',' + opponentAction + ')')
-      if (myAction === gameCtrl.ACTION.DOWN &&
-          opponentAction === gameCtrl.ACTION.DOWN) { // Test done()
+    gameCtrl.setOnTakingActions((selfAction, opponentAction) => {
+      let gameover = false
+      let win = false
+      let eatType = null
+
+      if (gameCtrl.isAttacking()) {
+        // Move self first
+        eatType = playground.moveSelfSnake(MAP_ACTION_DIREC[selfAction])
+        if (!playground.isSafeType(eatType)) {
+          win = playground.isOpponentType(eatType)
+          gameover = true
+        } else {
+          // Move opponent then
+          eatType = playground.moveOpponentSnake(MAP_ACTION_DIREC[opponentAction])
+          if (!playground.isSafeType(eatType)) {
+            win = true
+            gameover = true
+          }
+        }
+      } else if (gameCtrl.isDefending()) {
+        // Move opponent first
+        eatType = playground.moveOpponentSnake(MAP_ACTION_DIREC[opponentAction])
+        if (!playground.isSafeType(eatType)) {
+          win = !playground.isSelfType(eatType)
+          gameover = true
+        } else {
+          // Move self then
+          eatType = playground.moveSelfSnake(MAP_ACTION_DIREC[selfAction])
+          if (!playground.isSafeType(eatType)) {
+            win = false
+            gameover = true
+          }
+        }
+      }
+
+      _appendInfo('(' + selfAction + ',' + opponentAction + ')')
+
+      if (gameover) {
+        _appendInfo(win ? 'WIN' : 'LOSE')
         _resetToReady()
-        _appendInfo(gameCtrl.getPlayerState() === gameCtrl.STATE.ATTACKING ? 'WIN' : 'LOSE')
         gameCtrl.done()
       }
     })
@@ -119,10 +163,9 @@ module.exports = (() => {
     })
 
     gameCtrl.setOnSwitchingRole(() => {
-      const state = gameCtrl.getPlayerState()
-      if (state === gameCtrl.STATE.ATTACKING) {
+      if (gameCtrl.isAttacking()) {
         _appendInfo('ATTACK')
-      } else if (state === gameCtrl.STATE.DEFENDING) {
+      } else if (gameCtrl.isDefending()) {
         _appendInfo('DEFEND')
       }
     })
@@ -158,25 +201,24 @@ module.exports = (() => {
   }
 
   const _startGame = () => {
-    playground.resetSnakes()
-    timer.startCountDown(pPrompt, 3, 1, () => {
+    playground.resetSnakes(gameCtrl.isAttacking())
+    timer.startCountDown(pInfo, 3, 1, () => {
       _setInfo('START')
       setTimeout(() => {
-        const state = gameCtrl.getPlayerState()
-        if (state === gameCtrl.STATE.ATTACKING) {
+        if (gameCtrl.isAttacking()) {
           _setInfo('ATTACK')
-        } else if (state === gameCtrl.STATE.DEFENDING) {
+        } else if (gameCtrl.isDefending()) {
           _setInfo('DEFEND')
         }
         gameCtrl.action()
-        gameCtrl.setStarted(true)
+        gameCtrl.setGameStarted(true)
       }, 1000)
     })
   }
 
   const _resetToWait = () => {
     timer.stopCountDown()
-    gameCtrl.setStarted(false)
+    gameCtrl.setGameStarted(false)
     _hide(btnReady)
     _hide(btnQuit)
     _show(btnFind)
@@ -184,37 +226,43 @@ module.exports = (() => {
 
   const _resetToReady = () => {
     timer.stopCountDown()
-    gameCtrl.setStarted(false)
+    gameCtrl.setGameStarted(false)
     _hide(btnFind)
     _show(btnReady)
     _show(btnQuit)
   }
 
-  const _enable = e => { e.prop('disabled', false) }
+  const _enable = (e) => {
+    e.prop('disabled', false)
+  }
 
-  const _disable = e => { e.prop('disabled', true) }
+  const _disable = (e) => {
+    e.prop('disabled', true)
+  }
 
-  const _show = e => {
+  const _show = (e) => {
     _enable(e)
     e.show()
   }
 
-  const _hide = e => {
+  const _hide = (e) => {
     _disable(e)
     e.hide()
   }
 
-  const _setInfo = info => {
-    pPrompt.html(info)
+  const _setInfo = (info) => {
+    pInfo.html(info)
     window.scrollTo(0, document.body.scrollHeight)
   }
 
-  const _appendInfo = info => {
-    pPrompt.html(pPrompt.html() + info)
+  const _appendInfo = (info) => {
+    pInfo.html(pInfo.html() + info)
     window.scrollTo(0, document.body.scrollHeight)
   }
 
-  const _clrInfo = () => { pPrompt.text('') }
+  const _clrInfo = () => {
+    pInfo.text('')
+  }
 
   return {
     init: init

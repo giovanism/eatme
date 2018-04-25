@@ -1,4 +1,6 @@
 module.exports = (numRows, numCols) => {
+  'use strict'
+
   // Canvas size in pixels
   const CANVAS_WIDTH = Math.floor(0.75 * window.innerWidth)
   const CANVAS_HEIGHT = Math.floor(0.75 * window.innerHeight)
@@ -17,7 +19,7 @@ module.exports = (numRows, numCols) => {
   const DX = BLOCK_WIDTH * SCALE_FACTOR
   const DY = BLOCK_HEIGHT * SCALE_FACTOR
 
-  const COLOR_BG = '#FFFDE7'
+  const COLOR_BG = '#000000'
   const COLOR_FOOD = '#81C784'
   const COLOR_SELF_HEAD = '#F44336'
   const COLOR_SELF_BODY = COLOR_SELF_HEAD
@@ -53,16 +55,20 @@ module.exports = (numRows, numCols) => {
       throw new Error('[plotter] unsupported canvas')
     }
 
-    ctx = obj.getContext('2d', {alpha: false})
+    ctx = obj.getContext('2d')
+    _drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, 'rgba(0, 0, 0, 0)') // Make transparent
+
     clearAll()
   }
 
   const clear = (row, col) => {
-    _drawRect(_colToX(col), _rowToY(row), BLOCK_WIDTH, BLOCK_HEIGHT, COLOR_BG)
+    _drawRect(_colToX(col), _rowToY(row),
+      BLOCK_WIDTH, BLOCK_HEIGHT, COLOR_BG)
   }
 
   const clearAll = () => {
-    _drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, COLOR_BG)
+    _drawRect(PAD_HOR, PAD_VER, CANVAS_WIDTH - 2 * PAD_HOR,
+      CANVAS_HEIGHT - 2 * PAD_VER, COLOR_BG)
   }
 
   const drawFood = (row, col) => {
@@ -70,19 +76,27 @@ module.exports = (numRows, numCols) => {
   }
 
   const drawSelfHead = (row, col, type) => {
-    _drawHead(row, col, type, COLOR_SELF_HEAD)
+    drawHead(row, col, type, true)
   }
 
   const drawSelfBody = (row, col, type) => {
-    _drawBody(row, col, type, COLOR_SELF_BODY)
+    drawBody(row, col, type, true)
   }
 
   const drawOpponentHead = (row, col, type) => {
-    _drawHead(row, col, type, COLOR_OPPONENT_HEAD)
+    drawHead(row, col, type, false)
   }
 
   const drawOpponentBody = (row, col, type) => {
-    _drawBody(row, col, type, COLOR_OPPONENT_BODY)
+    drawBody(row, col, type, false)
+  }
+
+  const drawHead = (row, col, type, self) => {
+    _drawHead(row, col, type, self ? COLOR_SELF_HEAD : COLOR_OPPONENT_HEAD)
+  }
+
+  const drawBody = (row, col, type, self) => {
+    _drawBody(row, col, type, self ? COLOR_SELF_BODY : COLOR_OPPONENT_BODY)
   }
 
   const _drawFood = (row, col, color) => {
@@ -92,6 +106,7 @@ module.exports = (numRows, numCols) => {
     const yMid = yBeg + 0.5 * BLOCK_HEIGHT
     const r = 0.25 * (BLOCK_WIDTH - 1.5 * DX + BLOCK_HEIGHT - 1.5 * DY)
 
+    clear(row, col)
     ctx.fillStyle = color
     ctx.beginPath()
     ctx.arc(xMid, yMid, r, 0, 2 * Math.PI)
@@ -108,6 +123,7 @@ module.exports = (numRows, numCols) => {
     const rEye = 0.35 * (DX + DY)
     const rEyeball = 0.4 * rEye
 
+    clear(row, col)
     ctx.fillStyle = color
     if (type === HEAD.LEFT) {
       ctx.beginPath()
@@ -169,6 +185,7 @@ module.exports = (numRows, numCols) => {
     const verWidth = BLOCK_WIDTH - 2 * DX
     const horHeight = BLOCK_HEIGHT - 2 * DY
 
+    clear(row, col)
     if (type === BODY.HOR) {
       _drawRect(xBeg, yBeg + DY, BLOCK_WIDTH, horHeight, color)
     } else if (type === BODY.VER) {
@@ -193,9 +210,9 @@ module.exports = (numRows, numCols) => {
     ctx.fillRect(x, y, width, height)
   }
 
-  const _colToX = col => PAD_HOR + col * BLOCK_WIDTH
+  const _colToX = (col) => PAD_HOR + col * BLOCK_WIDTH
 
-  const _rowToY = row => PAD_VER + row * BLOCK_HEIGHT
+  const _rowToY = (row) => PAD_VER + row * BLOCK_HEIGHT
 
   const drawTestContents = () => {
     clearAll()
@@ -256,6 +273,9 @@ module.exports = (numRows, numCols) => {
     clearAll: clearAll,
 
     drawFood: drawFood,
+    drawHead: drawHead,
+    drawBody: drawBody,
+
     drawSelfHead: drawSelfHead,
     drawSelfBody: drawSelfBody,
     drawOpponentHead: drawOpponentHead,

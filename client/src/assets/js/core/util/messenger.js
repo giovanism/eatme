@@ -1,16 +1,18 @@
 /* global Stomp, SockJS */
 
 module.exports = (() => {
+  'use strict'
+
   let stompClient = null
 
   const connect = (connDest, sucCb, errCb, subscribeDest, subscribeCb) => {
     stompClient = Stomp.over(new SockJS(connDest))
     stompClient.connect({},
-      frame => {
+      (frame) => {
         stompClient.subscribe(subscribeDest, subscribeCb)
         if (sucCb) sucCb(frame)
       },
-      err => {
+      (err) => {
         stompClient = null
         if (errCb) errCb()
       }

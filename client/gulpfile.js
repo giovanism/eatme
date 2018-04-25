@@ -44,7 +44,6 @@ gulp.task('css-lib', function() {
 
 gulp.task('js-core', function() {
   return gulp.src('src/assets/js/core/index.js')
-    .pipe(gulpif(isDev(), sourcemaps.init))
     .pipe(browserify())
     .pipe(babel({
       presets: [['env', {
@@ -53,6 +52,7 @@ gulp.task('js-core', function() {
         }
       }]]
     }))
+    .pipe(gulpif(isDev(), sourcemaps.init))
     .pipe(uglify({
       'toplevel': true
     }))

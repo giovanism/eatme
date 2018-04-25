@@ -1,6 +1,8 @@
 /* global UUID */
 
 module.exports = (() => {
+  'use strict'
+
   const DEST_ENDPOINT = '/ws/ep'
   const DEST_SUBSCRIBE = '/ws/sb'
   const DEST_WAIT = '/game/wait'
@@ -56,55 +58,41 @@ module.exports = (() => {
   let random = null
 
   let steps = 0
-  let started = false
+  let gameStarted = false
   let nextAction = null
 
   let onTakingActions = null
   let onCreatingFood = null
   let onSwitchingRole = null
 
-  const isPlaying = () => {
-    return playerState === STATE.ATTACKING ||
-           playerState === STATE.DEFENDING
-  }
+  const setGameStarted = (s) => { gameStarted = !!s }
 
-  const getPlayerState = () => playerState
+  const isGameStarted = () => !!gameStarted
 
-  const _setPlayerState = state => {
-    playerState = state
-    console.log('[gamectrl] state: ' + state)
-  }
+  const isOffline = () => playerState === STATE.OFFLINE
 
-  const setStarted = s => { started = s }
+  const isWaiting = () => playerState === STATE.WAITING
 
-  const isStarted = () => !!started
+  const isNotReady = () => playerState === STATE.NOT_READY
 
-  const setNextAction = action => { nextAction = action }
+  const isReady = () => playerState === STATE.READY
 
-  const setOnTakingActions = cb => { onTakingActions = cb }
+  const isAttacking = () => playerState === STATE.ATTACKING
 
-  const setOnCreatingFood = cb => { onCreatingFood = cb }
+  const isDefending = () => playerState === STATE.DEFENDING
 
-  const setOnSwitchingRole = cb => { onSwitchingRole = cb }
+  const isPlaying = () => isAttacking() || isDefending()
+
+  const setNextAction = (action) => { nextAction = action }
+
+  const setOnTakingActions = (cb) => { onTakingActions = cb }
+
+  const setOnCreatingFood = (cb) => { onCreatingFood = cb }
+
+  const setOnSwitchingRole = (cb) => { onSwitchingRole = cb }
 
   const genPlayerId = () => {
     if (!playerId) playerId = UUID.generate().replace(/-/g, '')
-  }
-
-  const _resetToWait = clrPlayerId => {
-    if (clrPlayerId === true) playerId = null
-    _setPlayerState(STATE.OFFLINE)
-    battleId = null
-    random = null
-    steps = 0
-    nextAction = null
-  }
-
-  const _resetToReady = () => {
-    _setPlayerState(STATE.NOT_READY)
-    random = null
-    steps = 0
-    nextAction = null
   }
 
   const connect = (sucCb, errCb, subscribeCb) => {
@@ -116,7 +104,7 @@ module.exports = (() => {
         if (errCb) errCb()
       },
       DEST_SUBSCRIBE + '/' + playerId,
-      msg => {
+      (msg) => {
         _handleMsg(msg.body, subscribeCb)
       }
     )
@@ -210,6 +198,22 @@ module.exports = (() => {
     disconnect()
   }
 
+  const _resetToWait = (clrPlayerId) => {
+    if (clrPlayerId === true) playerId = null
+    _setPlayerState(STATE.OFFLINE)
+    battleId = null
+    random = null
+    steps = 0
+    nextAction = null
+  }
+
+  const _resetToReady = () => {
+    _setPlayerState(STATE.NOT_READY)
+    random = null
+    steps = 0
+    nextAction = null
+  }
+
   const _handleMsg = (msgBody, cb) => {
     const [type, data1, data2] = msgBody.split(MSG_SEPARATOR, 3)
     if (type === MSG.ERR) {
@@ -224,12 +228,12 @@ module.exports = (() => {
     if (cb) cb(type, data1, data2)
   }
 
-  const _handleErrMsg = errCode => {
+  const _handleErrMsg = (errCode) => {
     console.log('[gamectrl] err: ' + errCode)
     _resetToWait()
   }
 
-  const _handleBattleMsg = id => {
+  const _handleBattleMsg = (id) => {
     battleId = id
     _setPlayerState(STATE.NOT_READY)
   }
@@ -241,8 +245,8 @@ module.exports = (() => {
     setNextAction(attack ? ACTION.RIGHT : ACTION.LEFT)
   }
 
-  const _handleActionMsg = (myAction, opponentAction) => {
-    if (onTakingActions) onTakingActions(myAction, opponentAction)
+  const _handleActionMsg = (selfAction, opponentAction) => {
+    if (onTakingActions) onTakingActions(selfAction, opponentAction)
     if (!isPlaying()) return
     ++steps
     if (steps % FREQ_FOOD === 0) {
@@ -255,18 +259,28 @@ module.exports = (() => {
     }
   }
 
+  const _setPlayerState = (state) => {
+    playerState = state
+    console.log('[gamectrl] state: ' + state)
+  }
+
   return {
-    STATE: STATE,
     ACTION: ACTION,
     MSG: MSG,
     ERR: ERR,
 
-    isPlaying: isPlaying,
-    getPlayerState: getPlayerState,
-    setStarted: setStarted,
-    isStarted: isStarted,
-    setNextAction: setNextAction,
+    setGameStarted: setGameStarted,
+    isGameStarted: isGameStarted,
 
+    isOffline: isOffline,
+    isWaiting: isWaiting,
+    isNotReady: isNotReady,
+    isReady: isReady,
+    isAttacking: isAttacking,
+    isDefending: isDefending,
+    isPlaying: isPlaying,
+
+    setNextAction: setNextAction,
     setOnTakingActions: setOnTakingActions,
     setOnCreatingFood: setOnCreatingFood,
     setOnSwitchingRole: setOnSwitchingRole,

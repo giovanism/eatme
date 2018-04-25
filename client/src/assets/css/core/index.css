@@ -7,10 +7,10 @@ body {
   font-family: "Segoe UI", Frutiger, "Frutiger Linotype",
     "Dejavu Sans", "Helvetica Neue", Arial, sans-serif;
   font-size: 10px;
+  background-color: white;
 }
 
 canvas#playground {
-  padding: 0;
   margin: auto;
   display: block;
   position: absolute;
@@ -19,13 +19,13 @@ canvas#playground {
   left: 0;
   right: 0;
   z-index: -1;
-  border: 1px solid;
 }
 
 button#ready-btn, button#quit-btn {
   display: none;
 }
 
-p#prompt {
+p#info {
   word-break: break-all;
+  color: #E53935;
 }

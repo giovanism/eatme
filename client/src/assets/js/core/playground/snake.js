@@ -1,4 +1,6 @@
 module.exports = (() => {
+  'use strict'
+
   function Snake(initBodies, initDirec) {
     this._initBodies = initBodies
     this._initDirec = initDirec
@@ -34,7 +36,7 @@ module.exports = (() => {
   }
 
   Snake.prototype.move = function(direc, grow) {
-    this._bodies.unshift(this.head().direc(direc))
+    this._bodies.unshift(this.head().adj(direc))
     if (!grow) this._bodies.pop()
     this._lastDirec = direc
   }
