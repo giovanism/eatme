@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "author": "Chuyang Liu",
   "scripts": {
-    "build": "cross-env NODE_ENV=dev gulp build",
-    "build-prod": "cross-env NODE_ENV=prod gulp build",
     "clean": "gulp clean",
+    "dev": "cross-env NODE_ENV=dev gulp build",
+    "build": "cross-env NODE_ENV=prod gulp build",
     "lint": "eslint src/assets/js/core/**/*.js"
   },
   "devDependencies": {
