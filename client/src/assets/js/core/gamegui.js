@@ -158,8 +158,8 @@ module.exports = (() => {
       }
     })
 
-    gameCtrl.setOnCreatingFood((foodPos) => {
-      _appendInfo('(' + foodPos + ')')
+    gameCtrl.setOnCreatingFood(() => {
+      playground.addRandFood(gameCtrl.getRandGenerator())
     })
 
     gameCtrl.setOnSwitchingRole(() => {

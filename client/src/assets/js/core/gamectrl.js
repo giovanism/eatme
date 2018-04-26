@@ -91,6 +91,8 @@ module.exports = (() => {
 
   const setOnSwitchingRole = (cb) => { onSwitchingRole = cb }
 
+  const getRandGenerator = () => random
+
   const genPlayerId = () => {
     if (!playerId) playerId = UUID.generate().replace(/-/g, '')
   }
@@ -119,7 +121,7 @@ module.exports = (() => {
   }
 
   const wait = () => {
-    if (playerState === STATE.OFFLINE) {
+    if (isOffline()) {
       messenger.send(DEST_WAIT, {
         playerId: playerId
       })
@@ -130,7 +132,7 @@ module.exports = (() => {
   }
 
   const quitWait = () => {
-    if (playerState === STATE.WAITING) {
+    if (isWaiting()) {
       messenger.send(DEST_QUIT_WAIT, {
         playerId: playerId
       })
@@ -141,7 +143,7 @@ module.exports = (() => {
   }
 
   const ready = () => {
-    if (playerState === STATE.NOT_READY) {
+    if (isNotReady()) {
       messenger.send(DEST_READY, {
         playerId: playerId,
         battleId: battleId
@@ -177,7 +179,7 @@ module.exports = (() => {
   }
 
   const quitBattle = () => {
-    if (playerState !== STATE.OFFLINE && playerState !== STATE.WAITING) {
+    if (!isOffline() && !isWaiting()) {
       messenger.send(DEST_QUIT_BATTLE, {
         playerId: playerId,
         battleId: battleId
@@ -189,8 +191,8 @@ module.exports = (() => {
   }
 
   const quit = () => {
-    if (playerState === STATE.OFFLINE) return
-    if (playerState === STATE.WAITING) {
+    if (isOffline()) return
+    if (isWaiting()) {
       quitWait()
     } else {
       quitBattle()
@@ -219,9 +221,9 @@ module.exports = (() => {
     if (type === MSG.ERR) {
       _handleErrMsg(data1)
     } else if (type === MSG.BID) {
-      if (playerState === STATE.WAITING) _handleBattleMsg(data1)
+      if (isWaiting()) _handleBattleMsg(data1)
     } else if (type === MSG.START) {
-      if (playerState === STATE.READY) _handleStartMsg(data1, data2 === '1')
+      if (isReady()) _handleStartMsg(data1, data2 === '1')
     } else if (type === MSG.ACTION) {
       if (isPlaying()) _handleActionMsg(data1, data2)
     }
@@ -250,11 +252,10 @@ module.exports = (() => {
     if (!isPlaying()) return
     ++steps
     if (steps % FREQ_FOOD === 0) {
-      const foodPos = random.int32()
-      if (onCreatingFood) onCreatingFood(foodPos)
+      if (onCreatingFood) onCreatingFood()
     }
     if (steps % FREQ_SWITCH === 0) {
-      _setPlayerState(playerState === STATE.ATTACKING ? STATE.DEFENDING : STATE.ATTACKING)
+      _setPlayerState(isAttacking() ? STATE.DEFENDING : STATE.ATTACKING)
       if (onSwitchingRole) onSwitchingRole()
     }
   }
@@ -284,6 +285,8 @@ module.exports = (() => {
     setOnTakingActions: setOnTakingActions,
     setOnCreatingFood: setOnCreatingFood,
     setOnSwitchingRole: setOnSwitchingRole,
+
+    getRandGenerator: getRandGenerator,
 
     genPlayerId: genPlayerId,
 

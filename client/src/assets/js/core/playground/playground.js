@@ -88,8 +88,21 @@ module.exports = (canvasId) => {
     snakeOpponent.reset()
 
     _clearAll()
-    _drawSelfSnake(selfOnLeft ? SNAKE_LEFT_BODY_PLOT_TYPES : SNAKE_RIGHT_BODY_PLOT_TYPES)
-    _drawOpponentSnake(selfOnLeft ? SNAKE_RIGHT_BODY_PLOT_TYPES : SNAKE_LEFT_BODY_PLOT_TYPES)
+    _addSelfSnake(selfOnLeft ? SNAKE_LEFT_BODY_PLOT_TYPES : SNAKE_RIGHT_BODY_PLOT_TYPES)
+    _addOpponentSnake(selfOnLeft ? SNAKE_RIGHT_BODY_PLOT_TYPES : SNAKE_LEFT_BODY_PLOT_TYPES)
+  }
+
+  const addRandFood = (random) => {
+    const empties = []
+    for (let i = 0; i < NUM_ROWS; ++i) {
+      for (let j = 0; j < NUM_COLS; ++j) {
+        if (isEmptyType(contents[i][j].type())) empties.push(new Pos(i, j))
+      }
+    }
+    if (empties.length > 0) {
+      const foodIdx = Math.floor(random() * empties.length)
+      _updateFood(empties[foodIdx])
+    }
   }
 
   const moveSelfSnake = (direc) => {
@@ -100,15 +113,15 @@ module.exports = (canvasId) => {
     return _moveSnake(false, direc)
   }
 
-  const _drawSelfSnake = (bodyPlotTypes) => {
-    _drawSnake(true, bodyPlotTypes)
+  const _addSelfSnake = (bodyPlotTypes) => {
+    _addSnake(true, bodyPlotTypes)
   }
 
-  const _drawOpponentSnake = (bodyPlotTypes) => {
-    _drawSnake(false, bodyPlotTypes)
+  const _addOpponentSnake = (bodyPlotTypes) => {
+    _addSnake(false, bodyPlotTypes)
   }
 
-  const _drawSnake = (self, bodyPlotTypes) => {
+  const _addSnake = (self, bodyPlotTypes) => {
     const snake = self ? snakeSelf : snakeOpponent
     for (let i = 0; i < snake.len(); ++i) {
       const body = snake.body(i)
@@ -161,6 +174,11 @@ module.exports = (canvasId) => {
     return eatType
   }
 
+  const _updateFood = (pos) => {
+    plotter.drawFood(pos.row(), pos.col())
+    _point(pos).type(Point.TYPE.FOOD)
+  }
+
   const _updateHead = (pos, plotType, self) => {
     plotter.drawHead(pos.row(), pos.col(), plotType, self)
     _point(pos).type(self ? Point.TYPE.SELF_HEAD : Point.TYPE.OPPONENT_HEAD)
@@ -204,6 +222,8 @@ module.exports = (canvasId) => {
 
     init: init,
     resetSnakes: resetSnakes,
+
+    addRandFood: addRandFood,
 
     moveSelfSnake: moveSelfSnake,
     moveOpponentSnake: moveOpponentSnake
