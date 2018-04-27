@@ -66,7 +66,7 @@ module.exports = (canvasId) => {
 
   const init = () => {
     plotter.init(canvasId)
-    plotter.drawTestContents()
+    // plotter.drawTestContents()
 
     for (let i = 0; i < contents.length; ++i) {
       contents[i] = new Array(NUM_COLS)

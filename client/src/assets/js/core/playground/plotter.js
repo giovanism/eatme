@@ -2,8 +2,8 @@ module.exports = (numRows, numCols) => {
   'use strict'
 
   // Canvas size in pixels
-  const CANVAS_WIDTH = Math.floor(0.75 * window.innerWidth)
-  const CANVAS_HEIGHT = Math.floor(0.75 * window.innerHeight)
+  const CANVAS_WIDTH = Math.floor(0.8 * window.innerWidth)
+  const CANVAS_HEIGHT = Math.floor(0.8 * window.innerHeight)
 
   // Block size in pixels
   const RAW_BLOCK_WIDTH = Math.floor(CANVAS_WIDTH / numCols)
@@ -19,7 +19,8 @@ module.exports = (numRows, numCols) => {
   const DX = BLOCK_WIDTH * SCALE_FACTOR
   const DY = BLOCK_HEIGHT * SCALE_FACTOR
 
-  const COLOR_BG = '#000000'
+  const COLOR_BG = '#FFFFFF'
+  const COLOR_PAD = '#000000'
   const COLOR_FOOD = '#81C784'
   const COLOR_SELF_HEAD = '#F44336'
   const COLOR_SELF_BODY = COLOR_SELF_HEAD
@@ -55,8 +56,8 @@ module.exports = (numRows, numCols) => {
       throw new Error('[plotter] unsupported canvas')
     }
 
-    ctx = obj.getContext('2d')
-    _drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, 'rgba(0, 0, 0, 0)') // Make transparent
+    ctx = obj.getContext('2d', {alpha: false})
+    _drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, COLOR_PAD)
 
     clearAll()
   }

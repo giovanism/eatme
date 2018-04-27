@@ -1,18 +1,20 @@
 * {
   margin: 0;
   padding: 0;
+  outline: none;
+  user-select: none;
 }
 
 body {
   font-family: "Segoe UI", Frutiger, "Frutiger Linotype",
     "Dejavu Sans", "Helvetica Neue", Arial, sans-serif;
   font-size: 10px;
-  background-color: white;
+  background-color: black;
 }
 
 canvas#playground {
+  display: none;
   margin: auto;
-  display: block;
   position: absolute;
   top: 0;
   bottom: 0;
@@ -21,11 +23,59 @@ canvas#playground {
   z-index: -1;
 }
 
-button#ready-btn, button#quit-btn {
+button#quit-btn {
   display: none;
+  position: fixed;
+  top: 3vh;
+  right: 3vw;
+  border: none;
+  color: white;
+  background-color: transparent;
+  font-size: 15px;
+}
+
+button#quit-btn:hover {
+  font-size: 20px;
+}
+
+div#ctrl {
+  display: flex;
+  display: -webkit-flex;
+  height: 100vh;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+button#main-btn {
+  width: 100px;
+  height: 100px;
+  margin: 0 0 20px 0;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  background-color: #26A69A;
+  font-size: 20px;
+}
+
+button#main-btn:active {
+  background-color: #009688;
+}
+
+button#main-btn[disabled] {
+  background-color: #424242;
 }
 
 p#info {
+  margin: 0;
   word-break: break-all;
-  color: #E53935;
+  font-size: 15px;
+}
+
+p.light {
+  color: white;
+}
+
+p.dark {
+  color: black;
 }

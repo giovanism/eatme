@@ -191,11 +191,12 @@ module.exports = (() => {
   }
 
   const quit = () => {
-    if (isOffline()) return
-    if (isWaiting()) {
-      quitWait()
-    } else {
-      quitBattle()
+    if (!isOffline()) {
+      if (isWaiting()) {
+        quitWait()
+      } else {
+        quitBattle()
+      }
     }
     disconnect()
   }
@@ -221,11 +222,14 @@ module.exports = (() => {
     if (type === MSG.ERR) {
       _handleErrMsg(data1)
     } else if (type === MSG.BID) {
-      if (isWaiting()) _handleBattleMsg(data1)
+      if (!isWaiting()) return
+      _handleBattleMsg(data1)
     } else if (type === MSG.START) {
-      if (isReady()) _handleStartMsg(data1, data2 === '1')
+      if (!isReady()) return
+      _handleStartMsg(data1, data2 === '1')
     } else if (type === MSG.ACTION) {
-      if (isPlaying()) _handleActionMsg(data1, data2)
+      if (!isPlaying()) return
+      _handleActionMsg(data1, data2)
     }
     if (cb) cb(type, data1, data2)
   }

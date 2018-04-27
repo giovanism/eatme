@@ -5,18 +5,18 @@ module.exports = (() => {
   let element = null
   let oriContent = null
 
-  const startCountDown = (ele, beg, end, cb) => {
+  const startCountDown = (jqObj, beg, end, cb) => {
     stopCountDown()
-    element = ele
-    oriContent = ele.html()
-    ele.html(beg)
+    element = jqObj
+    oriContent = jqObj.html()
+    jqObj.html(beg)
     countDownTimerId = setInterval(() => {
       --beg
       if (beg === end - 1) {
         stopCountDown()
         if (cb) cb()
       } else {
-        ele.html(beg)
+        jqObj.html(beg)
       }
     }, 1000)
   }
