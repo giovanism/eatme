@@ -20,6 +20,15 @@ public class RedisTransaction {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
+    /**
+     * Execute redis transaction using {@link RedisOperations#multi}
+     * and {@link StringRedisTemplate#execute}.
+     *
+     * @param cb Operations to be pushed in to the transaction queue
+     * @return Results of each redis operation stored in a list of objects
+     *
+     * @see <a href="http://redis.io/commands/multi">Redis Documentation: MULTI</a>
+     */
     public List<Object> exec(Callback cb) {
         return redisTemplate.execute(new SessionCallback<List<Object>>() {
             @Override

@@ -76,6 +76,7 @@ public class BattleServiceImpl implements BattleService {
 
                 if (player1.getState() == PlayerState.OFFLINE
                     || player2.getState() == PlayerState.OFFLINE) {
+                    stopActionBroadcast(battleId);
                     return;
                 }
 
@@ -112,7 +113,15 @@ public class BattleServiceImpl implements BattleService {
 
     @Scheduled(fixedRateString = "${eatme.schedule.freq.info}")
     private void printInfo() {
-        log.info("printInfo() | action broadcasts: " + actionSchedules.size());
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (String battleId : actionSchedules.keySet()) {
+            sb.append(battleId);
+            sb.append(",");
+        }
+        sb.append("]");
+        log.info("printInfo() | action broadcasts: " + actionSchedules.size()
+            + " | battleIds: " + sb.toString());
     }
 
     @Scheduled(fixedRateString = "${eatme.schedule.freq.battle}")
