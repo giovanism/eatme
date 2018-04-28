@@ -45,12 +45,21 @@ module.exports = (numRows, numCols) => {
 
   let ctx = null
 
-  const init = (canvasId) => {
-    const jqObj = $('#' + canvasId)
-    jqObj.attr('width', CANVAS_WIDTH)
-    jqObj.attr('height', CANVAS_HEIGHT)
+  const actualWidth = () => CANVAS_WIDTH - 2 * PAD_HOR
 
-    const obj = jqObj.get(0)
+  const actualHeight = () => CANVAS_HEIGHT - 2 * PAD_VER
+
+  const actualMarginHor = () =>
+    Math.floor(0.5 * (window.innerWidth - CANVAS_WIDTH) + PAD_HOR)
+
+  const actualMarginVer = () =>
+    Math.floor(0.5 * (window.innerHeight - CANVAS_HEIGHT) + PAD_VER)
+
+  const init = (canvas) => {
+    canvas.attr('width', CANVAS_WIDTH)
+    canvas.attr('height', CANVAS_HEIGHT)
+
+    const obj = canvas.get(0)
     if (!obj.getContext) {
       alert('Sorry! Your browser does not support <canvas>. Please use a different one.')
       throw new Error('[plotter] unsupported canvas')
@@ -267,6 +276,11 @@ module.exports = (numRows, numCols) => {
   return {
     HEAD: HEAD,
     BODY: BODY,
+
+    actualWidth: actualWidth,
+    actualHeight: actualHeight,
+    actualMarginHor: actualMarginHor,
+    actualMarginVer: actualMarginVer,
 
     init: init,
 

@@ -1,4 +1,4 @@
-module.exports = (canvasId) => {
+module.exports = (() => {
   'use strict'
 
   const NUM_ROWS = 10
@@ -64,9 +64,12 @@ module.exports = (canvasId) => {
 
   const lastSelfDirec = () => snakeSelf.lastDirec()
 
-  const init = () => {
-    plotter.init(canvasId)
+  const init = (canvas, pTime) => {
+    plotter.init(canvas)
     // plotter.drawTestContents()
+
+    // Set time <p> position
+    pTime.css('top', plotter.actualMarginVer() + 0.05 * plotter.actualHeight())
 
     for (let i = 0; i < contents.length; ++i) {
       contents[i] = new Array(NUM_COLS)
@@ -228,4 +231,4 @@ module.exports = (canvasId) => {
     moveSelfSnake: moveSelfSnake,
     moveOpponentSnake: moveOpponentSnake
   }
-}
+})()

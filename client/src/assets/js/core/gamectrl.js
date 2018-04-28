@@ -97,6 +97,13 @@ module.exports = (() => {
     if (!playerId) playerId = UUID.generate().replace(/-/g, '')
   }
 
+  const roleSwitchStepsLeft = () => {
+    if (steps === 0) return FREQ_SWITCH - 1 // Game not start yet
+    let tmp = steps
+    while (tmp % FREQ_SWITCH !== 0) ++tmp
+    return tmp - steps
+  }
+
   const connect = (sucCb, errCb, subscribeCb) => {
     messenger.connect(
       DEST_ENDPOINT,
@@ -293,6 +300,7 @@ module.exports = (() => {
     getRandGenerator: getRandGenerator,
 
     genPlayerId: genPlayerId,
+    roleSwitchStepsLeft: roleSwitchStepsLeft,
 
     connect: connect,
     disconnect: disconnect,

@@ -8,7 +8,7 @@
 body {
   font-family: "Segoe UI", Frutiger, "Frutiger Linotype",
     "Dejavu Sans", "Helvetica Neue", Arial, sans-serif;
-  font-size: 10px;
+  font-size: 15px;
   background-color: black;
 }
 
@@ -23,6 +23,18 @@ canvas#playground {
   z-index: -1;
 }
 
+p#time {
+  display: none;
+  margin: auto;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+  text-align: center;
+}
+
 button#quit-btn {
   display: none;
   position: fixed;
@@ -31,7 +43,7 @@ button#quit-btn {
   border: none;
   color: white;
   background-color: transparent;
-  font-size: 15px;
+  z-index: 2;
 }
 
 button#quit-btn:hover {
@@ -45,17 +57,19 @@ div#ctrl {
   flex-flow: column nowrap;
   justify-content: center;
   align-items: center;
+  z-index: 1;
 }
 
 button#main-btn {
   width: 100px;
   height: 100px;
-  margin: 0 0 20px 0;
+  margin: 0 0 15px;
   border: none;
   border-radius: 50%;
   color: white;
   background-color: #26A69A;
   font-size: 20px;
+  z-index: inherit;
 }
 
 button#main-btn:active {
@@ -68,8 +82,9 @@ button#main-btn[disabled] {
 
 p#info {
   margin: 0;
+  z-index: inherit;
   word-break: break-all;
-  font-size: 15px;
+  text-align: center;
 }
 
 p.light {
