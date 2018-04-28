@@ -9,7 +9,15 @@ body {
   font-family: "Segoe UI", Frutiger, "Frutiger Linotype",
     "Dejavu Sans", "Helvetica Neue", Arial, sans-serif;
   font-size: 15px;
-  background-color: black;
+  background-color: white;
+}
+
+.light-txt {
+  color: white;
+}
+
+.dark-txt {
+  color: #333;
 }
 
 canvas#playground {
@@ -38,16 +46,16 @@ p#time {
 button#quit-btn {
   display: none;
   position: fixed;
-  top: 3vh;
-  right: 3vw;
+  top: 15px;
+  right: 15px;
   border: none;
-  color: white;
   background-color: transparent;
   z-index: 2;
+  font-size: 20px;
 }
 
 button#quit-btn:hover {
-  font-size: 20px;
+  font-size: 25px;
 }
 
 div#ctrl {
@@ -66,7 +74,6 @@ button#main-btn {
   margin: 0 0 15px;
   border: none;
   border-radius: 50%;
-  color: white;
   background-color: #26A69A;
   font-size: 20px;
   z-index: inherit;
@@ -85,12 +92,4 @@ p#info {
   z-index: inherit;
   word-break: break-all;
   text-align: center;
-}
-
-p.light {
-  color: white;
-}
-
-p.dark {
-  color: black;
 }

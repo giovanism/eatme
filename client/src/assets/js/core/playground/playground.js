@@ -69,7 +69,7 @@ module.exports = (() => {
     // plotter.drawTestContents()
 
     // Set time <p> position
-    pTime.css('top', plotter.actualMarginVer() + 0.05 * plotter.actualHeight())
+    pTime.css('top', plotter.actualMarginVer() + 0.05 * plotter.actualContentHeight())
 
     for (let i = 0; i < contents.length; ++i) {
       contents[i] = new Array(NUM_COLS)

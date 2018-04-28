@@ -22,7 +22,7 @@ module.exports = (() => {
   const TIME_READY = 10
 
   // milliseconds
-  const DURATION_NORMAL = 200
+  const DURATION_NORMAL = 500
 
   const gameCtrl = require('./gamectrl.js')
   const timer = require('./util/timer.js')
@@ -239,6 +239,7 @@ module.exports = (() => {
   }
 
   const _handleStart = () => {
+    _updateInfo('')
     _hideMain()
     _showQuit()
     playground.resetSnakes(gameCtrl.isAttacking())
@@ -341,11 +342,6 @@ module.exports = (() => {
 
   const _updateInfo = (info) => {
     pInfo.html(info)
-    if (canvasPlayground.css('display') === 'none') {
-      pInfo.attr('class', 'light')
-    } else {
-      pInfo.attr('class', 'dark')
-    }
   }
 
   const _updateAndShowInfo = (info, complete) => {

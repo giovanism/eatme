@@ -1,26 +1,44 @@
 module.exports = (numRows, numCols) => {
   'use strict'
 
-  // Canvas size in pixels
+  // Sizes in pixels - BEGIN
+
   const CANVAS_WIDTH = Math.floor(0.8 * window.innerWidth)
   const CANVAS_HEIGHT = Math.floor(0.8 * window.innerHeight)
 
-  // Block size in pixels
-  const RAW_BLOCK_WIDTH = Math.floor(CANVAS_WIDTH / numCols)
-  const RAW_BLOCK_HEIGHT = Math.floor(CANVAS_HEIGHT / numRows)
-  const BLOCK_WIDTH = Math.min(RAW_BLOCK_WIDTH, RAW_BLOCK_HEIGHT)
+  const SHADOW_SIZE = 10
+  const SHADOW_BLUR = SHADOW_SIZE
+
+  const EXPECT_CONTENT_WIDTH = CANVAS_WIDTH - 2 * SHADOW_SIZE
+  const EXPECT_CONTENT_HEIGHT = CANVAS_HEIGHT - 2 * SHADOW_SIZE
+
+  const EXPECT_BLOCK_WIDTH = Math.floor(EXPECT_CONTENT_WIDTH / numCols)
+  const EXPECT_BLOCK_HEIGHT = Math.floor(EXPECT_CONTENT_HEIGHT / numRows)
+
+  const BLOCK_WIDTH = Math.min(EXPECT_BLOCK_WIDTH, EXPECT_BLOCK_HEIGHT)
   const BLOCK_HEIGHT = BLOCK_WIDTH
 
-  // Padding size in pixels
-  const PAD_HOR = Math.floor(0.5 * (CANVAS_WIDTH - numCols * BLOCK_WIDTH))
-  const PAD_VER = Math.floor(0.5 * (CANVAS_HEIGHT - numRows * BLOCK_HEIGHT))
+  const EXPECT_PAD_HOR = Math.floor(0.5 * (EXPECT_CONTENT_WIDTH - numCols * BLOCK_WIDTH))
+  const EXPECT_PAD_VER = Math.floor(0.5 * (EXPECT_CONTENT_HEIGHT - numRows * BLOCK_HEIGHT))
+
+  const PAD_HOR = EXPECT_PAD_HOR + SHADOW_SIZE
+  const PAD_VER = EXPECT_PAD_VER + SHADOW_SIZE
+
+  const CONTENT_WIDTH = CANVAS_WIDTH - 2 * PAD_HOR
+  const CONTENT_HEIGHT = CANVAS_HEIGHT - 2 * PAD_VER
+
+  const MARGIN_HOR = 0.5 * (window.innerWidth - CONTENT_WIDTH)
+  const MARGIN_VER = 0.5 * (window.innerHeight - CONTENT_HEIGHT)
 
   const SCALE_FACTOR = 0.2
   const DX = BLOCK_WIDTH * SCALE_FACTOR
   const DY = BLOCK_HEIGHT * SCALE_FACTOR
 
+  // Sizes in pixels - END
+
   const COLOR_BG = '#FFFFFF'
-  const COLOR_PAD = '#000000'
+  const COLOR_PAD = COLOR_BG
+  const COLOR_SHADOW = 'black'
   const COLOR_FOOD = '#81C784'
   const COLOR_SELF_HEAD = '#F44336'
   const COLOR_SELF_BODY = COLOR_SELF_HEAD
@@ -45,15 +63,13 @@ module.exports = (numRows, numCols) => {
 
   let ctx = null
 
-  const actualWidth = () => CANVAS_WIDTH - 2 * PAD_HOR
+  const actualContentWidth = () => CONTENT_WIDTH
 
-  const actualHeight = () => CANVAS_HEIGHT - 2 * PAD_VER
+  const actualContentHeight = () => CONTENT_HEIGHT
 
-  const actualMarginHor = () =>
-    Math.floor(0.5 * (window.innerWidth - CANVAS_WIDTH) + PAD_HOR)
+  const actualMarginHor = () => MARGIN_HOR
 
-  const actualMarginVer = () =>
-    Math.floor(0.5 * (window.innerHeight - CANVAS_HEIGHT) + PAD_VER)
+  const actualMarginVer = () => MARGIN_VER
 
   const init = (canvas) => {
     canvas.attr('width', CANVAS_WIDTH)
@@ -66,8 +82,10 @@ module.exports = (numRows, numCols) => {
     }
 
     ctx = obj.getContext('2d', {alpha: false})
-    _drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, COLOR_PAD)
+    ctx.shadowColor = COLOR_SHADOW
+    ctx.shadowBlur = SHADOW_BLUR
 
+    _drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, COLOR_PAD)
     clearAll()
   }
 
@@ -79,6 +97,7 @@ module.exports = (numRows, numCols) => {
   const clearAll = () => {
     _drawRect(PAD_HOR, PAD_VER, CANVAS_WIDTH - 2 * PAD_HOR,
       CANVAS_HEIGHT - 2 * PAD_VER, COLOR_BG)
+    ctx.shadowBlur = 0
   }
 
   const drawFood = (row, col) => {
@@ -277,8 +296,8 @@ module.exports = (numRows, numCols) => {
     HEAD: HEAD,
     BODY: BODY,
 
-    actualWidth: actualWidth,
-    actualHeight: actualHeight,
+    actualContentWidth: actualContentWidth,
+    actualContentHeight: actualContentHeight,
     actualMarginHor: actualMarginHor,
     actualMarginVer: actualMarginVer,
 
