@@ -20,11 +20,9 @@ module.exports = (() => {
   // seconds
   const TIME_WAIT = 10
   const TIME_READY = 10
-  const TIME_CONFIRM = 10
 
   // milliseconds
   const DURATION_NORMAL = 200
-  const DURATION_SHORT = 100
 
   const gameCtrl = require('./gamectrl.js')
   const timer = require('./util/timer.js')
@@ -104,7 +102,11 @@ module.exports = (() => {
 
   const _initQuitBtn = () => {
     btnQuit.click(() => {
-      if (!gameCtrl.isOffline()) _confirmQuit()
+      if (!gameCtrl.isOffline()) {
+        gameCtrl.quit()
+        _resetToWait()
+        _updateAndShowInfo(INFO_WELCOME)
+      }
     })
   }
 
@@ -158,35 +160,6 @@ module.exports = (() => {
     })
 
     gameCtrl.ready()
-  }
-
-  const _confirmQuit = () => {
-    $.confirm({
-      title: 'Confirm',
-      content: 'Are you sure to quit?',
-      autoClose: 'cancel|' + (TIME_CONFIRM * 1000),
-      draggable: false,
-      theme: 'bootstrap',
-      animateFromElement: false,
-      animation: 'scale',
-      closeAnimation: 'scale',
-      animationSpeed: DURATION_SHORT,
-      buttons: {
-        confirm: {
-          text: 'Yes',
-          action: () => {
-            gameCtrl.quit()
-            _resetToWait()
-            _updateAndShowInfo(INFO_WELCOME)
-          }
-        },
-        cancel: {
-          text: 'No',
-          btnClass: 'btn-blue',
-          action: () => {}
-        }
-      }
-    })
   }
 
   const _handleActions = (selfAction, opponentAction) => {
@@ -337,10 +310,6 @@ module.exports = (() => {
 
   const _hideMain = () => {
     _disableAndHide(btnMain)
-  }
-
-  const _enableMain = () => {
-    _enable(btnMain)
   }
 
   const _disableMain = () => {
