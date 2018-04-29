@@ -152,7 +152,7 @@ module.exports = (() => {
 
     const newHead = oldHead.adj(direc)
     const eatType = _isValid(newHead) ? _point(newHead).type() : Point.TYPE.WALL
-    const foodEaten = (eatType === Point.TYPE.FOOD)
+    const foodEaten = isFoodType(eatType)
 
     let oldHeadPlotType = null
     if ((lastDirec === DIREC.LEFT && direc === DIREC.LEFT) ||
@@ -178,7 +178,7 @@ module.exports = (() => {
     if (!isWallType(eatType)) _updateHead(newHead, MAP_DIREC_PLOT_TYPES[direc], self)
     _updateBody(oldHead, oldHeadPlotType, self)
 
-    if (!foodEaten) _clear(oldTail)
+    if (!foodEaten && !isSelfType(eatType)) _clear(oldTail)
 
     snake.move(direc, foodEaten)
 
