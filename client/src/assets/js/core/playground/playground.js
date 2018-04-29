@@ -95,6 +95,14 @@ module.exports = (() => {
     _addOpponentSnake(selfOnLeft ? SNAKE_RIGHT_BODY_PLOT_TYPES : SNAKE_LEFT_BODY_PLOT_TYPES)
   }
 
+  const attackShadow = () => {
+    plotter.drawAttackShadow()
+  }
+
+  const defendShadow = () => {
+    plotter.drawDefendShadow()
+  }
+
   const addRandFood = (random) => {
     const empties = []
     for (let i = 0; i < NUM_ROWS; ++i) {
@@ -225,6 +233,9 @@ module.exports = (() => {
 
     init: init,
     resetSnakes: resetSnakes,
+
+    attackShadow: attackShadow,
+    defendShadow: defendShadow,
 
     addRandFood: addRandFood,
 

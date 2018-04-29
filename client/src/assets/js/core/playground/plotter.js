@@ -27,6 +27,9 @@ module.exports = (numRows, numCols) => {
   const CONTENT_WIDTH = CANVAS_WIDTH - 2 * PAD_HOR
   const CONTENT_HEIGHT = CANVAS_HEIGHT - 2 * PAD_VER
 
+  const CONTENT_WIDTH_WITH_SHADOW = CANVAS_WIDTH - 2 * EXPECT_PAD_HOR
+  const CONTENT_HEIGHT_WITH_SHADOW = CANVAS_HEIGHT - 2 * EXPECT_PAD_VER
+
   const MARGIN_HOR = 0.5 * (window.innerWidth - CONTENT_WIDTH)
   const MARGIN_VER = 0.5 * (window.innerHeight - CONTENT_HEIGHT)
 
@@ -36,14 +39,13 @@ module.exports = (numRows, numCols) => {
 
   // Sizes in pixels - END
 
-  const COLOR_BG = '#FFFFFF'
-  const COLOR_PAD = COLOR_BG
-  const COLOR_SHADOW = 'black'
   const COLOR_FOOD = '#81C784'
   const COLOR_SELF_HEAD = '#F44336'
   const COLOR_SELF_BODY = COLOR_SELF_HEAD
   const COLOR_OPPONENT_HEAD = '#3F51B5'
   const COLOR_OPPONENT_BODY = COLOR_OPPONENT_HEAD
+  const COLOR_SHADOW_ATTACK = COLOR_SELF_BODY
+  const COLOR_SHADOW_DEFEND = COLOR_OPPONENT_BODY
 
   const HEAD = {
     LEFT: 0,
@@ -62,6 +64,7 @@ module.exports = (numRows, numCols) => {
   }
 
   let ctx = null
+  let ctxShadow = null
 
   const actualContentWidth = () => CONTENT_WIDTH
 
@@ -81,23 +84,23 @@ module.exports = (numRows, numCols) => {
       throw new Error('[plotter] unsupported canvas')
     }
 
-    ctx = obj.getContext('2d', {alpha: false})
-    ctx.shadowColor = COLOR_SHADOW
-    ctx.shadowBlur = SHADOW_BLUR
+    const shadowCanvas = canvas.clone()
+    shadowCanvas.attr('width', CONTENT_WIDTH_WITH_SHADOW)
+    shadowCanvas.attr('height', CONTENT_HEIGHT_WITH_SHADOW)
+    shadowCanvas.css('z-index', Number(canvas.css('z-index')) - 1)
+    shadowCanvas.insertAfter(canvas)
 
-    _drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, COLOR_PAD)
-    clearAll()
+    ctx = obj.getContext('2d')
+    ctxShadow = shadowCanvas.get(0).getContext('2d')
+    ctxShadow.shadowBlur = SHADOW_BLUR
   }
 
   const clear = (row, col) => {
-    _drawRect(_colToX(col), _rowToY(row),
-      BLOCK_WIDTH, BLOCK_HEIGHT, COLOR_BG)
+    _clearRect(_colToX(col), _rowToY(row), BLOCK_WIDTH, BLOCK_HEIGHT)
   }
 
   const clearAll = () => {
-    _drawRect(PAD_HOR, PAD_VER, CANVAS_WIDTH - 2 * PAD_HOR,
-      CANVAS_HEIGHT - 2 * PAD_VER, COLOR_BG)
-    ctx.shadowBlur = 0
+    _clearRect(PAD_HOR, PAD_VER, CONTENT_WIDTH, CONTENT_HEIGHT)
   }
 
   const drawFood = (row, col) => {
@@ -126,6 +129,14 @@ module.exports = (numRows, numCols) => {
 
   const drawBody = (row, col, type, self) => {
     _drawBody(row, col, type, self ? COLOR_SELF_BODY : COLOR_OPPONENT_BODY)
+  }
+
+  const drawAttackShadow = () => {
+    _drawShadow(COLOR_SHADOW_ATTACK)
+  }
+
+  const drawDefendShadow = () => {
+    _drawShadow(COLOR_SHADOW_DEFEND)
   }
 
   const _drawFood = (row, col, color) => {
@@ -239,6 +250,17 @@ module.exports = (numRows, numCols) => {
     ctx.fillRect(x, y, width, height)
   }
 
+  const _clearRect = (x, y, width, height) => {
+    ctx.clearRect(x, y, width, height)
+  }
+
+  const _drawShadow = (color) => {
+    ctxShadow.clearRect(0, 0, CONTENT_WIDTH_WITH_SHADOW, CONTENT_HEIGHT_WITH_SHADOW)
+    ctxShadow.shadowColor = color
+    ctxShadow.fillStyle = 'white'
+    ctxShadow.fillRect(SHADOW_SIZE, SHADOW_SIZE, CONTENT_WIDTH, CONTENT_HEIGHT)
+  }
+
   const _colToX = (col) => PAD_HOR + col * BLOCK_WIDTH
 
   const _rowToY = (row) => PAD_VER + row * BLOCK_HEIGHT
@@ -309,6 +331,9 @@ module.exports = (numRows, numCols) => {
     drawFood: drawFood,
     drawHead: drawHead,
     drawBody: drawBody,
+
+    drawAttackShadow: drawAttackShadow,
+    drawDefendShadow: drawDefendShadow,
 
     drawSelfHead: drawSelfHead,
     drawSelfBody: drawSelfBody,

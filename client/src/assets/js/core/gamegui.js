@@ -17,6 +17,10 @@ module.exports = (() => {
   const INFO_WIN = 'Cheers! You win! Press READY to restart.'
   const INFO_LOST = 'Oops! You lose! Press READY to restart.'
 
+  const INFO_START = 'Start!'
+  const INFO_MAIN_START = 'START'
+  const INFO_MAIN_READY = 'READY'
+
   // seconds
   const TIME_WAIT = 10
   const TIME_READY = 10
@@ -45,7 +49,8 @@ module.exports = (() => {
   const btnQuit = $('button#quit-btn')
   const pInfo = $('p#info')
   const pTime = $('p#time')
-  const canvasPlayground = $('canvas#playground')
+  const divPlayground = $('div#playground')
+  const canvasPlayground = $('div#playground canvas')
 
   const init = () => {
     _initGlobal()
@@ -117,9 +122,9 @@ module.exports = (() => {
 
     gameCtrl.setOnSwitchingRole(() => {
       if (gameCtrl.isAttacking()) {
-        _appendInfo('ATTACK')
+        playground.attackShadow()
       } else if (gameCtrl.isDefending()) {
-        _appendInfo('DEFEND')
+        playground.defendShadow()
       }
     })
 
@@ -199,9 +204,8 @@ module.exports = (() => {
 
     if (gameover) {
       gameCtrl.done()
-      _updateAndShowInfo(win ? INFO_WIN : INFO_LOST, () => {
-        _resetToReady()
-      })
+      _resetToReady()
+      _updateAndShowInfo(win ? INFO_WIN : INFO_LOST)
     }
   }
 
@@ -243,19 +247,15 @@ module.exports = (() => {
     _updateInfo('')
     _hideMain()
     _showQuit()
-    playground.resetSnakes(gameCtrl.isAttacking())
+    _resetPlayground()
     _showPlayground(() => {
       _updateTime()
       _showTime(() => {
         _updateAndShowInfo('', () => {
           timer.startCountDown(pInfo, 3, 1, () => {
-            _updateInfo('START')
+            _updateInfo(INFO_START)
             setTimeout(() => {
-              if (gameCtrl.isAttacking()) {
-                _updateInfo('ATTACK')
-              } else if (gameCtrl.isDefending()) {
-                _updateInfo('DEFEND')
-              }
+              _hideInfo()
               gameCtrl.action()
               gameCtrl.setGameStarted(true)
             }, 1000)
@@ -285,12 +285,21 @@ module.exports = (() => {
     _showQuit()
   }
 
+  const _resetPlayground = () => {
+    playground.resetSnakes(gameCtrl.isAttacking())
+    if (gameCtrl.isAttacking()) {
+      playground.attackShadow()
+    } else if (gameCtrl.isDefending()) {
+      playground.defendShadow()
+    }
+  }
+
   const _showPlayground = (complete) => {
-    _show(canvasPlayground, complete)
+    _show(divPlayground, complete)
   }
 
   const _hidePlayground = (complete) => {
-    _hide(canvasPlayground, complete)
+    _hide(divPlayground, complete)
   }
 
   const _showTime = (complete) => {
@@ -319,7 +328,7 @@ module.exports = (() => {
   }
 
   const _updateMain = () => {
-    btnMain.text(gameCtrl.isNotReady() ? 'READY' : 'START')
+    btnMain.text(gameCtrl.isNotReady() ? INFO_MAIN_READY : INFO_MAIN_START)
   }
 
   const _showQuit = () => {
@@ -352,10 +361,6 @@ module.exports = (() => {
         if (complete) complete()
       })
     })
-  }
-
-  const _appendInfo = (info) => {
-    pInfo.html(pInfo.html() + info)
   }
 
   const _enableAndShow = (jqObj, complete) => {

@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <title>EatMe</title>
-  <link rel="stylesheet" href="/assets/css/lib.css">
   <link rel="stylesheet" href="/assets/css/index.css">
   <script src="/assets/js/lib.js"></script>
   <script src="/assets/js/index.js"></script>
 </head>
 <body>
-  <canvas id="playground" width="0" height="0"></canvas>
-  <button id="quit-btn" class="dark-txt" type="button">QUIT</button>
-  <p id="time" class="dark-txt"></p>
+  <div>
+    <button id="quit-btn" class="dark-txt" type="button">QUIT</button>
+  </div>
+  <div id="playground">
+    <canvas width="0" height="0"></canvas>
+    <p id="time" class="dark-txt"></p>
+  </div>
   <div id="ctrl">
     <button id="main-btn" class="light-txt" type="button"></button>
     <p id="info" class="dark-txt"></p>

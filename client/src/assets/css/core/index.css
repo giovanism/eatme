@@ -20,8 +20,11 @@ body {
   color: #333;
 }
 
-canvas#playground {
+div#playground {
   display: none;
+}
+
+div#playground canvas {
   margin: auto;
   position: absolute;
   top: 0;
