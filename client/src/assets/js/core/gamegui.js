@@ -199,8 +199,9 @@ module.exports = (() => {
 
     if (gameover) {
       gameCtrl.done()
-      _resetToReady()
-      _updateAndShowInfo(win ? INFO_WIN : INFO_LOST)
+      _updateAndShowInfo(win ? INFO_WIN : INFO_LOST, () => {
+        _resetToReady()
+      })
     }
   }
 
