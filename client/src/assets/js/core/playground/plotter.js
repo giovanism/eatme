@@ -148,6 +148,8 @@ module.exports = (numRows, numCols) => {
     _drawBlinkShadow(color.SHADOW_DEFEND, 0.5 * SHADOW_BLUR, SHADOW_BLUR, DURATION_BLINK)
   }
 
+  const isBlinking = () => blinkReqId != null
+
   const _drawFood = (row, col, color) => {
     const xBeg = _colToX(col)
     const yBeg = _rowToY(row)
@@ -381,6 +383,7 @@ module.exports = (numRows, numCols) => {
     drawDefendShadow: drawDefendShadow,
     drawBlinkAttackShadow: drawBlinkAttackShadow,
     drawBlinkDefendShadow: drawBlinkDefendShadow,
+    isBlinking: isBlinking,
 
     drawSelfHead: drawSelfHead,
     drawSelfBody: drawSelfBody,

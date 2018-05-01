@@ -29,13 +29,18 @@ gulp.task('pages', function() {
     .pipe(gulp.dest('dist'))
 })
 
-gulp.task('imgs', function() {
-  return gulp.src('src/assets/img/**/*')
-    .pipe(gulp.dest('dist/assets/img'))
+gulp.task('images', function() {
+  return gulp.src('src/assets/images/**/*')
+    .pipe(gulp.dest('dist/assets/images'))
+})
+
+gulp.task('fonts', function() {
+  return gulp.src('src/assets/fonts/**/*')
+    .pipe(gulp.dest('dist/assets/fonts'))
 })
 
 gulp.task('css-core', function() {
-  return gulp.src('src/assets/css/core/**/*.css')
+  return gulp.src(['src/assets/css/core/font.css', 'src/assets/css/core/**/*.css'])
     .pipe(csso())
     .pipe(concat('index.css'))
     .pipe(gulp.dest('dist/assets/css'))
@@ -73,7 +78,8 @@ gulp.task('js-lib', function() {
 
 gulp.task('watch', function() {
   gulp.watch('src/pages/**/*.html', ['pages'])
-  gulp.watch('src/assets/img/**/*', ['imgs'])
+  gulp.watch('src/assets/images/**/*', ['images'])
+  gulp.watch('src/assets/fonts/**/*', ['fonts'])
   gulp.watch('src/assets/css/core/**/*.css', ['css-core'])
   gulp.watch('src/assets/css/lib/**/*.css', ['css-lib'])
   gulp.watch('src/assets/js/core/**/*.js', ['js-core'])
@@ -82,6 +88,6 @@ gulp.task('watch', function() {
 
 gulp.task('build', function() {
   runSequence.options.ignoreUndefinedTasks = true
-  runSequence('clean', 'pages', 'imgs', 'css-core', 'css-lib',
-    'js-core', 'js-lib', isDev() ? 'watch' : '')
+  runSequence('clean', 'pages', 'images', 'fonts', 'css-core',
+    'css-lib', 'js-core', 'js-lib', isDev() ? 'watch' : '')
 })

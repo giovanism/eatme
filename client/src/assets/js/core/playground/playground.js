@@ -83,7 +83,7 @@ module.exports = (() => {
     canvasContainer = canvas.parent()
 
     timeTxt = pTime
-    timeTxt.css('top', plotter.actualMarginVer() + 0.05 * plotter.actualContentHeight())
+    timeTxt.css('top', plotter.actualMarginVer() + 0.025 * plotter.actualContentHeight())
 
     for (let i = 0; i < contents.length; ++i) {
       contents[i] = new Array(NUM_COLS)
@@ -124,6 +124,8 @@ module.exports = (() => {
   const blinkDefendShadow = () => {
     plotter.drawBlinkDefendShadow()
   }
+
+  const isBlinking = () => !!plotter.isBlinking()
 
   const show = (duration, complete) => {
     canvasContainer.fadeIn(duration, complete)
@@ -296,6 +298,7 @@ module.exports = (() => {
     defendShadow: defendShadow,
     blinkAttackShadow: blinkAttackShadow,
     blinkDefendShadow: blinkDefendShadow,
+    isBlinking: isBlinking,
 
     show: show,
     hide: hide,

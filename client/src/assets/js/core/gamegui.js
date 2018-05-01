@@ -10,12 +10,15 @@ module.exports = (() => {
   const INFO_MAIN_START = 'START'
   const INFO_MAIN_READY = 'READY'
 
-  const INFO_START_ATTACK = 'Attacking !!!'
-  const INFO_START_DEFEND = 'Defending !!!'
+  const INFO_START_ATTACK = 'ATTACK !!!'
+  const INFO_START_DEFEND = 'DEFEND !!!'
 
-  const INFO_WELCOME = 'Welcome to EatMe! Press START to begin.'
-  const INFO_WAIT_BTL = 'Wait for battle...'
-  const INFO_WAIT_READY = 'Wait opponent ready...'
+  const INFO_PREPARE_ATTACK = 'Prepare to ATTACK !!!'
+  const INFO_PREPARE_DEFEND = 'Prepare to DEFEND !!!'
+
+  const INFO_WELCOME = 'Welcome! Press START to begin.'
+  const INFO_WAIT_BTL = 'Waiting for battle...'
+  const INFO_WAIT_READY = 'Waiting opponent ready...'
   const INFO_OPPONENT_FOUND = 'Opponent found. Press READY to continue.'
   const INFO_OPPONENT_NOT_FOUND = 'No opponents found. Please try again.'
   const INFO_OPPONENT_NO_RESPONSE = 'Opponent no response. Please find another battle.'
@@ -23,14 +26,14 @@ module.exports = (() => {
   const INFO_WIN = 'Cheers! You win! Press READY to restart.'
   const INFO_LOST = 'Oops! You lose! Press READY to restart.'
 
+  const SWITCH_INFO_THRESHOLD = 5
+
   // seconds
   const TIME_WAIT = 10
   const TIME_READY = 10
 
   // milliseconds
   const DURATION_NORMAL = 500
-
-  const BLINK_THRESHOLD = 5
 
   const gameCtrl = require('./gamectrl.js')
   const timer = require('./util/timer.js')
@@ -258,7 +261,7 @@ module.exports = (() => {
         _updateAndShowInfo('', () => {
           timer.startCountDown(pInfo, 3, 1, () => {
             _updateInfo(_getStartInfo())
-            setTimeout(() => {
+            window.setTimeout(() => {
               _hideInfo()
               gameCtrl.action()
               gameCtrl.setGameStarted(true)
@@ -271,8 +274,12 @@ module.exports = (() => {
 
   const _handleActionsDone = () => {
     const stepsLeft = _updateTime()
-    if (stepsLeft <= BLINK_THRESHOLD) {
+    if (stepsLeft <= SWITCH_INFO_THRESHOLD && !playground.isBlinking()) {
       _blinkPlayground()
+      _updateAndShowInfo(_getPrepareInfo())
+      window.setTimeout(() => {
+        if (gameCtrl.isPlaying()) _hideInfo()
+      }, 1000)
     }
   }
 
@@ -388,6 +395,16 @@ module.exports = (() => {
       return INFO_START_DEFEND
     } else {
       return ''
+    }
+  }
+
+  const _getPrepareInfo = () => {
+    if (gameCtrl.isAttacking()) {
+      return INFO_PREPARE_DEFEND
+    } else if (gameCtrl.isDefending()) {
+      return INFO_PREPARE_ATTACK
+    } else {
+      return null
     }
   }
 

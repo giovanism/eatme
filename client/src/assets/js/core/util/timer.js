@@ -10,7 +10,7 @@ module.exports = (() => {
     element = jqObj
     oriContent = jqObj.html()
     jqObj.html(beg)
-    countDownTimerId = setInterval(() => {
+    countDownTimerId = window.setInterval(() => {
       --beg
       if (beg === end - 1) {
         stopCountDown()
@@ -22,7 +22,7 @@ module.exports = (() => {
   }
 
   const stopCountDown = () => {
-    if (countDownTimerId) clearInterval(countDownTimerId)
+    if (countDownTimerId) window.clearInterval(countDownTimerId)
     if (element && oriContent) element.html(oriContent)
     countDownTimerId = null
     element = null
