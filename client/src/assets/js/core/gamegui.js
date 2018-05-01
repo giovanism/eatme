@@ -117,15 +117,9 @@ module.exports = (() => {
   }
 
   const _initGameEvents = () => {
-    gameCtrl.setOnCreatingFood(() => {
-      playground.addRandFood(gameCtrl.getRandGenerator())
-    })
-
-    gameCtrl.setOnSwitchingRole(() => {
-      _normalPlayground()
-    })
-
     gameCtrl.setOnTakingActions(_cbTakingActions)
+    gameCtrl.setOnCreatingFood(_cbCreatingFood)
+    gameCtrl.setOnSwitchingRole(_cbSwitchingRole)
   }
 
   const _findOpponent = () => {
@@ -207,6 +201,18 @@ module.exports = (() => {
     }
   }
 
+  const _cbCreatingFood = () => {
+    playground.addRandFood(gameCtrl.getRandGenerator())
+  }
+
+  const _cbSwitchingRole = () => {
+    _updateAndShowInfo(_getStartInfo())
+    _normalPlayground()
+    window.setTimeout(() => {
+      if (gameCtrl.isPlaying()) _hideInfo()
+    }, 1000)
+  }
+
   const _handleData = (type, data1, data2) => {
     timer.stopCountDown()
     if (type === gameCtrl.MSG.ERR) {
@@ -251,7 +257,7 @@ module.exports = (() => {
       _showTime(() => {
         _updateAndShowInfo('', () => {
           timer.startCountDown(pInfo, 3, 1, () => {
-            _updateInfo(gameCtrl.isAttacking() ? INFO_START_ATTACK : INFO_START_DEFEND)
+            _updateInfo(_getStartInfo())
             setTimeout(() => {
               _hideInfo()
               gameCtrl.action()
@@ -373,6 +379,16 @@ module.exports = (() => {
 
   const _hideQuit = () => {
     _disableAndHide(btnQuit)
+  }
+
+  const _getStartInfo = () => {
+    if (gameCtrl.isAttacking()) {
+      return INFO_START_ATTACK
+    } else if (gameCtrl.isDefending()) {
+      return INFO_START_DEFEND
+    } else {
+      return ''
+    }
   }
 
   const _showInfo = (complete) => {
