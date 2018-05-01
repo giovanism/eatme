@@ -29,6 +29,11 @@ gulp.task('pages', function() {
     .pipe(gulp.dest('dist'))
 })
 
+gulp.task('imgs', function() {
+  return gulp.src('src/assets/img/**/*')
+    .pipe(gulp.dest('dist/assets/img'))
+})
+
 gulp.task('css-core', function() {
   return gulp.src('src/assets/css/core/**/*.css')
     .pipe(csso())
@@ -68,6 +73,7 @@ gulp.task('js-lib', function() {
 
 gulp.task('watch', function() {
   gulp.watch('src/pages/**/*.html', ['pages'])
+  gulp.watch('src/assets/img/**/*', ['imgs'])
   gulp.watch('src/assets/css/core/**/*.css', ['css-core'])
   gulp.watch('src/assets/css/lib/**/*.css', ['css-lib'])
   gulp.watch('src/assets/js/core/**/*.js', ['js-core'])
@@ -76,6 +82,6 @@ gulp.task('watch', function() {
 
 gulp.task('build', function() {
   runSequence.options.ignoreUndefinedTasks = true
-  runSequence('clean', 'pages', 'css-core', 'css-lib',
+  runSequence('clean', 'pages', 'imgs', 'css-core', 'css-lib',
     'js-core', 'js-lib', isDev() ? 'watch' : '')
 })

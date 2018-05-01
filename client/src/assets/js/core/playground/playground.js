@@ -43,7 +43,20 @@ module.exports = (() => {
     plotter.BODY.HOR
   ]
 
+  const COLOR = {
+    FOOD: '#81C784',
+    SELF_HEAD: '#F44336',
+    SELF_BODY: '#F44336',
+    OPPONENT_HEAD: '#3F51B5',
+    OPPONENT_BODY: '#3F51B5',
+    SHADOW_ATTACK: '#F44336',
+    SHADOW_DEFEND: '#3F51B5'
+  }
+
   const contents = new Array(NUM_ROWS)
+
+  let canvasContainer = null
+  let timeTxt = null
 
   let snakeSelf = null
   let snakeOpponent = null
@@ -65,11 +78,12 @@ module.exports = (() => {
   const lastSelfDirec = () => snakeSelf.lastDirec()
 
   const init = (canvas, pTime) => {
-    plotter.init(canvas)
+    plotter.init(canvas, COLOR)
     // plotter.drawTestContents()
+    canvasContainer = canvas.parent()
 
-    // Set time <p> position
-    pTime.css('top', plotter.actualMarginVer() + 0.05 * plotter.actualContentHeight())
+    timeTxt = pTime
+    timeTxt.css('top', plotter.actualMarginVer() + 0.05 * plotter.actualContentHeight())
 
     for (let i = 0; i < contents.length; ++i) {
       contents[i] = new Array(NUM_COLS)
@@ -101,6 +115,50 @@ module.exports = (() => {
 
   const defendShadow = () => {
     plotter.drawDefendShadow()
+  }
+
+  const blinkAttackShadow = () => {
+    plotter.drawBlinkAttackShadow()
+  }
+
+  const blinkDefendShadow = () => {
+    plotter.drawBlinkDefendShadow()
+  }
+
+  const show = (duration, complete) => {
+    canvasContainer.fadeIn(duration, complete)
+  }
+
+  const hide = (duration, complete) => {
+    canvasContainer.fadeOut(duration, complete)
+  }
+
+  const blur = () => {
+    canvasContainer.addClass('blur')
+  }
+
+  const noBlur = () => {
+    canvasContainer.removeClass('blur')
+  }
+
+  const showTime = (duration, complete) => {
+    timeTxt.fadeIn(duration, complete)
+  }
+
+  const hideTime = (duration, complete) => {
+    timeTxt.fadeOut(duration, complete)
+  }
+
+  const updateTime = (txt) => {
+    timeTxt.html(txt)
+  }
+
+  const attackTime = () => {
+    timeTxt.css('color', COLOR.SELF_BODY)
+  }
+
+  const defendTime = () => {
+    timeTxt.css('color', COLOR.OPPONENT_BODY)
   }
 
   const addRandFood = (random) => {
@@ -236,6 +294,19 @@ module.exports = (() => {
 
     attackShadow: attackShadow,
     defendShadow: defendShadow,
+    blinkAttackShadow: blinkAttackShadow,
+    blinkDefendShadow: blinkDefendShadow,
+
+    show: show,
+    hide: hide,
+    blur: blur,
+    noBlur: noBlur,
+
+    showTime: showTime,
+    hideTime: hideTime,
+    updateTime: updateTime,
+    attackTime: attackTime,
+    defendTime: defendTime,
 
     addRandFood: addRandFood,
 

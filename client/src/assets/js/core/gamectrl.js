@@ -261,14 +261,14 @@ module.exports = (() => {
   const _handleActionMsg = (selfAction, opponentAction) => {
     if (onTakingActions) onTakingActions(selfAction, opponentAction)
     if (!isPlaying()) return
-    ++steps
-    if (steps % FREQ_FOOD === 0) {
+    if (steps > 0 && steps % FREQ_FOOD === 0) {
       if (onCreatingFood) onCreatingFood()
     }
-    if (steps % FREQ_SWITCH === 0) {
+    if (steps > 0 && steps % FREQ_SWITCH === 0) {
       _setPlayerState(isAttacking() ? STATE.DEFENDING : STATE.ATTACKING)
       if (onSwitchingRole) onSwitchingRole()
     }
+    ++steps
   }
 
   const _setPlayerState = (state) => {

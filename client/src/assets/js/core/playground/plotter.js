@@ -39,14 +39,6 @@ module.exports = (numRows, numCols) => {
 
   // Sizes in pixels - END
 
-  const COLOR_FOOD = '#81C784'
-  const COLOR_SELF_HEAD = '#F44336'
-  const COLOR_SELF_BODY = COLOR_SELF_HEAD
-  const COLOR_OPPONENT_HEAD = '#3F51B5'
-  const COLOR_OPPONENT_BODY = COLOR_OPPONENT_HEAD
-  const COLOR_SHADOW_ATTACK = COLOR_SELF_BODY
-  const COLOR_SHADOW_DEFEND = COLOR_OPPONENT_BODY
-
   const HEAD = {
     LEFT: 0,
     UP: 1,
@@ -63,8 +55,14 @@ module.exports = (numRows, numCols) => {
     DL: 5
   }
 
-  let ctx = null
+  const DURATION_BLINK = 500
+
+  let color = null
+
+  let ctxMain = null
   let ctxShadow = null
+
+  let blinkReqId = null
 
   const actualContentWidth = () => CONTENT_WIDTH
 
@@ -74,25 +72,24 @@ module.exports = (numRows, numCols) => {
 
   const actualMarginVer = () => MARGIN_VER
 
-  const init = (canvas) => {
-    canvas.attr('width', CANVAS_WIDTH)
-    canvas.attr('height', CANVAS_HEIGHT)
-
-    const obj = canvas.get(0)
-    if (!obj.getContext) {
+  const init = (mainCanvas, colorSet) => {
+    if (!mainCanvas.get(0).getContext) {
       alert('Sorry! Your browser does not support <canvas>. Please use a different one.')
       throw new Error('[plotter] unsupported canvas')
     }
 
-    const shadowCanvas = canvas.clone()
+    color = colorSet
+
+    mainCanvas.attr('width', CANVAS_WIDTH)
+    mainCanvas.attr('height', CANVAS_HEIGHT)
+    ctxMain = mainCanvas.get(0).getContext('2d')
+
+    const shadowCanvas = mainCanvas.clone()
     shadowCanvas.attr('width', CONTENT_WIDTH_WITH_SHADOW)
     shadowCanvas.attr('height', CONTENT_HEIGHT_WITH_SHADOW)
-    shadowCanvas.css('z-index', Number(canvas.css('z-index')) - 1)
-    shadowCanvas.insertAfter(canvas)
-
-    ctx = obj.getContext('2d')
+    shadowCanvas.css('z-index', Number(mainCanvas.css('z-index')) - 1)
+    shadowCanvas.insertAfter(mainCanvas)
     ctxShadow = shadowCanvas.get(0).getContext('2d')
-    ctxShadow.shadowBlur = SHADOW_BLUR
   }
 
   const clear = (row, col) => {
@@ -104,7 +101,7 @@ module.exports = (numRows, numCols) => {
   }
 
   const drawFood = (row, col) => {
-    _drawFood(row, col, COLOR_FOOD)
+    _drawFood(row, col, color.FOOD)
   }
 
   const drawSelfHead = (row, col, type) => {
@@ -124,19 +121,31 @@ module.exports = (numRows, numCols) => {
   }
 
   const drawHead = (row, col, type, self) => {
-    _drawHead(row, col, type, self ? COLOR_SELF_HEAD : COLOR_OPPONENT_HEAD)
+    _drawHead(row, col, type, self ? color.SELF_HEAD : color.OPPONENT_HEAD)
   }
 
   const drawBody = (row, col, type, self) => {
-    _drawBody(row, col, type, self ? COLOR_SELF_BODY : COLOR_OPPONENT_BODY)
+    _drawBody(row, col, type, self ? color.SELF_BODY : color.OPPONENT_BODY)
   }
 
   const drawAttackShadow = () => {
-    _drawShadow(COLOR_SHADOW_ATTACK)
+    _stopBlink()
+    _drawShadow(color.SHADOW_ATTACK, SHADOW_BLUR)
   }
 
   const drawDefendShadow = () => {
-    _drawShadow(COLOR_SHADOW_DEFEND)
+    _stopBlink()
+    _drawShadow(color.SHADOW_DEFEND, SHADOW_BLUR)
+  }
+
+  const drawBlinkAttackShadow = () => {
+    _stopBlink()
+    _drawBlinkShadow(color.SHADOW_ATTACK, 0.5 * SHADOW_BLUR, SHADOW_BLUR, DURATION_BLINK)
+  }
+
+  const drawBlinkDefendShadow = () => {
+    _stopBlink()
+    _drawBlinkShadow(color.SHADOW_DEFEND, 0.5 * SHADOW_BLUR, SHADOW_BLUR, DURATION_BLINK)
   }
 
   const _drawFood = (row, col, color) => {
@@ -147,10 +156,10 @@ module.exports = (numRows, numCols) => {
     const r = 0.25 * (BLOCK_WIDTH - 1.5 * DX + BLOCK_HEIGHT - 1.5 * DY)
 
     clear(row, col)
-    ctx.fillStyle = color
-    ctx.beginPath()
-    ctx.arc(xMid, yMid, r, 0, 2 * Math.PI)
-    ctx.fill()
+    ctxMain.fillStyle = color
+    ctxMain.beginPath()
+    ctxMain.arc(xMid, yMid, r, 0, 2 * Math.PI)
+    ctxMain.fill()
   }
 
   const _drawHead = (row, col, type, color) => {
@@ -164,58 +173,58 @@ module.exports = (numRows, numCols) => {
     const rEyeball = 0.4 * rEye
 
     clear(row, col)
-    ctx.fillStyle = color
+    ctxMain.fillStyle = color
     if (type === HEAD.LEFT) {
-      ctx.beginPath()
-      ctx.moveTo(xEnd, yBeg + DY)
-      ctx.lineTo(xEnd - DX, yBeg + DY)
-      ctx.bezierCurveTo(xBeg + 2 * DX, yBeg, xBeg + DX, yBeg + DY, xBeg + DX, yMid)
-      ctx.bezierCurveTo(xBeg + DX, yEnd - DY, xBeg + 2 * DX, yEnd, xEnd - DX, yEnd - DY)
-      ctx.lineTo(xEnd, yEnd - DY)
-      ctx.fill()
+      ctxMain.beginPath()
+      ctxMain.moveTo(xEnd, yBeg + DY)
+      ctxMain.lineTo(xEnd - DX, yBeg + DY)
+      ctxMain.bezierCurveTo(xBeg + 2 * DX, yBeg, xBeg + DX, yBeg + DY, xBeg + DX, yMid)
+      ctxMain.bezierCurveTo(xBeg + DX, yEnd - DY, xBeg + 2 * DX, yEnd, xEnd - DX, yEnd - DY)
+      ctxMain.lineTo(xEnd, yEnd - DY)
+      ctxMain.fill()
       _drawEyes(xMid, yBeg + 1.5 * DY, xMid, yEnd - 1.5 * DY, rEye, rEyeball)
     } else if (type === HEAD.UP) {
-      ctx.beginPath()
-      ctx.moveTo(xBeg + DX, yEnd)
-      ctx.lineTo(xBeg + DX, yEnd - DY)
-      ctx.bezierCurveTo(xBeg, yBeg + 2 * DY, xBeg + DX, yBeg + DY, xMid, yBeg + DY)
-      ctx.bezierCurveTo(xEnd - DX, yBeg + DY, xEnd, yBeg + 2 * DY, xEnd - DX, yEnd - DY)
-      ctx.lineTo(xEnd - DX, yEnd)
-      ctx.fill()
+      ctxMain.beginPath()
+      ctxMain.moveTo(xBeg + DX, yEnd)
+      ctxMain.lineTo(xBeg + DX, yEnd - DY)
+      ctxMain.bezierCurveTo(xBeg, yBeg + 2 * DY, xBeg + DX, yBeg + DY, xMid, yBeg + DY)
+      ctxMain.bezierCurveTo(xEnd - DX, yBeg + DY, xEnd, yBeg + 2 * DY, xEnd - DX, yEnd - DY)
+      ctxMain.lineTo(xEnd - DX, yEnd)
+      ctxMain.fill()
       _drawEyes(xBeg + 1.5 * DX, yMid, xEnd - 1.5 * DX, yMid, rEye, rEyeball)
     } else if (type === HEAD.RIGHT) {
-      ctx.beginPath()
-      ctx.moveTo(xBeg, yBeg + DY)
-      ctx.lineTo(xBeg + DX, yBeg + DY)
-      ctx.bezierCurveTo(xEnd - 2 * DX, yBeg, xEnd - DX, yBeg + DY, xEnd - DX, yMid)
-      ctx.bezierCurveTo(xEnd - DX, yEnd - DY, xEnd - 2 * DX, yEnd, xBeg + DX, yEnd - DY)
-      ctx.lineTo(xBeg, yEnd - DY)
-      ctx.fill()
+      ctxMain.beginPath()
+      ctxMain.moveTo(xBeg, yBeg + DY)
+      ctxMain.lineTo(xBeg + DX, yBeg + DY)
+      ctxMain.bezierCurveTo(xEnd - 2 * DX, yBeg, xEnd - DX, yBeg + DY, xEnd - DX, yMid)
+      ctxMain.bezierCurveTo(xEnd - DX, yEnd - DY, xEnd - 2 * DX, yEnd, xBeg + DX, yEnd - DY)
+      ctxMain.lineTo(xBeg, yEnd - DY)
+      ctxMain.fill()
       _drawEyes(xMid, yBeg + 1.5 * DY, xMid, yEnd - 1.5 * DY, rEye, rEyeball)
     } else if (type === HEAD.DOWN) {
-      ctx.beginPath()
-      ctx.moveTo(xBeg + DX, yBeg)
-      ctx.lineTo(xBeg + DX, yBeg + DY)
-      ctx.bezierCurveTo(xBeg, yEnd - 2 * DY, xBeg + DX, yEnd - DY, xMid, yEnd - DY)
-      ctx.bezierCurveTo(xEnd - DX, yEnd - DY, xEnd, yEnd - 2 * DY, xEnd - DX, yBeg + DY)
-      ctx.lineTo(xEnd - DX, yBeg)
-      ctx.fill()
+      ctxMain.beginPath()
+      ctxMain.moveTo(xBeg + DX, yBeg)
+      ctxMain.lineTo(xBeg + DX, yBeg + DY)
+      ctxMain.bezierCurveTo(xBeg, yEnd - 2 * DY, xBeg + DX, yEnd - DY, xMid, yEnd - DY)
+      ctxMain.bezierCurveTo(xEnd - DX, yEnd - DY, xEnd, yEnd - 2 * DY, xEnd - DX, yBeg + DY)
+      ctxMain.lineTo(xEnd - DX, yBeg)
+      ctxMain.fill()
       _drawEyes(xBeg + 1.5 * DX, yMid, xEnd - 1.5 * DX, yMid, rEye, rEyeball)
     }
   }
 
   const _drawEyes = (xEye1, yEye1, xEye2, yEye2, rEye, rEyeball) => {
-    ctx.fillStyle = 'white'
-    ctx.beginPath()
-    ctx.arc(xEye1, yEye1, rEye, 0, 2 * Math.PI)
-    ctx.arc(xEye2, yEye2, rEye, 0, 2 * Math.PI)
-    ctx.fill()
+    ctxMain.fillStyle = 'white'
+    ctxMain.beginPath()
+    ctxMain.arc(xEye1, yEye1, rEye, 0, 2 * Math.PI)
+    ctxMain.arc(xEye2, yEye2, rEye, 0, 2 * Math.PI)
+    ctxMain.fill()
 
-    ctx.fillStyle = 'black'
-    ctx.beginPath()
-    ctx.arc(xEye1, yEye1, rEyeball, 0, 2 * Math.PI)
-    ctx.arc(xEye2, yEye2, rEyeball, 0, 2 * Math.PI)
-    ctx.fill()
+    ctxMain.fillStyle = 'black'
+    ctxMain.beginPath()
+    ctxMain.arc(xEye1, yEye1, rEyeball, 0, 2 * Math.PI)
+    ctxMain.arc(xEye2, yEye2, rEyeball, 0, 2 * Math.PI)
+    ctxMain.fill()
   }
 
   const _drawBody = (row, col, type, color) => {
@@ -246,17 +255,53 @@ module.exports = (numRows, numCols) => {
   }
 
   const _drawRect = (x, y, width, height, color) => {
-    ctx.fillStyle = color
-    ctx.fillRect(x, y, width, height)
+    ctxMain.fillStyle = color
+    ctxMain.fillRect(x, y, width, height)
   }
 
   const _clearRect = (x, y, width, height) => {
-    ctx.clearRect(x, y, width, height)
+    ctxMain.clearRect(x, y, width, height)
   }
 
-  const _drawShadow = (color) => {
+  const _drawBlinkShadow = (color, minBlur, maxBlur, duration) => {
+    let lastTime = null
+    let ascending = false
+    let curBlur = minBlur
+    let msDelta = 2 * (maxBlur - minBlur) / duration
+
+    const f = (timestamp) => {
+      if (!lastTime) lastTime = timestamp
+
+      const blurDelta = (timestamp - lastTime) * msDelta
+      if (blurDelta !== 0) {
+        if (ascending) {
+          curBlur = Math.min(curBlur + blurDelta, maxBlur)
+          if (curBlur === maxBlur) ascending = false
+        } else {
+          curBlur = Math.max(curBlur - blurDelta, minBlur)
+          if (curBlur === minBlur) ascending = true
+        }
+        _drawShadow(color, curBlur)
+      }
+
+      lastTime = timestamp
+      if (blinkReqId) blinkReqId = window.requestAnimationFrame(f)
+    }
+
+    blinkReqId = window.requestAnimationFrame(f)
+  }
+
+  const _stopBlink = () => {
+    if (blinkReqId) {
+      window.cancelAnimationFrame(blinkReqId)
+      blinkReqId = null
+    }
+  }
+
+  const _drawShadow = (color, blur) => {
     ctxShadow.clearRect(0, 0, CONTENT_WIDTH_WITH_SHADOW, CONTENT_HEIGHT_WITH_SHADOW)
     ctxShadow.shadowColor = color
+    ctxShadow.shadowBlur = blur
     ctxShadow.fillStyle = 'white'
     ctxShadow.fillRect(SHADOW_SIZE, SHADOW_SIZE, CONTENT_WIDTH, CONTENT_HEIGHT)
   }
@@ -334,6 +379,8 @@ module.exports = (numRows, numCols) => {
 
     drawAttackShadow: drawAttackShadow,
     drawDefendShadow: drawDefendShadow,
+    drawBlinkAttackShadow: drawBlinkAttackShadow,
+    drawBlinkDefendShadow: drawBlinkDefendShadow,
 
     drawSelfHead: drawSelfHead,
     drawSelfBody: drawSelfBody,

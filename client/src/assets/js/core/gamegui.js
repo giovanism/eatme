@@ -7,6 +7,12 @@ module.exports = (() => {
   const INFO_ERR_ID = 'Invalid battle/player ID. Please try again.'
   const INFO_ERR_FULL = 'Too much players. Please try again.'
 
+  const INFO_MAIN_START = 'START'
+  const INFO_MAIN_READY = 'READY'
+
+  const INFO_START_ATTACK = 'Attacking !!!'
+  const INFO_START_DEFEND = 'Defending !!!'
+
   const INFO_WELCOME = 'Welcome to EatMe! Press START to begin.'
   const INFO_WAIT_BTL = 'Wait for battle...'
   const INFO_WAIT_READY = 'Wait opponent ready...'
@@ -17,16 +23,14 @@ module.exports = (() => {
   const INFO_WIN = 'Cheers! You win! Press READY to restart.'
   const INFO_LOST = 'Oops! You lose! Press READY to restart.'
 
-  const INFO_START = 'Start!'
-  const INFO_MAIN_START = 'START'
-  const INFO_MAIN_READY = 'READY'
-
   // seconds
   const TIME_WAIT = 10
   const TIME_READY = 10
 
   // milliseconds
   const DURATION_NORMAL = 500
+
+  const BLINK_THRESHOLD = 5
 
   const gameCtrl = require('./gamectrl.js')
   const timer = require('./util/timer.js')
@@ -48,9 +52,6 @@ module.exports = (() => {
   const btnMain = $('button#main-btn')
   const btnQuit = $('button#quit-btn')
   const pInfo = $('p#info')
-  const pTime = $('p#time')
-  const divPlayground = $('div#playground')
-  const canvasPlayground = $('div#playground canvas')
 
   const init = () => {
     _initGlobal()
@@ -81,7 +82,7 @@ module.exports = (() => {
   }
 
   const _initPlayground = () => {
-    playground.init(canvasPlayground, pTime)
+    playground.init($('div#playground canvas'), $('p#time'))
   }
 
   const _initInfo = () => {
@@ -121,14 +122,10 @@ module.exports = (() => {
     })
 
     gameCtrl.setOnSwitchingRole(() => {
-      if (gameCtrl.isAttacking()) {
-        playground.attackShadow()
-      } else if (gameCtrl.isDefending()) {
-        playground.defendShadow()
-      }
+      _normalPlayground()
     })
 
-    gameCtrl.setOnTakingActions(_handleActions)
+    gameCtrl.setOnTakingActions(_cbTakingActions)
   }
 
   const _findOpponent = () => {
@@ -163,11 +160,10 @@ module.exports = (() => {
         _updateAndShowInfo(INFO_OPPONENT_NO_RESPONSE)
       }
     })
-
     gameCtrl.ready()
   }
 
-  const _handleActions = (selfAction, opponentAction) => {
+  const _cbTakingActions = (selfAction, opponentAction) => {
     let gameover = false
     let win = false
     let eatType = null
@@ -203,6 +199,8 @@ module.exports = (() => {
     }
 
     if (gameover) {
+      _blurPlayground()
+      _normalPlayground()
       gameCtrl.done()
       _resetToReady()
       _updateAndShowInfo(win ? INFO_WIN : INFO_LOST)
@@ -253,7 +251,7 @@ module.exports = (() => {
       _showTime(() => {
         _updateAndShowInfo('', () => {
           timer.startCountDown(pInfo, 3, 1, () => {
-            _updateInfo(INFO_START)
+            _updateInfo(gameCtrl.isAttacking() ? INFO_START_ATTACK : INFO_START_DEFEND)
             setTimeout(() => {
               _hideInfo()
               gameCtrl.action()
@@ -266,7 +264,10 @@ module.exports = (() => {
   }
 
   const _handleActionsDone = () => {
-    _updateTime()
+    const stepsLeft = _updateTime()
+    if (stepsLeft <= BLINK_THRESHOLD) {
+      _blinkPlayground()
+    }
   }
 
   const _resetToWait = () => {
@@ -287,31 +288,58 @@ module.exports = (() => {
 
   const _resetPlayground = () => {
     playground.resetSnakes(gameCtrl.isAttacking())
+    _noBlurPlayground()
+    _normalPlayground()
+  }
+
+  const _normalPlayground = () => {
     if (gameCtrl.isAttacking()) {
       playground.attackShadow()
+      playground.attackTime()
     } else if (gameCtrl.isDefending()) {
       playground.defendShadow()
+      playground.defendTime()
     }
   }
 
+  const _blinkPlayground = () => {
+    if (gameCtrl.isAttacking()) {
+      playground.blinkAttackShadow()
+      playground.attackTime()
+    } else if (gameCtrl.isDefending()) {
+      playground.blinkDefendShadow()
+      playground.defendTime()
+    }
+  }
+
+  const _blurPlayground = () => {
+    playground.blur()
+  }
+
+  const _noBlurPlayground = () => {
+    playground.noBlur()
+  }
+
   const _showPlayground = (complete) => {
-    _show(divPlayground, complete)
+    playground.show(DURATION_NORMAL, complete)
   }
 
   const _hidePlayground = (complete) => {
-    _hide(divPlayground, complete)
+    playground.hide(DURATION_NORMAL, complete)
   }
 
   const _showTime = (complete) => {
-    _show(pTime, complete)
+    playground.showTime(DURATION_NORMAL, complete)
   }
 
   const _hideTime = (complete) => {
-    _hide(pTime, complete)
+    playground.hideTime(DURATION_NORMAL, complete)
   }
 
   const _updateTime = () => {
-    pTime.html(gameCtrl.roleSwitchStepsLeft())
+    const stepsLeft = gameCtrl.roleSwitchStepsLeft()
+    playground.updateTime(stepsLeft)
+    return stepsLeft
   }
 
   const _showMain = () => {
@@ -328,7 +356,15 @@ module.exports = (() => {
   }
 
   const _updateMain = () => {
-    btnMain.text(gameCtrl.isNotReady() ? INFO_MAIN_READY : INFO_MAIN_START)
+    if (gameCtrl.isNotReady()) {
+      btnMain.text(INFO_MAIN_READY)
+      btnMain.removeClass('start-bg')
+      btnMain.addClass('ready-bg')
+    } else {
+      btnMain.text(INFO_MAIN_START)
+      btnMain.removeClass('ready-bg')
+      btnMain.addClass('start-bg')
+    }
   }
 
   const _showQuit = () => {
