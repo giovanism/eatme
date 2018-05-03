@@ -4,6 +4,7 @@ const del = require('del')
 const runSequence = require('run-sequence')
 const gulp = require('gulp')
 const gulpif = require('gulp-if-else')
+const jade = require('gulp-jade')
 const htmlmin = require('gulp-htmlmin')
 const csso = require('gulp-csso')
 const uglify = require('gulp-uglify')
@@ -19,7 +20,8 @@ gulp.task('clean', () => {
 })
 
 gulp.task('pages', () => {
-  return gulp.src('src/pages/**/*.html')
+  return gulp.src('src/pages/**/*.jade')
+    .pipe(jade())
     .pipe(htmlmin({
       collapseWhitespace: true,
       removeComments: true
