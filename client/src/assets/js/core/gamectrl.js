@@ -227,6 +227,8 @@ module.exports = (() => {
   const _handleMsg = (msgBody, cb) => {
     const [type, data1, data2] = msgBody.split(MSG_SEPARATOR, 3)
     if (type === MSG.ERR) {
+      console.log('[gamectrl] err: ' + data1)
+      if (isOffline()) return
       _handleErrMsg(data1)
     } else if (type === MSG.BID) {
       if (!isWaiting()) return
@@ -242,7 +244,6 @@ module.exports = (() => {
   }
 
   const _handleErrMsg = (errCode) => {
-    console.log('[gamectrl] err: ' + errCode)
     _resetToWait()
   }
 

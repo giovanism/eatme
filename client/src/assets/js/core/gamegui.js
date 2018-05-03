@@ -31,6 +31,7 @@ module.exports = (() => {
   // seconds
   const TIME_WAIT = 10
   const TIME_READY = 10
+  const TIME_AUTO_QUIT = 30
 
   // milliseconds
   const DURATION_NORMAL = 500
@@ -55,6 +56,8 @@ module.exports = (() => {
   const btnMain = $('button#main-btn')
   const btnQuit = $('button#quit-btn')
   const pInfo = $('p#info')
+
+  let autoQuitId = null
 
   const init = () => {
     _initGlobal()
@@ -150,6 +153,7 @@ module.exports = (() => {
   }
 
   const _ready = () => {
+    _stopAutoQuit()
     timer.startCountDown(btnMain, TIME_READY - 1, 0, () => {
       if (gameCtrl.isReady()) {
         gameCtrl.quit()
@@ -297,12 +301,31 @@ module.exports = (() => {
     gameCtrl.setGameStarted(false)
     _showMain()
     _showQuit()
+    _stopAutoQuit()
+    _startAutoQuit()
   }
 
   const _resetPlayground = () => {
     playground.resetSnakes(gameCtrl.isAttacking())
     _noBlurPlayground()
     _normalPlayground()
+  }
+
+  const _startAutoQuit = () => {
+    autoQuitId = window.setTimeout(() => {
+      if (gameCtrl.isNotReady()) {
+        gameCtrl.quit()
+        _resetToWait()
+        _updateAndShowInfo(INFO_WELCOME)
+      }
+    }, TIME_AUTO_QUIT * 1000)
+  }
+
+  const _stopAutoQuit = () => {
+    if (autoQuitId) {
+      window.clearTimeout(autoQuitId)
+      autoQuitId = null
+    }
   }
 
   const _normalPlayground = () => {
