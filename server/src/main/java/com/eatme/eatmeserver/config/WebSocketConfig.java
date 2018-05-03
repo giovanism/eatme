@@ -13,14 +13,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private static final String BASE = "/ws";
     private static final String ENDPOINT = BASE + "/ep";
     public static final String PREFIX_SUBSCRIBE = BASE + "/sb";
-    private static final String CLIENT_SOCKJS_URL = "//cdn.jsdelivr.net/sockjs/1.1.4/sockjs.min.js";
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint(ENDPOINT)
-            .setAllowedOrigins("*")
-            .withSockJS()
-            .setClientLibraryUrl(CLIENT_SOCKJS_URL);
+        registry.addEndpoint(ENDPOINT).withSockJS();
     }
 
     @Override

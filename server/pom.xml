@@ -8,6 +8,13 @@
     <groupId>com.eatme</groupId>
     <artifactId>eatme-server</artifactId>
     <version>1.0</version>
+    <packaging>jar</packaging>
+
+    <developers>
+        <developer>
+            <name>Chuyang Liu</name>
+        </developer>
+    </developers>
 
     <properties>
         <java.version>1.8</java.version>
