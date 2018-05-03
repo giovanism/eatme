@@ -146,7 +146,8 @@ public class PlayerServiceImpl implements PlayerService {
                     playerRepo.findRawById(opponentId);
                 }
             });
-            Player opponent = new Player(opponentId, (List<String>) results.get(0));
+            log.debug(LOG_HEADER + " | redis transaction results size: " + results.size());
+            Player opponent = new Player(opponentId, (List<String>) results.get(1));
             log.info(LOG_HEADER + " | found opponent: " + opponent.toString());
 
             // Check both ready
@@ -240,7 +241,8 @@ public class PlayerServiceImpl implements PlayerService {
                     playerRepo.findRawById(opponentId);
                 }
             });
-            Player opponent = new Player(opponentId, (List<String>) results.get(0));
+            log.debug(LOG_HEADER + " | redis transaction results size: " + results.size());
+            Player opponent = new Player(opponentId, (List<String>) results.get(1));
             log.info(LOG_HEADER + " | found opponent: " + opponent.toString());
 
             // Check both done
@@ -291,7 +293,8 @@ public class PlayerServiceImpl implements PlayerService {
                     playerRepo.findRawById(opponentId);
                 }
             });
-            Player opponent = new Player(opponentId, (List<String>) results.get(0));
+            log.debug(LOG_HEADER + " | redis transaction results size: " + results.size());
+            Player opponent = new Player(opponentId, (List<String>) results.get(1));
             log.info(LOG_HEADER + " | found opponent: " + opponent.toString());
 
             if (opponent.getState() != PlayerState.OFFLINE) {

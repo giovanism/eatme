@@ -2,6 +2,7 @@ package com.eatme.eatmeserver.business.repository.impl;
 
 import com.eatme.eatmeserver.business.entity.Battle;
 import com.eatme.eatmeserver.business.repository.BattleRepository;
+import com.eatme.eatmeserver.config.EatMeProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("unused")
 @Repository
@@ -26,6 +28,9 @@ public class BattleRepositoryImpl implements BattleRepository {
     private static final String KEY_HASH_PLAYER1_ID = "p1id";
     private static final String KEY_HASH_PLAYER2_ID = "p2id";
     private static final String KEY_HASH_RAND_SEED = "seed";
+
+    @Autowired
+    private EatMeProperty eatMeProp;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -42,7 +47,10 @@ public class BattleRepositoryImpl implements BattleRepository {
         m.put(KEY_HASH_PLAYER1_ID, battle.getPlayer1Id());
         m.put(KEY_HASH_PLAYER2_ID, battle.getPlayer2Id());
         m.put(KEY_HASH_RAND_SEED, String.valueOf(battle.getRandSeed()));
-        hashOps.putAll(key(battle.getId()), m);
+
+        String k = key(battle.getId());
+        hashOps.putAll(k, m);
+        redisTemplate.expire(k, eatMeProp.getBattle().getExpire(), TimeUnit.MINUTES);
     }
 
     @Override

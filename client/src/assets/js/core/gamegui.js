@@ -31,7 +31,7 @@ module.exports = (() => {
   // seconds
   const TIME_WAIT = 10
   const TIME_READY = 10
-  const TIME_AUTO_QUIT = 30
+  const TIME_AUTO_QUIT = 60
 
   // milliseconds
   const DURATION_NORMAL = 500

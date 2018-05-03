@@ -28,9 +28,23 @@ public class EatMeProperty {
         }
     }
 
+    public static class Player {
+
+        private int expire;
+
+        public int getExpire() {
+            return expire;
+        }
+
+        public void setExpire(int expire) {
+            this.expire = expire;
+        }
+    }
+
     public static class Battle {
 
         private int capacity;
+        private int expire;  // s
 
         public int getCapacity() {
             return capacity;
@@ -38,6 +52,14 @@ public class EatMeProperty {
 
         public void setCapacity(int capacity) {
             this.capacity = capacity;
+        }
+
+        public int getExpire() {
+            return expire;
+        }
+
+        public void setExpire(int expire) {
+            this.expire = expire;
         }
     }
 
@@ -94,6 +116,7 @@ public class EatMeProperty {
     }
 
     private Debug debug;
+    private Player player;
     private Battle battle;
     private Schedule schedule;
 
@@ -103,6 +126,14 @@ public class EatMeProperty {
 
     public void setDebug(Debug debug) {
         this.debug = debug;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
     public Battle getBattle() {

@@ -2,6 +2,7 @@ package com.eatme.eatmeserver.business.repository.impl;
 
 import com.eatme.eatmeserver.business.entity.Player;
 import com.eatme.eatmeserver.business.repository.PlayerRepository;
+import com.eatme.eatmeserver.config.EatMeProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("unused")
 @Repository
@@ -28,6 +30,9 @@ public class PlayerRepositoryImpl implements PlayerRepository {
     private static final String KEY_HASH_ACTION = "action";
     private static final String KEY_HASH_SERVER_IP = "ip";
     private static final String KEY_HASH_SERVER_PORT = "port";
+
+    @Autowired
+    private EatMeProperty eatMeProp;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -45,7 +50,10 @@ public class PlayerRepositoryImpl implements PlayerRepository {
         m.put(KEY_HASH_ACTION, String.valueOf(player.getAction().ordinal()));
         m.put(KEY_HASH_SERVER_IP, player.getServerIp());
         m.put(KEY_HASH_SERVER_PORT, String.valueOf(player.getServerPort()));
-        hashOps.putAll(key(player.getId()), m);
+
+        String k = key(player.getId());
+        hashOps.putAll(k, m);
+        redisTemplate.expire(k, eatMeProp.getPlayer().getExpire(), TimeUnit.MINUTES);
     }
 
     @Override
