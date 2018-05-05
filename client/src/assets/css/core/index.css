@@ -12,8 +12,6 @@ body {
 }
 
 button {
-  font-family: 'Caveat Brush', Arial, sans-serif;
-  font-size: 35px;
   cursor: pointer;
 }
 
@@ -42,11 +40,11 @@ button[disabled] {
   -webkit-filter: blur(3px);
 }
 
-div#playground {
+div#div-playground {
   display: none;
 }
 
-div#playground canvas {
+div#div-playground canvas {
   margin: auto;
   position: absolute;
   top: 0;
@@ -56,7 +54,7 @@ div#playground canvas {
   z-index: -1;
 }
 
-p#time {
+p#p-time {
   display: none;
   margin: auto;
   position: absolute;
@@ -69,19 +67,30 @@ p#time {
   font-size: 30px;
 }
 
-button#quit-btn {
+button#btn-quit {
   display: none;
   position: fixed;
   top: 10px;
   right: 10px;
   border: none;
   z-index: 2;
-  width: 24px;
-  height: 24px;
+  width: 36px;
+  height: 36px;
   background: url('/assets/images/quit.svg') no-repeat;
 }
 
-div#ctrl {
+button#btn-help {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  border: none;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  background: url('/assets/images/help.svg') no-repeat;
+}
+
+div#div-ctrl {
   display: flex;
   display: -webkit-flex;
   height: 100vh;
@@ -91,9 +100,11 @@ div#ctrl {
   z-index: 1;
 }
 
-button#main-btn {
-  width: 100px;
-  height: 100px;
+button#btn-main {
+  font-family: 'Caveat Brush', Arial, sans-serif;
+  font-size: 40px;
+  width: 130px;
+  height: 130px;
   margin: 0 0 15px;
   border: none;
   border-radius: 50%;
@@ -104,7 +115,8 @@ button#main-btn {
   transition: background-color 500ms ease;
 }
 
-p#info {
+p#p-info {
+  font-size: 25px;
   margin: 0;
   z-index: inherit;
   word-break: break-all;

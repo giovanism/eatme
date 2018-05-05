@@ -7,11 +7,11 @@ head
   script(src='/assets/js/lib.js')
   script(src='/assets/js/index.js')
 body
-  div
-    button#quit-btn(type='button')
-  div#playground
+  button#btn-quit(title='Quit', type='button')
+  button#btn-help(title='Help', type='button')
+  div#div-playground
     canvas(width='0', height='0')
-    p#time
-  div#ctrl
-    button#main-btn(class='light-txt start-bg', type='button')
-    p#info(class='dark-txt')
+    p#p-time
+  div#div-ctrl
+    button#btn-main(class='light-txt start-bg', type='button')
+    p#p-info(class='dark-txt')

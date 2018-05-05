@@ -53,9 +53,9 @@ module.exports = (() => {
   MAP_ACTION_DIREC[gameCtrl.ACTION.RIGHT] = playground.DIREC.RIGHT
   MAP_ACTION_DIREC[gameCtrl.ACTION.DOWN] = playground.DIREC.DOWN
 
-  const btnMain = $('button#main-btn')
-  const btnQuit = $('button#quit-btn')
-  const pInfo = $('p#info')
+  const btnMain = $('button#btn-main')
+  const btnQuit = $('button#btn-quit')
+  const pInfo = $('p#p-info')
 
   let autoQuitId = null
 
@@ -65,6 +65,7 @@ module.exports = (() => {
     _initInfo()
     _initMainBtn()
     _initQuitBtn()
+    _initHelpBtn()
     _initGameEvents()
     _resetToWait()
   }
@@ -88,7 +89,7 @@ module.exports = (() => {
   }
 
   const _initPlayground = () => {
-    playground.init($('div#playground canvas'), $('p#time'))
+    playground.init($('div#div-playground canvas'), $('p#p-time'))
   }
 
   const _initInfo = () => {
@@ -119,6 +120,12 @@ module.exports = (() => {
         _resetToWait()
         _updateAndShowInfo(INFO_WELCOME)
       }
+    })
+  }
+
+  const _initHelpBtn = () => {
+    $('button#btn-help').click(() => {
+      console.log('[gamegui] help')
     })
   }
 

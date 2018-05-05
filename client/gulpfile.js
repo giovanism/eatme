@@ -77,7 +77,7 @@ gulp.task('js-lib', () => {
 })
 
 gulp.task('watch', () => {
-  gulp.watch('src/pages/**/*.html', ['pages'])
+  gulp.watch('src/pages/**/*.jade', ['pages'])
   gulp.watch('src/assets/images/**/*', ['images'])
   gulp.watch('src/assets/fonts/**/*', ['fonts'])
   gulp.watch('src/assets/css/core/**/*.css', ['css-core'])
