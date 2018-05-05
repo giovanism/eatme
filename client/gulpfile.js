@@ -20,7 +20,7 @@ gulp.task('clean', () => {
 })
 
 gulp.task('pages', () => {
-  return gulp.src('src/pages/**/*.jade')
+  return gulp.src('src/pages/*.jade')
     .pipe(jade())
     .pipe(htmlmin({
       collapseWhitespace: true,

@@ -67,7 +67,6 @@ module.exports = (() => {
     _initInfo()
     _initMainBtn()
     _initQuitBtn()
-    _initHelpBtn()
     _initGameEvents()
     _resetToWait()
   }
@@ -122,12 +121,6 @@ module.exports = (() => {
         _resetToWait()
         _updateAndShowInfo(INFO_WELCOME)
       }
-    })
-  }
-
-  const _initHelpBtn = () => {
-    $('button#btn-help').click(() => {
-      console.log('[gamegui] help')
     })
   }
 
@@ -284,7 +277,9 @@ module.exports = (() => {
       _updateTime()
       _showTime(() => {
         _updateAndShowInfo('', () => {
+          if (!gameCtrl.isPlaying()) return
           timer.startCountDown(pInfo, 3, 1, () => {
+            if (!gameCtrl.isPlaying()) return
             _updateInfo(_getStartInfo())
             window.setTimeout(() => {
               _hideInfo()

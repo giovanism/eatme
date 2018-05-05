@@ -6,24 +6,7 @@
 }
 
 body {
-  font-family: 'Neucha', Arial, sans-serif;
   background-color: white;
-}
-
-button {
-  cursor: pointer;
-}
-
-button[disabled] {
-  cursor: wait;
-}
-
-.light-txt {
-  color: white;
-}
-
-.dark-txt {
-  color: #333;
 }
 
 .start-bg {
@@ -39,31 +22,14 @@ button[disabled] {
   -webkit-filter: blur(3px);
 }
 
-div#div-playground {
-  display: none;
+nav#nav-main button,
+div#div-ctrl button {
+  cursor: pointer;
 }
 
-div#div-playground canvas {
-  margin: auto;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: -1;
-}
-
-p#p-time {
-  display: none;
-  margin: auto;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 0;
-  text-align: center;
-  font-size: 27px;
+nav#nav-main button[disabled],
+div#div-ctrl button[disabled] {
+  cursor: wait;
 }
 
 button#btn-quit {
@@ -89,6 +55,34 @@ button#btn-help {
   background: url('/assets/images/help.svg') no-repeat;
 }
 
+div#div-playground {
+  display: none;
+}
+
+div#div-playground canvas {
+  margin: auto;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
+}
+
+p#p-time {
+  font-family: 'Neucha', Arial, sans-serif;
+  display: none;
+  margin: auto;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+  text-align: center;
+  font-size: 27px;
+}
+
 div#div-ctrl {
   display: flex;
   display: -webkit-flex;
@@ -102,6 +96,7 @@ div#div-ctrl {
 button#btn-main {
   font-family: 'Caveat Brush', Arial, sans-serif;
   font-size: 40px;
+  color: white;
   width: 130px;
   height: 130px;
   margin: 0 0 20px;
@@ -115,7 +110,9 @@ button#btn-main {
 }
 
 p#p-info {
+  font-family: 'Neucha', Arial, sans-serif;
   font-size: 25px;
+  color: #333;
   margin: 0;
   z-index: inherit;
   word-break: break-all;

@@ -2,16 +2,32 @@
 html(lang='en')
 head
   meta(charset='UTF-8')
+  meta(name='viewport', content='width=device-width, initial-scale=1')
   title EatMe
+  link(rel='stylesheet', href='/assets/css/lib.css')
   link(rel='stylesheet', href='/assets/css/index.css')
   script(src='/assets/js/lib.js')
   script(src='/assets/js/index.js')
 body
-  button#btn-quit(title='Quit', type='button')
-  button#btn-help(title='Help', type='button')
+  nav#nav-main
+    button#btn-quit(title='Quit', type='button')
+    button#btn-help(title='Help', type='button', data-toggle='modal', data-target='#modal-help')
+
   div#div-playground
     canvas(width='0', height='0')
     p#p-time
+
   div#div-ctrl
-    button#btn-main(class='light-txt start-bg', type='button')
-    p#p-info(class='dark-txt')
+    button#btn-main(class='start-bg', type='button')
+    p#p-info
+
+  //- Help Modal
+  div#modal-help(class='modal fade', tabindex='-1', role='dialog', aria-labelledby='modal-help-label')
+    div.modal-dialog(role='document')
+      div.modal-content
+        div.modal-header
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+          h4#modal-help-label(class='modal-title') About EatMe
+        div.modal-body
+          include ./layout/help.jade
