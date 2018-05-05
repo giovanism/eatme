@@ -26,8 +26,6 @@ module.exports = (() => {
   const INFO_WIN = 'Cheers! You win! Press READY to restart.'
   const INFO_LOST = 'Oops! You lose! Press READY to restart.'
 
-  const SWITCH_INFO_THRESHOLD = 20
-
   // seconds
   const TIME_WAIT = 10
   const TIME_READY = 10
@@ -35,6 +33,8 @@ module.exports = (() => {
 
   // milliseconds
   const DURATION_NORMAL = 500
+
+  const FACTOR_STEP_TO_TIME = 0.2
 
   const gameCtrl = require('./gamectrl.js')
   const timer = require('./util/timer.js')
@@ -133,6 +133,8 @@ module.exports = (() => {
     gameCtrl.setOnTakingActions(_cbTakingActions)
     gameCtrl.setOnCreatingFood(_cbCreatingFood)
     gameCtrl.setOnSwitchingRole(_cbSwitchingRole)
+    gameCtrl.setOnAboutToSwitch(_cbAboutToSwitch)
+    gameCtrl.setOnActionsFinished(_cbActionsFinished)
   }
 
   const _findOpponent = () => {
@@ -227,6 +229,18 @@ module.exports = (() => {
     }, 1000)
   }
 
+  const _cbAboutToSwitch = () => {
+    _blinkPlayground()
+    _updateAndShowInfo(_getPrepareInfo())
+    window.setTimeout(() => {
+      if (gameCtrl.isPlaying()) _hideInfo()
+    }, 1000)
+  }
+
+  const _cbActionsFinished = () => {
+    _updateTime()
+  }
+
   const _handleData = (type, data1, data2) => {
     timer.stopCountDown()
     if (type === gameCtrl.MSG.ERR) {
@@ -235,8 +249,6 @@ module.exports = (() => {
       _handleNewBattle(data1)
     } else if (type === gameCtrl.MSG.START) {
       _handleStart()
-    } else if (type === gameCtrl.MSG.ACTION) {
-      _handleActionsDone()
     }
   }
 
@@ -281,17 +293,6 @@ module.exports = (() => {
         })
       })
     })
-  }
-
-  const _handleActionsDone = () => {
-    const stepsLeft = _updateTime()
-    if (stepsLeft <= SWITCH_INFO_THRESHOLD && !playground.isBlinking()) {
-      _blinkPlayground()
-      _updateAndShowInfo(_getPrepareInfo())
-      window.setTimeout(() => {
-        if (gameCtrl.isPlaying()) _hideInfo()
-      }, 1000)
-    }
   }
 
   const _resetToWait = () => {
@@ -343,6 +344,8 @@ module.exports = (() => {
       playground.defendShadow()
       playground.defendTime()
     }
+    playground.stopBlinkTime()
+    playground.showTime()
   }
 
   const _blinkPlayground = () => {
@@ -353,6 +356,7 @@ module.exports = (() => {
       playground.blinkDefendShadow()
       playground.defendTime()
     }
+    playground.startBlinkTime()
   }
 
   const _blurPlayground = () => {
@@ -381,8 +385,8 @@ module.exports = (() => {
 
   const _updateTime = () => {
     const stepsLeft = gameCtrl.roleSwitchStepsLeft()
-    playground.updateTime(stepsLeft)
-    return stepsLeft
+    const timeLeft = Math.floor(FACTOR_STEP_TO_TIME * stepsLeft)
+    playground.updateTime(timeLeft)
   }
 
   const _showMain = () => {

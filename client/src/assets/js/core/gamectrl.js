@@ -44,8 +44,9 @@ module.exports = (() => {
   }
 
   // steps
-  const FREQ_SWITCH = 100
+  const FREQ_SWITCH = 101
   const FREQ_FOOD = 20
+  const THRESHOLD_ABOUT_TO_SWITCH = 25
 
   const MSG_SEPARATOR = '_'
 
@@ -64,6 +65,8 @@ module.exports = (() => {
   let onTakingActions = null
   let onCreatingFood = null
   let onSwitchingRole = null
+  let onAboutToSwitch = null
+  let onActionsFinished = null
 
   const setGameStarted = (s) => { gameStarted = !!s }
 
@@ -90,6 +93,10 @@ module.exports = (() => {
   const setOnCreatingFood = (cb) => { onCreatingFood = cb }
 
   const setOnSwitchingRole = (cb) => { onSwitchingRole = cb }
+
+  const setOnAboutToSwitch = (cb) => { onAboutToSwitch = cb }
+
+  const setOnActionsFinished = (cb) => { onActionsFinished = cb }
 
   const getRandGenerator = () => random
 
@@ -270,6 +277,10 @@ module.exports = (() => {
       if (onSwitchingRole) onSwitchingRole()
     }
     ++steps
+    if (roleSwitchStepsLeft() === THRESHOLD_ABOUT_TO_SWITCH) {
+      if (onAboutToSwitch) onAboutToSwitch()
+    }
+    if (onActionsFinished) onActionsFinished()
   }
 
   const _setPlayerState = (state) => {
@@ -297,6 +308,8 @@ module.exports = (() => {
     setOnTakingActions: setOnTakingActions,
     setOnCreatingFood: setOnCreatingFood,
     setOnSwitchingRole: setOnSwitchingRole,
+    setOnAboutToSwitch: setOnAboutToSwitch,
+    setOnActionsFinished: setOnActionsFinished,
 
     getRandGenerator: getRandGenerator,
 

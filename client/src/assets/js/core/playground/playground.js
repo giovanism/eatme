@@ -7,6 +7,8 @@ module.exports = (() => {
   const INIT_BODIES_PAD_HOR = 4
   const INIT_BODIES_PAD_VER = 3
 
+  const DURATION_TIME_BLINK = 200
+
   const plotter = require('./plotter.js')(NUM_ROWS, NUM_COLS)
   const DIREC = require('./direc.js')
   const Pos = require('./pos.js')
@@ -60,6 +62,8 @@ module.exports = (() => {
 
   let snakeSelf = null
   let snakeOpponent = null
+
+  let timeBlinkId = null
 
   const isEmptyType = (type) => type === Point.TYPE.EMPTY
 
@@ -124,8 +128,6 @@ module.exports = (() => {
     plotter.drawBlinkDefendShadow()
   }
 
-  const isBlinking = () => !!plotter.isBlinking()
-
   const show = (duration, complete) => {
     canvasContainer.fadeIn(duration, complete)
   }
@@ -160,6 +162,19 @@ module.exports = (() => {
 
   const defendTime = () => {
     timeTxt.css('color', COLOR.OPPONENT_BODY)
+  }
+
+  const startBlinkTime = () => {
+    timeBlinkId = window.setInterval(() => {
+      timeTxt.toggle()
+    }, DURATION_TIME_BLINK)
+  }
+
+  const stopBlinkTime = () => {
+    if (timeBlinkId) {
+      window.clearInterval(timeBlinkId)
+      timeBlinkId = null
+    }
   }
 
   const addRandFood = (random) => {
@@ -297,7 +312,6 @@ module.exports = (() => {
     defendShadow: defendShadow,
     blinkAttackShadow: blinkAttackShadow,
     blinkDefendShadow: blinkDefendShadow,
-    isBlinking: isBlinking,
 
     show: show,
     hide: hide,
@@ -309,6 +323,8 @@ module.exports = (() => {
     updateTime: updateTime,
     attackTime: attackTime,
     defendTime: defendTime,
+    startBlinkTime: startBlinkTime,
+    stopBlinkTime: stopBlinkTime,
 
     addRandFood: addRandFood,
 

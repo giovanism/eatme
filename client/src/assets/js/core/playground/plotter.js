@@ -60,7 +60,7 @@ module.exports = (numRows, numCols) => {
     DL: 5
   }
 
-  const DURATION_BLINK = 500
+  const DURATION_SHADOW_BLINK = 250
 
   let color = null
 
@@ -147,15 +147,13 @@ module.exports = (numRows, numCols) => {
 
   const drawBlinkAttackShadow = () => {
     _stopBlink()
-    _drawBlinkShadow(color.SHADOW_ATTACK, 0.5 * SHADOW_BLUR, SHADOW_BLUR, DURATION_BLINK)
+    _drawBlinkShadow(color.SHADOW_ATTACK, 0.25 * SHADOW_BLUR, SHADOW_BLUR, DURATION_SHADOW_BLINK)
   }
 
   const drawBlinkDefendShadow = () => {
     _stopBlink()
-    _drawBlinkShadow(color.SHADOW_DEFEND, 0.5 * SHADOW_BLUR, SHADOW_BLUR, DURATION_BLINK)
+    _drawBlinkShadow(color.SHADOW_DEFEND, 0.25 * SHADOW_BLUR, SHADOW_BLUR, DURATION_SHADOW_BLINK)
   }
-
-  const isBlinking = () => blinkReqId != null
 
   const _drawFood = (row, col, color) => {
     const xBeg = _colToX(col)
@@ -270,7 +268,7 @@ module.exports = (numRows, numCols) => {
     let lastTime = null
     let ascending = false
     let curBlur = minBlur
-    let msDelta = 2 * (maxBlur - minBlur) / duration
+    let msDelta = (maxBlur - minBlur) / duration
 
     const f = (timestamp) => {
       if (!lastTime) lastTime = timestamp
@@ -384,7 +382,6 @@ module.exports = (numRows, numCols) => {
     drawDefendShadow: drawDefendShadow,
     drawBlinkAttackShadow: drawBlinkAttackShadow,
     drawBlinkDefendShadow: drawBlinkDefendShadow,
-    isBlinking: isBlinking,
 
     drawSelfHead: drawSelfHead,
     drawSelfBody: drawSelfBody,
