@@ -26,7 +26,7 @@ module.exports = (() => {
   const INFO_WIN = 'Cheers! You win! Press READY to restart.'
   const INFO_LOST = 'Oops! You lose! Press READY to restart.'
 
-  const SWITCH_INFO_THRESHOLD = 5
+  const SWITCH_INFO_THRESHOLD = 20
 
   // seconds
   const TIME_WAIT = 10

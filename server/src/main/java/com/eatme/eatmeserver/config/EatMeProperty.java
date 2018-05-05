@@ -1,10 +1,34 @@
 package com.eatme.eatmeserver.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.event.EventListener;
 
 @SuppressWarnings("unused")
 @ConfigurationProperties(value = "eatme", ignoreUnknownFields = false)
 public class EatMeProperty {
+
+    private static final Logger log = LoggerFactory.getLogger(EatMeProperty.class);
+
+    @Override
+    public String toString() {
+        String res = null;
+        try {
+            res = new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            log.error(e.toString(), e);
+        }
+        return res;
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    private void printProperties() {
+        log.info("printProperties() | " + toString());
+    }
 
     public static class Debug {
 
@@ -44,7 +68,7 @@ public class EatMeProperty {
     public static class Battle {
 
         private int capacity;
-        private int expire;  // s
+        private int expire;
 
         public int getCapacity() {
             return capacity;
@@ -66,9 +90,9 @@ public class EatMeProperty {
     public static class Schedule {
 
         public static class Freq {
-            private long info;    // ms
-            private long battle;  // ms
-            private long action;  // ms
+            private long info;
+            private long battle;
+            private long action;
 
             public long getInfo() {
                 return info;

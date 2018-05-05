@@ -44,8 +44,8 @@ module.exports = (() => {
   }
 
   // steps
-  const FREQ_SWITCH = 10
-  const FREQ_FOOD = 5
+  const FREQ_SWITCH = 100
+  const FREQ_FOOD = 20
 
   const MSG_SEPARATOR = '_'
 

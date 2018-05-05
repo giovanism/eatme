@@ -6,7 +6,7 @@ module.exports = (numRows, numCols) => {
   const CANVAS_WIDTH = Math.floor(0.9 * window.innerWidth)
   const CANVAS_HEIGHT = Math.floor(0.9 * window.innerHeight)
 
-  const SHADOW_SIZE = 10
+  const SHADOW_SIZE = 15
   const SHADOW_BLUR = SHADOW_SIZE
 
   const EXPECT_CONTENT_WIDTH = CANVAS_WIDTH - 2 * SHADOW_SIZE
