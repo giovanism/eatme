@@ -6,7 +6,7 @@
     "clean": "gulp clean",
     "dev": "cross-env NODE_ENV=dev gulp build",
     "build": "cross-env NODE_ENV=prod gulp build",
-    "lint": "eslint src/assets/js/core/**/*.js"
+    "lint": "eslint gulpfile.js src/assets/js/core/**/*.js"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
