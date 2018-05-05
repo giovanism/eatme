@@ -1,11 +1,11 @@
 module.exports = (() => {
   'use strict'
 
-  const NUM_ROWS = 10
-  const NUM_COLS = 20
+  const NUM_ROWS = 25
+  const NUM_COLS = 45
 
-  const INIT_BODIES_PAD_HOR = 2
-  const INIT_BODIES_PAD_VER = 2
+  const INIT_BODIES_PAD_HOR = 4
+  const INIT_BODIES_PAD_VER = 3
 
   const plotter = require('./plotter.js')(NUM_ROWS, NUM_COLS)
   const DIREC = require('./direc.js')
@@ -79,7 +79,6 @@ module.exports = (() => {
 
   const init = (canvas, pTime) => {
     plotter.init(canvas, COLOR)
-    // plotter.drawTestContents()
     canvasContainer = canvas.parent()
 
     timeTxt = pTime

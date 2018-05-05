@@ -34,8 +34,13 @@ module.exports = (numRows, numCols) => {
   const MARGIN_VER = 0.5 * (window.innerHeight - CONTENT_HEIGHT)
 
   const SCALE_FACTOR = 0.2
+  const EYE_MARGIN_FACTOR = 1.7
+
   const DX = BLOCK_WIDTH * SCALE_FACTOR
   const DY = BLOCK_HEIGHT * SCALE_FACTOR
+
+  const R_EYE = 0.3 * (DX + DY)
+  const R_EYEBALL = 0.5 * R_EYE
 
   // Sizes in pixels - END
 
@@ -72,7 +77,7 @@ module.exports = (numRows, numCols) => {
 
   const actualMarginVer = () => MARGIN_VER
 
-  const init = (mainCanvas, colorSet) => {
+  const init = (mainCanvas, colorSet, test) => {
     if (!mainCanvas.get(0).getContext) {
       alert('Sorry! Your browser does not support <canvas>. Please use a different one.')
       throw new Error('[plotter] unsupported canvas')
@@ -90,6 +95,8 @@ module.exports = (numRows, numCols) => {
     shadowCanvas.css('z-index', Number(mainCanvas.css('z-index')) - 1)
     shadowCanvas.insertAfter(mainCanvas)
     ctxShadow = shadowCanvas.get(0).getContext('2d')
+
+    if (test) _drawTestContents()
   }
 
   const clear = (row, col) => {
@@ -171,47 +178,41 @@ module.exports = (numRows, numCols) => {
     const yMid = yBeg + 0.5 * BLOCK_HEIGHT
     const xEnd = xBeg + BLOCK_WIDTH
     const yEnd = yBeg + BLOCK_HEIGHT
-    const rEye = 0.35 * (DX + DY)
-    const rEyeball = 0.4 * rEye
 
     clear(row, col)
     ctxMain.fillStyle = color
     if (type === HEAD.LEFT) {
       ctxMain.beginPath()
       ctxMain.moveTo(xEnd, yBeg + DY)
-      ctxMain.lineTo(xEnd - DX, yBeg + DY)
-      ctxMain.bezierCurveTo(xBeg + 2 * DX, yBeg, xBeg + DX, yBeg + DY, xBeg + DX, yMid)
-      ctxMain.bezierCurveTo(xBeg + DX, yEnd - DY, xBeg + 2 * DX, yEnd, xEnd - DX, yEnd - DY)
+      ctxMain.lineTo(xMid, yBeg + DY)
+      ctxMain.bezierCurveTo(xBeg + 0.5 * DX, yBeg + DY, xBeg + 0.5 * DX, yEnd - DY, xMid, yEnd - DY)
       ctxMain.lineTo(xEnd, yEnd - DY)
       ctxMain.fill()
-      _drawEyes(xMid, yBeg + 1.5 * DY, xMid, yEnd - 1.5 * DY, rEye, rEyeball)
+      _drawEyes(xMid, yBeg + EYE_MARGIN_FACTOR * DY, xMid, yEnd - EYE_MARGIN_FACTOR * DY, R_EYE, R_EYEBALL)
     } else if (type === HEAD.UP) {
       ctxMain.beginPath()
       ctxMain.moveTo(xBeg + DX, yEnd)
-      ctxMain.lineTo(xBeg + DX, yEnd - DY)
-      ctxMain.bezierCurveTo(xBeg, yBeg + 2 * DY, xBeg + DX, yBeg + DY, xMid, yBeg + DY)
-      ctxMain.bezierCurveTo(xEnd - DX, yBeg + DY, xEnd, yBeg + 2 * DY, xEnd - DX, yEnd - DY)
+      ctxMain.lineTo(xBeg + DX, yMid)
+      ctxMain.bezierCurveTo(xBeg + DX, yBeg + 0.5 * DY, xEnd - DX, yBeg + 0.5 * DY, xEnd - DX, yMid)
       ctxMain.lineTo(xEnd - DX, yEnd)
       ctxMain.fill()
-      _drawEyes(xBeg + 1.5 * DX, yMid, xEnd - 1.5 * DX, yMid, rEye, rEyeball)
+      _drawEyes(xBeg + EYE_MARGIN_FACTOR * DX, yMid, xEnd - EYE_MARGIN_FACTOR * DX, yMid, R_EYE, R_EYEBALL)
     } else if (type === HEAD.RIGHT) {
       ctxMain.beginPath()
       ctxMain.moveTo(xBeg, yBeg + DY)
-      ctxMain.lineTo(xBeg + DX, yBeg + DY)
-      ctxMain.bezierCurveTo(xEnd - 2 * DX, yBeg, xEnd - DX, yBeg + DY, xEnd - DX, yMid)
-      ctxMain.bezierCurveTo(xEnd - DX, yEnd - DY, xEnd - 2 * DX, yEnd, xBeg + DX, yEnd - DY)
+      ctxMain.lineTo(xMid, yBeg + DY)
+      ctxMain.bezierCurveTo(xEnd - 0.5 * DX, yBeg + DY, xEnd - 0.5 * DX, yEnd - DY, xMid, yEnd - DY)
       ctxMain.lineTo(xBeg, yEnd - DY)
       ctxMain.fill()
-      _drawEyes(xMid, yBeg + 1.5 * DY, xMid, yEnd - 1.5 * DY, rEye, rEyeball)
+      _drawEyes(xMid, yBeg + EYE_MARGIN_FACTOR * DY, xMid, yEnd - EYE_MARGIN_FACTOR * DY, R_EYE, R_EYEBALL)
     } else if (type === HEAD.DOWN) {
       ctxMain.beginPath()
       ctxMain.moveTo(xBeg + DX, yBeg)
-      ctxMain.lineTo(xBeg + DX, yBeg + DY)
-      ctxMain.bezierCurveTo(xBeg, yEnd - 2 * DY, xBeg + DX, yEnd - DY, xMid, yEnd - DY)
-      ctxMain.bezierCurveTo(xEnd - DX, yEnd - DY, xEnd, yEnd - 2 * DY, xEnd - DX, yBeg + DY)
+      ctxMain.lineTo(xBeg + DX, yMid)
+      ctxMain.bezierCurveTo(xBeg + DX, yEnd - 0.5 * DY, xEnd - DX, yEnd - 0.5 * DY, xEnd - DX, yMid)
       ctxMain.lineTo(xEnd - DX, yBeg)
       ctxMain.fill()
-      _drawEyes(xBeg + 1.5 * DX, yMid, xEnd - 1.5 * DX, yMid, rEye, rEyeball)
+      _drawEyes(xBeg + EYE_MARGIN_FACTOR * DX, yMid, xEnd - EYE_MARGIN_FACTOR * DX, yMid, R_EYE, R_EYEBALL)
     }
   }
 
@@ -312,7 +313,7 @@ module.exports = (numRows, numCols) => {
 
   const _rowToY = (row) => PAD_VER + row * BLOCK_HEIGHT
 
-  const drawTestContents = () => {
+  const _drawTestContents = () => {
     clearAll()
 
     drawSelfHead(0, 0, HEAD.LEFT)
@@ -388,8 +389,6 @@ module.exports = (numRows, numCols) => {
     drawSelfHead: drawSelfHead,
     drawSelfBody: drawSelfBody,
     drawOpponentHead: drawOpponentHead,
-    drawOpponentBody: drawOpponentBody,
-
-    drawTestContents: drawTestContents
+    drawOpponentBody: drawOpponentBody
   }
 }
