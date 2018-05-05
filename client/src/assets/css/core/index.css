@@ -6,8 +6,7 @@
 }
 
 body {
-  font-family: 'Indie Flower', Arial, sans-serif;
-  font-size: 20px;
+  font-family: 'Neucha', Arial, sans-serif;
   background-color: white;
 }
 
@@ -64,7 +63,7 @@ p#p-time {
   right: 0;
   z-index: 0;
   text-align: center;
-  font-size: 30px;
+  font-size: 27px;
 }
 
 button#btn-quit {
@@ -105,7 +104,7 @@ button#btn-main {
   font-size: 40px;
   width: 130px;
   height: 130px;
-  margin: 0 0 15px;
+  margin: 0 0 20px;
   border: none;
   border-radius: 50%;
   z-index: inherit;

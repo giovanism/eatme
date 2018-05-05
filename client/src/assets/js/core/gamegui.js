@@ -33,6 +33,8 @@ module.exports = (() => {
 
   // milliseconds
   const DURATION_NORMAL = 500
+  const DURATION_SWITCH_INFO = 2000
+  const DURATION_PREPARE_SWITCH_INFO = 2000
 
   const FACTOR_STEP_TO_TIME = 0.2
 
@@ -226,7 +228,7 @@ module.exports = (() => {
     _normalPlayground()
     window.setTimeout(() => {
       if (gameCtrl.isPlaying()) _hideInfo()
-    }, 1000)
+    }, DURATION_SWITCH_INFO)
   }
 
   const _cbAboutToSwitch = () => {
@@ -234,7 +236,7 @@ module.exports = (() => {
     _updateAndShowInfo(_getPrepareInfo())
     window.setTimeout(() => {
       if (gameCtrl.isPlaying()) _hideInfo()
-    }, 1000)
+    }, DURATION_PREPARE_SWITCH_INFO)
   }
 
   const _cbActionsFinished = () => {

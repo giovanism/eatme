@@ -86,7 +86,7 @@ module.exports = (() => {
     canvasContainer = canvas.parent()
 
     timeTxt = pTime
-    timeTxt.css('top', plotter.actualMarginVer() + 0.025 * plotter.actualContentHeight())
+    timeTxt.css('top', plotter.actualMarginVer() + 0.05 * plotter.actualContentHeight())
 
     for (let i = 0; i < contents.length; ++i) {
       contents[i] = new Array(NUM_COLS)
