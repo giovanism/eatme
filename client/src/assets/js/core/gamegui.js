@@ -58,6 +58,7 @@ module.exports = (() => {
   const btnMain = $('button#btn-main')
   const btnQuit = $('button#btn-quit')
   const pInfo = $('p#p-info')
+  const modalHelp = $('div#modal-help')
 
   let autoQuitId = null
 
@@ -67,6 +68,7 @@ module.exports = (() => {
     _initInfo()
     _initMainBtn()
     _initQuitBtn()
+    _initHelpBtn()
     _initGameEvents()
     _resetToWait()
   }
@@ -87,6 +89,9 @@ module.exports = (() => {
       gameCtrl.setNextAction(action)
       if (gameCtrl.isGameStarted()) gameCtrl.action()
     })
+
+    // Init bootstrap tooltips
+    $('[data-toggle="tooltip"]').tooltip()
   }
 
   const _initPlayground = () => {
@@ -121,6 +126,12 @@ module.exports = (() => {
         _resetToWait()
         _updateAndShowInfo(INFO_WELCOME)
       }
+    })
+  }
+
+  const _initHelpBtn = () => {
+    $('button#btn-help').click(() => {
+      modalHelp.modal()
     })
   }
 
@@ -299,6 +310,9 @@ module.exports = (() => {
     _hidePlayground()
     _showMain()
     _hideQuit()
+
+    // Manually hide tooltip (bootstrap tooltip bug on hidden elements)
+    btnQuit.tooltip('hide')
   }
 
   const _resetToReady = () => {

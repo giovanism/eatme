@@ -10,8 +10,8 @@ head
   script(src='/assets/js/index.js')
 body
   nav#nav-main
-    button#btn-quit(title='Quit', type='button')
-    button#btn-help(title='Help', type='button', data-toggle='modal', data-target='#modal-help')
+    button#btn-quit(title='QUIT', type='button', data-toggle='tooltip', data-placement='bottom')
+    button#btn-help(title='HELP', type='button', data-toggle='tooltip', data-placement='right')
 
   div#div-playground
     canvas(width='0', height='0')
@@ -22,12 +22,10 @@ body
     p#p-info
 
   //- Help Modal
-  div#modal-help(class='modal fade', tabindex='-1', role='dialog', aria-labelledby='modal-help-label')
-    div.modal-dialog(role='document')
+  div#modal-help(class='modal fade', tabindex='-1', role='dialog')
+    div(class='modal-dialog modal-lg', role='document')
       div.modal-content
-        div.modal-header
+        div.modal-body
           button.close(type='button', data-dismiss='modal', aria-label='Close')
             span(aria-hidden='true') &times;
-          h4#modal-help-label(class='modal-title') About EatMe
-        div.modal-body
           include ./layout/help.jade
