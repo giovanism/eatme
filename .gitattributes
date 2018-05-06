@@ -2,3 +2,8 @@
 
 *.conf text eol=lf
 *.uxf text eol=crlf
+
+*.sh text eol=lf
+*.yml text eol=lf
+
+*.md text eol=lf

@@ -1,0 +1,20 @@
+os:
+  - linux
+
+branches:
+  only:
+    - master
+    - /^(dev)|(dev_.*)$/
+
+node_js:
+  - "7"
+
+cache:
+  directories:
+    - ./client/node_modules
+    - $HOME/.m2
+
+script:
+  - cd ./tools
+  - ./test-client.sh
+  - ./test-server.sh
