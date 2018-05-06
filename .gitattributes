@@ -1,3 +1,4 @@
 * text=auto
 
 *.conf text eol=lf
+*.uxf text eol=crlf
