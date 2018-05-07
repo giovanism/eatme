@@ -1,8 +1,5 @@
 * {
-  margin: 0;
-  padding: 0;
   outline: none;
-  user-select: none;
 }
 
 body {
@@ -94,6 +91,7 @@ div#div-ctrl {
 }
 
 button#btn-main {
+  user-select: none;
   font-family: 'Caveat Brush', Arial, sans-serif;
   font-size: 40px;
   color: white;

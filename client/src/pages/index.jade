@@ -1,9 +1,11 @@
-<!DOCTYPE html>
+- var app_name = 'EatMe'
+
+doctype html
 html(lang='en')
 head
   meta(charset='UTF-8')
   meta(name='viewport', content='width=device-width, initial-scale=1')
-  title EatMe
+  title #{app_name}
   link(rel='stylesheet', href='/assets/css/lib.css')
   link(rel='stylesheet', href='/assets/css/index.css')
   script(src='/assets/js/lib.js')
@@ -22,10 +24,12 @@ body
     p#p-info
 
   //- Help Modal
-  div#modal-help(class='modal fade', tabindex='-1', role='dialog')
+  div#modal-help(class='modal fade', tabindex='-1', role='dialog', aria-labelledby="modal-help-label")
     div(class='modal-dialog modal-lg', role='document')
       div.modal-content
-        div.modal-body
-          button.close(type='button', data-dismiss='modal', aria-label='Close')
+        div.modal-header
+          button(type='button', class='close', data-dismiss='modal', aria-label='Close')
             span(aria-hidden='true') &times;
+          h3#modal-help-label(class='modal-title') About #{app_name}
+        div.modal-body
           include ./layout/help.jade

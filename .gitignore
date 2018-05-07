@@ -6,3 +6,6 @@
 
 # Redis
 *.rdb
+
+# MS office
+~$*
