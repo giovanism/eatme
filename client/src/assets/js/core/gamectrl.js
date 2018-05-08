@@ -1,4 +1,4 @@
-/* global UUID */
+/* global uuidv4 */
 
 module.exports = (() => {
   'use strict'
@@ -101,7 +101,7 @@ module.exports = (() => {
   const getRandGenerator = () => random
 
   const genPlayerId = () => {
-    if (!playerId) playerId = UUID.generate().replace(/-/g, '')
+    if (!playerId) playerId = uuidv4().replace(/-/g, '')
   }
 
   const roleSwitchStepsLeft = () => {
