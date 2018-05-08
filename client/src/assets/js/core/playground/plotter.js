@@ -3,8 +3,8 @@ module.exports = (numRows, numCols) => {
 
   // Sizes in pixels - BEGIN
 
-  const CANVAS_WIDTH = Math.floor(0.9 * window.innerWidth)
-  const CANVAS_HEIGHT = Math.floor(0.9 * window.innerHeight)
+  const CANVAS_WIDTH = Math.floor(0.8 * window.innerWidth)
+  const CANVAS_HEIGHT = Math.floor(0.8 * window.innerHeight)
 
   const SHADOW_SIZE = 15
   const SHADOW_BLUR = SHADOW_SIZE
