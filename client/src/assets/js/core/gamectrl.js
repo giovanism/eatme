@@ -44,9 +44,9 @@ module.exports = (() => {
   }
 
   // steps
-  const FREQ_SWITCH = 101
-  const FREQ_FOOD = 20
-  const THRESHOLD_ABOUT_TO_SWITCH = 25
+  const FREQ_SWITCH = 51
+  const FREQ_FOOD = 5
+  const THRESHOLD_ABOUT_TO_SWITCH = 15
 
   const MSG_SEPARATOR = '_'
 

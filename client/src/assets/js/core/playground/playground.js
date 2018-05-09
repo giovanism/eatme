@@ -1,8 +1,8 @@
 module.exports = (() => {
   'use strict'
 
-  const NUM_ROWS = 25
-  const NUM_COLS = 45
+  const NUM_ROWS = 20
+  const NUM_COLS = 35
 
   const INIT_BODIES_PAD_HOR = 4
   const INIT_BODIES_PAD_VER = 3
