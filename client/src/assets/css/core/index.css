@@ -67,6 +67,7 @@ div#div-playground canvas {
 }
 
 p#p-time {
+  user-select: none;
   font-family: 'Neucha', Arial, sans-serif;
   display: none;
   margin: auto;
@@ -108,6 +109,7 @@ button#btn-main {
 }
 
 p#p-info {
+  user-select: none;
   font-family: 'Neucha', Arial, sans-serif;
   font-size: 25px;
   color: #333;
