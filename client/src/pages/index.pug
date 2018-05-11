@@ -1,45 +1,41 @@
-- var APP_NAME = 'EatMe'
+extend ./templates/base.pug
 
-doctype html
-html(lang='en')
+append meta
+  meta(name='viewport', content='width=device-width, initial-scale=1')
 
-  head
-    meta(charset='UTF-8')
-    meta(name='viewport', content='width=device-width, initial-scale=1')
+append styles
+  link(rel='stylesheet', href='https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css')
+  link(rel='stylesheet', href='/assets/css/index.css')
 
-    title #{APP_NAME}
+append scripts
+  script(src='https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js')
+  script(src='https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js')
+  script(src='https://cdn.jsdelivr.net/npm/seedrandom@2.4.3/seedrandom.min.js')
+  script(src='https://cdn.jsdelivr.net/npm/sockjs-client@1.1.4/dist/sockjs.min.js')
+  script(src='https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js')
+  script(src='/assets/js/lib.js')
+  script(src='/assets/js/index.js')
 
-    link(rel='stylesheet', href='https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css')
-    link(rel='stylesheet', href='/assets/css/index.css')
+block content
+  nav#nav-main
+    button#btn-quit(title='QUIT', type='button', data-toggle='tooltip', data-placement='bottom')
+    button#btn-help(title='HELP', type='button', data-toggle='tooltip', data-placement='right')
 
-    script(src='https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js')
-    script(src='https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js')
-    script(src='https://cdn.jsdelivr.net/npm/seedrandom@2.4.3/seedrandom.min.js')
-    script(src='https://cdn.jsdelivr.net/npm/sockjs-client@1.1.4/dist/sockjs.min.js')
-    script(src='https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js')
-    script(src='/assets/js/lib.js')
-    script(src='/assets/js/index.js')
+  div#div-playground
+    canvas(width='0', height='0')
+    p#p-time
 
-  body
-    nav#nav-main
-      button#btn-quit(title='QUIT', type='button', data-toggle='tooltip', data-placement='bottom')
-      button#btn-help(title='HELP', type='button', data-toggle='tooltip', data-placement='right')
+  div#div-ctrl
+    button#btn-main(class='start-bg', type='button')
+    p#p-info
 
-    div#div-playground
-      canvas(width='0', height='0')
-      p#p-time
-
-    div#div-ctrl
-      button#btn-main(class='start-bg', type='button')
-      p#p-info
-
-    //- Help Modal
-    div#modal-help(class='modal fade', tabindex='-1', role='dialog', aria-labelledby='modal-help-label')
-      div(class='modal-dialog', role='document')
-        div.modal-content
-          div.modal-header
-            button(type='button', class='close', data-dismiss='modal', aria-label='Close')
-              span(aria-hidden='true') &times;
-            h3#modal-help-label(class='modal-title') About #{APP_NAME}
-          div.modal-body
-            include ./layout/help.pug
+  //- Help Modal
+  div#modal-help(class='modal fade', tabindex='-1', role='dialog', aria-labelledby='modal-help-label')
+    div(class='modal-dialog', role='document')
+      div.modal-content
+        div.modal-header
+          button(type='button', class='close', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+          h3#modal-help-label(class='modal-title') About #{APP_NAME}
+        div.modal-body
+          include ./layout/help.pug

@@ -12,7 +12,9 @@ public class ExceptionController implements ErrorController {
 
     @RequestMapping(value = PATH)
     public String error() {
-        return "Error handling";
+        return "<!DOCTYPE html><html lang=\'en\'>" +
+            "<head><meta charset=\'UTF-8\'><title>EatMe</title></head>" +
+            "<body>You've found my biggest secret!</body></html>";
     }
 
     @Override
