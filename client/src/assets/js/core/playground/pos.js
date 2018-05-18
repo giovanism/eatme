@@ -22,6 +22,10 @@ module.exports = (() => {
     return new Pos(this._row, this._col)
   }
 
+  Pos.prototype.equals = function(other) {
+    return this._row === other._row && this._col === other._col
+  }
+
   Pos.prototype.adj = function(direc) {
     if (direc === DIREC.LEFT) {
       return new Pos(this._row, this._col - 1)
@@ -31,6 +35,25 @@ module.exports = (() => {
       return new Pos(this._row - 1, this._col)
     } else if (direc === DIREC.DOWN) {
       return new Pos(this._row + 1, this._col)
+    }
+    return DIREC.NONE
+  }
+
+  Pos.prototype.direcTo = function(other) {
+    if (this._row === other._row) {
+      const diff = this._col - other._col
+      if (diff === 1) {
+        return DIREC.LEFT
+      } else if (diff === -1) {
+        return DIREC.RIGHT
+      }
+    } else if (this._col === other._col) {
+      const diff = this._row - other._row
+      if (diff === 1) {
+        return DIREC.UP
+      } else if (diff === -1) {
+        return DIREC.DOWN
+      }
     }
     return DIREC.NONE
   }

@@ -65,21 +65,40 @@ module.exports = (() => {
 
   let timeBlinkId = null
 
+  const isValid = (pos) =>
+    pos.row() >= 0 && pos.row() < NUM_ROWS && pos.col() >= 0 && pos.col() < NUM_COLS
+
+  const isEmpty = (pos) => isEmptyType(_point(pos).type())
+
   const isEmptyType = (type) => type === Point.TYPE.EMPTY
+
+  const isWall = (pos) => isWallType(_point(pos).type())
 
   const isWallType = (type) => type === Point.TYPE.WALL
 
+  const isFood = (pos) => isFoodType(_point(pos).type())
+
   const isFoodType = (type) => type === Point.TYPE.FOOD
+
+  const isSelf = (pos) => isSelfType(_point(pos).type())
 
   const isSelfType = (type) =>
     type === Point.TYPE.SELF_HEAD || type === Point.TYPE.SELF_BODY
 
+  const isOpponent = (pos) => isOpponentType(_point(pos).type())
+
   const isOpponentType = (type) =>
     type === Point.TYPE.OPPONENT_HEAD || type === Point.TYPE.OPPONENT_BODY
+
+  const isSafe = (pos) => isSafeType(_point(pos).type())
 
   const isSafeType = (type) => isEmptyType(type) || isFoodType(type)
 
   const lastSelfDirec = () => snakeSelf.lastDirec()
+
+  const selfSnake = () => snakeSelf
+
+  const opponentSnake = () => snakeOpponent
 
   const init = (canvas, pTime) => {
     plotter.init(canvas, COLOR)
@@ -230,7 +249,7 @@ module.exports = (() => {
     }
 
     const newHead = oldHead.adj(direc)
-    const eatType = _isValid(newHead) ? _point(newHead).type() : Point.TYPE.WALL
+    const eatType = isValid(newHead) ? _point(newHead).type() : Point.TYPE.WALL
     const foodEaten = isFoodType(eatType)
 
     let oldHeadPlotType = null
@@ -293,22 +312,31 @@ module.exports = (() => {
     }
   }
 
-  const _isValid = (pos) =>
-    pos.row() >= 0 && pos.row() < NUM_ROWS && pos.col() >= 0 && pos.col() < NUM_COLS
-
   const _point = (pos) => contents[pos.row()][pos.col()]
 
   return {
+    NUM_ROWS: NUM_ROWS,
+    NUM_COLS: NUM_COLS,
     DIREC: DIREC,
 
+    isValid: isValid,
+    isEmpty: isEmpty,
     isEmptyType: isEmptyType,
+    isWall: isWall,
     isWallType: isWallType,
+    isFood: isFood,
     isFoodType: isFoodType,
+    isSelf: isSelf,
     isSelfType: isSelfType,
+    isOpponent: isOpponent,
     isOpponentType: isOpponentType,
+    isSafe: isSafe,
     isSafeType: isSafeType,
 
     lastSelfDirec: lastSelfDirec,
+
+    selfSnake: selfSnake,
+    opponentSnake: opponentSnake,
 
     init: init,
     resetSnakes: resetSnakes,

@@ -5,7 +5,6 @@ module.exports = (() => {
   const INFO_ERR_SERVER = 'Server error. Please try again.'
   const INFO_ERR_STATE = 'Invalid state. Please try again.'
   const INFO_ERR_ID = 'Invalid battle/player ID. Please try again.'
-  const INFO_ERR_FULL = 'Too much players. Please try again.'
 
   const INFO_MAIN_START = 'START'
   const INFO_MAIN_READY = 'READY'
@@ -153,9 +152,7 @@ module.exports = (() => {
     timer.startCountDown(btnMain, TIME_WAIT - 1, 0, () => {
       if (gameCtrl.isWaiting()) {
         gameCtrl.quit()
-        // Play with robot when no opponents found
-        gameCtrl.setUseRobot(true)
-        gameCtrl.wait()
+        _playWithRobot()
       }
     })
 
@@ -274,7 +271,7 @@ module.exports = (() => {
     } else if (errCode === gameCtrl.ERR.INVALID_BATTLE) {
       _updateAndShowInfo(INFO_ERR_ID)
     } else if (errCode === gameCtrl.ERR.BATTLE_FULL) {
-      _updateAndShowInfo(INFO_ERR_FULL)
+      _playWithRobot()
     } else if (errCode === gameCtrl.ERR.OPPONENT_QUIT) {
       _updateAndShowInfo(INFO_OPPONENT_QUIT)
     }
@@ -307,6 +304,11 @@ module.exports = (() => {
         })
       })
     })
+  }
+
+  const _playWithRobot = () => {
+    gameCtrl.setUseRobot(true)
+    gameCtrl.wait()
   }
 
   const _resetToWait = () => {
