@@ -1,6 +1,6 @@
 /* global uuidv4 */
 
-module.exports = (() => {
+module.exports = (rbt) => {
   'use strict'
 
   const DEST_ENDPOINT = '/ws/ep'
@@ -50,6 +50,7 @@ module.exports = (() => {
 
   const MSG_SEPARATOR = '_'
 
+  const robot = rbt
   const messenger = require('./util/messenger.js')
 
   let playerId = null
@@ -62,11 +63,14 @@ module.exports = (() => {
   let gameStarted = false
   let nextAction = null
 
+  let onDataReceived = null
   let onTakingActions = null
   let onCreatingFood = null
   let onSwitchingRole = null
   let onAboutToSwitch = null
   let onActionsFinished = null
+
+  let useRobot = false
 
   const setGameStarted = (s) => { gameStarted = !!s }
 
@@ -86,7 +90,13 @@ module.exports = (() => {
 
   const isPlaying = () => isAttacking() || isDefending()
 
+  const setUseRobot = (u) => { useRobot = u }
+
   const setNextAction = (action) => { nextAction = action }
+
+  const getNextAction = () => nextAction
+
+  const setOnDataReceived = (cb) => { onDataReceived = cb }
 
   const setOnTakingActions = (cb) => { onTakingActions = cb }
 
@@ -111,7 +121,7 @@ module.exports = (() => {
     return tmp - steps
   }
 
-  const connect = (sucCb, errCb, subscribeCb) => {
+  const connect = (sucCb, errCb) => {
     messenger.connect(
       DEST_ENDPOINT,
       sucCb,
@@ -120,9 +130,7 @@ module.exports = (() => {
         if (errCb) errCb()
       },
       DEST_SUBSCRIBE + '/' + playerId,
-      (msg) => {
-        _handleMsg(msg.body, subscribeCb)
-      }
+      _handleMsg
     )
   }
 
@@ -136,10 +144,14 @@ module.exports = (() => {
 
   const wait = () => {
     if (isOffline()) {
-      messenger.send(DEST_WAIT, {
-        playerId: playerId
-      })
       _setPlayerState(STATE.WAITING)
+      if (useRobot) {
+        _handleMsg(MSG.BID + MSG_SEPARATOR + robot.fakeBattleId())
+      } else {
+        messenger.send(DEST_WAIT, {
+          playerId: playerId
+        })
+      }
     } else {
       throw new Error('[gamectrl] call wait() in state ' + playerState)
     }
@@ -147,9 +159,11 @@ module.exports = (() => {
 
   const quitWait = () => {
     if (isWaiting()) {
-      messenger.send(DEST_QUIT_WAIT, {
-        playerId: playerId
-      })
+      if (!useRobot) {
+        messenger.send(DEST_QUIT_WAIT, {
+          playerId: playerId
+        })
+      }
       _resetToWait()
     } else {
       throw new Error('[gamectrl] call quitWait() in state ' + playerState)
@@ -158,11 +172,21 @@ module.exports = (() => {
 
   const ready = () => {
     if (isNotReady()) {
-      messenger.send(DEST_READY, {
-        playerId: playerId,
-        battleId: battleId
-      })
       _setPlayerState(STATE.READY)
+      if (useRobot) {
+        _handleMsg(MSG.START + MSG_SEPARATOR +
+          robot.fakeSeed() + MSG_SEPARATOR + robot.fakeAttack())
+        robot.stop()
+        robot.start((selfAction, robotAction) => {
+          _handleMsg(MSG.ACTION + MSG_SEPARATOR +
+            selfAction + MSG_SEPARATOR + robotAction)
+        })
+      } else {
+        messenger.send(DEST_READY, {
+          playerId: playerId,
+          battleId: battleId
+        })
+      }
     } else {
       throw new Error('[gamectrl] call ready() in state ' + playerState)
     }
@@ -170,11 +194,13 @@ module.exports = (() => {
 
   const action = () => {
     if (isPlaying()) {
-      messenger.send(DEST_ACTION, {
-        playerId: playerId,
-        battleId: battleId,
-        action: Number(nextAction)
-      })
+      if (!useRobot) {
+        messenger.send(DEST_ACTION, {
+          playerId: playerId,
+          battleId: battleId,
+          action: Number(nextAction)
+        })
+      }
     } else {
       throw new Error('[gamectrl] call action() in state ' + playerState)
     }
@@ -182,10 +208,14 @@ module.exports = (() => {
 
   const done = () => {
     if (isPlaying()) {
-      messenger.send(DEST_DONE, {
-        playerId: playerId,
-        battleId: battleId
-      })
+      if (useRobot) {
+        robot.stop()
+      } else {
+        messenger.send(DEST_DONE, {
+          playerId: playerId,
+          battleId: battleId
+        })
+      }
       _resetToReady()
     } else {
       throw new Error('[gamectrl] call done() in state ' + playerState)
@@ -194,10 +224,14 @@ module.exports = (() => {
 
   const quitBattle = () => {
     if (!isOffline() && !isWaiting()) {
-      messenger.send(DEST_QUIT_BATTLE, {
-        playerId: playerId,
-        battleId: battleId
-      })
+      if (useRobot) {
+        robot.stop()
+      } else {
+        messenger.send(DEST_QUIT_BATTLE, {
+          playerId: playerId,
+          battleId: battleId
+        })
+      }
       _resetToWait()
     } else {
       throw new Error('[gamectrl] call quitBattle() in state ' + playerState)
@@ -231,10 +265,10 @@ module.exports = (() => {
     nextAction = null
   }
 
-  const _handleMsg = (msgBody, cb) => {
-    const [type, data1, data2] = msgBody.split(MSG_SEPARATOR, 3)
+  const _handleMsg = (msg) => {
+    console.log('[gamectrl] _handleMsg() | ' + msg)
+    const [type, data1, data2] = msg.split(MSG_SEPARATOR, 3)
     if (type === MSG.ERR) {
-      console.log('[gamectrl] err: ' + data1)
       if (isOffline()) return
       _handleErrMsg(data1)
     } else if (type === MSG.BID) {
@@ -247,7 +281,7 @@ module.exports = (() => {
       if (!isPlaying()) return
       _handleActionMsg(data1, data2)
     }
-    if (cb) cb(type, data1, data2)
+    if (onDataReceived) onDataReceived(type, data1, data2)
   }
 
   const _handleErrMsg = (errCode) => {
@@ -285,7 +319,7 @@ module.exports = (() => {
 
   const _setPlayerState = (state) => {
     playerState = state
-    console.log('[gamectrl] state: ' + state)
+    console.log('[gamectrl] state=' + state)
   }
 
   return {
@@ -304,7 +338,11 @@ module.exports = (() => {
     isDefending: isDefending,
     isPlaying: isPlaying,
 
+    setUseRobot: setUseRobot,
     setNextAction: setNextAction,
+    getNextAction: getNextAction,
+
+    setOnDataReceived: setOnDataReceived,
     setOnTakingActions: setOnTakingActions,
     setOnCreatingFood: setOnCreatingFood,
     setOnSwitchingRole: setOnSwitchingRole,
@@ -328,4 +366,4 @@ module.exports = (() => {
     quitBattle: quitBattle,
     quit: quit
   }
-})()
+}

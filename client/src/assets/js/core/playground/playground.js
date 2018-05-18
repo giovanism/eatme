@@ -224,6 +224,11 @@ module.exports = (() => {
     const oldTail = snake.tail()
     const lastDirec = snake.lastDirec()
 
+    // Disable move backwards
+    if (DIREC.isOpposite(direc, lastDirec)) {
+      direc = lastDirec
+    }
+
     const newHead = oldHead.adj(direc)
     const eatType = _isValid(newHead) ? _point(newHead).type() : Point.TYPE.WALL
     const foodEaten = isFoodType(eatType)

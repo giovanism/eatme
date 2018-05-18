@@ -20,7 +20,6 @@ module.exports = (() => {
   const INFO_WAIT_BTL = 'Waiting for battle...'
   const INFO_WAIT_READY = 'Waiting opponent ready...'
   const INFO_OPPONENT_FOUND = 'Opponent found. Press READY to continue.'
-  const INFO_OPPONENT_NOT_FOUND = 'No opponents found. Please try again.'
   const INFO_OPPONENT_NO_RESPONSE = 'Opponent no response. Please find another battle.'
   const INFO_OPPONENT_QUIT = 'Opponent quit. Please find another battle.'
   const INFO_WIN = 'Cheers! You win! Press READY to restart.'
@@ -38,9 +37,10 @@ module.exports = (() => {
 
   const FACTOR_STEP_TO_TIME = 0.2
 
-  const gameCtrl = require('./gamectrl.js')
   const timer = require('./util/timer.js')
   const playground = require('./playground/playground.js')
+  const robot = require('./robot/robot.js')
+  const gameCtrl = require('./gamectrl.js')(robot)
 
   const MAP_KEY_ACTION = {
     37: gameCtrl.ACTION.LEFT,
@@ -65,6 +65,7 @@ module.exports = (() => {
   const init = () => {
     _initGlobal()
     _initPlayground()
+    _initRobot()
     _initInfo()
     _initMainBtn()
     _initQuitBtn()
@@ -96,6 +97,10 @@ module.exports = (() => {
 
   const _initPlayground = () => {
     playground.init($('div#div-playground canvas'), $('p#p-time'))
+  }
+
+  const _initRobot = () => {
+    robot.init(gameCtrl, playground)
   }
 
   const _initInfo = () => {
@@ -136,6 +141,7 @@ module.exports = (() => {
   }
 
   const _initGameEvents = () => {
+    gameCtrl.setOnDataReceived(_handleData)
     gameCtrl.setOnTakingActions(_cbTakingActions)
     gameCtrl.setOnCreatingFood(_cbCreatingFood)
     gameCtrl.setOnSwitchingRole(_cbSwitchingRole)
@@ -147,8 +153,9 @@ module.exports = (() => {
     timer.startCountDown(btnMain, TIME_WAIT - 1, 0, () => {
       if (gameCtrl.isWaiting()) {
         gameCtrl.quit()
-        _resetToWait()
-        _updateAndShowInfo(INFO_OPPONENT_NOT_FOUND)
+        // Play with robot when no opponents found
+        gameCtrl.setUseRobot(true)
+        gameCtrl.wait()
       }
     })
 
@@ -161,8 +168,7 @@ module.exports = (() => {
         () => {
           _resetToWait()
           _updateAndShowInfo(INFO_ERR_CONNECT)
-        },
-        _handleData
+        }
       )
     }
   }
@@ -306,6 +312,7 @@ module.exports = (() => {
   const _resetToWait = () => {
     timer.stopCountDown()
     gameCtrl.setGameStarted(false)
+    gameCtrl.setUseRobot(false)
     _hideTime()
     _hidePlayground()
     _showMain()
