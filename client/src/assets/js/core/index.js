@@ -3,6 +3,6 @@ $(() => {
 
   // console.log = () => {} // Disable logs
 
-  const game = require('./gamegui.js')
+  const game = require('./gamemain.js')
   game.init()
 })

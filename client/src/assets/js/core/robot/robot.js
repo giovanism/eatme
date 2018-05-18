@@ -1,7 +1,8 @@
 module.exports = (() => {
   'use strict'
 
-  const FREQ_ACTION = 150 // ms
+  const FREQ_ACTION = 120 // ms
+  const CLOSE_DIST = 10
 
   const Pos = require('../playground/pos.js')
 
@@ -14,9 +15,6 @@ module.exports = (() => {
 
   let loopId = null
   let searchTbl = null
-
-  let humanSnake = null
-  let robotSnake = null
 
   const init = (ctrl, plygrnd) => {
     gameCtrl = ctrl
@@ -73,33 +71,57 @@ module.exports = (() => {
   }
 
   const _nextAction = () => {
-    humanSnake = playground.selfSnake()
-    robotSnake = playground.opponentSnake()
+    const robotSnake = playground.opponentSnake()
+    const humanSnake = playground.selfSnake()
+    const robotHead = robotSnake.head()
+    const humanHead = humanSnake.head()
 
-    const src = robotSnake.head()
     let dst = null
 
     if (gameCtrl.isDefending()) {
       dst = humanSnake.body(Math.floor(Math.random() * humanSnake.len()))
     } else {
-      _shuffle(cornerPos)
-      for (let i = 0; i < cornerPos.length; ++i) {
-        if (!robotSnake.head().equals(cornerPos[i])) {
-          dst = cornerPos[i]
+      if (robotHead.row() < humanHead.row()) {
+        if (robotHead.col() < humanHead.col()) {
+          if (_isClose(robotHead, humanHead)) {
+            dst = _isClose(robotHead, cornerPos[0]) ? cornerPos[1] : cornerPos[0]
+          } else {
+            dst = robotHead.equals(cornerPos[0]) ? cornerPos[1] : cornerPos[0]
+          }
+        } else {
+          if (_isClose(robotHead, humanHead)) {
+            dst = _isClose(robotHead, cornerPos[1]) ? cornerPos[0] : cornerPos[1]
+          } else {
+            dst = robotHead.equals(cornerPos[1]) ? cornerPos[0] : cornerPos[1]
+          }
+        }
+      } else {
+        if (robotHead.col() < humanHead.col()) {
+          if (_isClose(robotHead, humanHead)) {
+            dst = _isClose(robotHead, cornerPos[2]) ? cornerPos[3] : cornerPos[2]
+          } else {
+            dst = robotHead.equals(cornerPos[2]) ? cornerPos[3] : cornerPos[2]
+          }
+        } else {
+          if (_isClose(robotHead, humanHead)) {
+            dst = _isClose(robotHead, cornerPos[3]) ? cornerPos[2] : cornerPos[3]
+          } else {
+            dst = robotHead.equals(cornerPos[3]) ? cornerPos[2] : cornerPos[3]
+          }
         }
       }
     }
 
-    const path = _smartPath(src, dst)
+    const path = _smartPath(robotHead, dst, robotSnake.lastDirec())
     return actions[path[0]]
   }
 
-  const _smartPath = (src, dst) => {
+  const _smartPath = (src, dst, bakDirec) => {
     let path = _shortestPath(src, dst, _filterWithoutFood)
     if (path.length === 0) {
       path = _shortestPath(src, dst, _filterWithFood)
       if (path.length === 0) {
-        path = [robotSnake.lastDirec()]
+        path = [bakDirec]
       }
     }
     return path
@@ -129,7 +151,6 @@ module.exports = (() => {
       const curTblCell = searchTbl[cur.row()][cur.col()]
       curTblCell.visited = true
 
-      _shuffle(direcs)
       for (let i = 0; i < direcs.length; ++i) {
         const adj = cur.adj(direcs[i])
         if (posFilter(adj)) {
@@ -145,10 +166,6 @@ module.exports = (() => {
         }
       }
     }
-  }
-
-  const _dist = (p1, p2) => {
-    return Math.abs(p1.row() - p2.row()) + Math.abs(p1.col() - p2.col())
   }
 
   const _resetSearchTbl = () => {
@@ -195,13 +212,12 @@ module.exports = (() => {
     return path
   }
 
-  const _shuffle = (arr) => {
-    for (let i = arr.length - 1; i > 0; --i) {
-      const j = Math.floor(Math.random() * (i + 1))
-      const tmp = arr[i]
-      arr[i] = arr[j]
-      arr[j] = tmp
-    }
+  const _isClose = (p1, p2) => {
+    return _dist(p1, p2) < CLOSE_DIST
+  }
+
+  const _dist = (p1, p2) => {
+    return Math.abs(p1.row() - p2.row()) + Math.abs(p1.col() - p2.col())
   }
 
   return {

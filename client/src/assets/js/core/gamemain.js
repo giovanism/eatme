@@ -18,6 +18,8 @@ module.exports = (() => {
   const INFO_WELCOME = 'Welcome! Press START to begin.'
   const INFO_WAIT_BTL = 'Waiting for battle...'
   const INFO_WAIT_READY = 'Waiting opponent ready...'
+  const INFO_WAIT_ROBOT_READY = 'Waiting robot ready...'
+  const INFO_ROBOT_FOUND = 'Opponent not found. Press READY to play with a robot.'
   const INFO_OPPONENT_FOUND = 'Opponent found. Press READY to continue.'
   const INFO_OPPONENT_NO_RESPONSE = 'Opponent no response. Please find another battle.'
   const INFO_OPPONENT_QUIT = 'Opponent quit. Please find another battle.'
@@ -115,10 +117,13 @@ module.exports = (() => {
           _findOpponent()
         })
       } else if (gameCtrl.isNotReady()) {
-        _updateAndShowInfo(INFO_WAIT_READY, () => {
-          _showQuit()
-          _ready()
-        })
+        _updateAndShowInfo(
+          gameCtrl.isUseRobot() ? INFO_WAIT_ROBOT_READY : INFO_WAIT_READY,
+          () => {
+            _showQuit()
+            _ready()
+          }
+        )
       }
     })
   }
@@ -279,7 +284,7 @@ module.exports = (() => {
 
   const _handleNewBattle = (battleId) => {
     _resetToReady()
-    _updateAndShowInfo(INFO_OPPONENT_FOUND)
+    _updateAndShowInfo(gameCtrl.isUseRobot() ? INFO_ROBOT_FOUND : INFO_OPPONENT_FOUND)
   }
 
   const _handleStart = () => {

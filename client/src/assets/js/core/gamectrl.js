@@ -92,6 +92,8 @@ module.exports = (rbt) => {
 
   const setUseRobot = (u) => { useRobot = u }
 
+  const isUseRobot = () => !!useRobot
+
   const setNextAction = (action) => { nextAction = action }
 
   const getNextAction = () => nextAction
@@ -339,6 +341,7 @@ module.exports = (rbt) => {
     isPlaying: isPlaying,
 
     setUseRobot: setUseRobot,
+    isUseRobot: isUseRobot,
     setNextAction: setNextAction,
     getNextAction: getNextAction,
 
