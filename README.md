@@ -7,8 +7,8 @@ EatMe is a two-player battle game based on the classic game of [Snake][wiki-snak
 See the [LICENSE](./LICENSE) file for license rights and limitations.
 
 [ci-linux-badge]: https://travis-ci.com/chuyangliu/EatMe.svg?token=q4pnydxbKaqNRxCuy3uZ&branch=master
-[ci-linux-state]: https://travis-ci.com/chuyangliu/EatMe
+[ci-linux-state]: https://travis-ci.com/chuyangliu/EatMe/
 
 [wiki-snake]: https://en.wikipedia.org/wiki/Snake_(video_game_genre)
 
-[src-tastysnake]: https://github.com/chuyangliu/TastySnake
+[src-tastysnake]: https://github.com/chuyangliu/TastySnake/
