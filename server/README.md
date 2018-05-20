@@ -24,5 +24,5 @@ Make sure you have [Maven][home-maven] installed.
 See the [LICENSE](../LICENSE) file for license rights and limitations.
 
 
-[home-eatme]: ../
+[home-eatme]: https://github.com/chuyangliu/EatMe/
 [home-maven]: https://maven.apache.org/

@@ -35,5 +35,5 @@ Make sure you have [Node][home-node] and Npm installed.
 See the [LICENSE](../LICENSE) file for license rights and limitations.
 
 
-[home-eatme]: ../
+[home-eatme]: https://github.com/chuyangliu/EatMe/
 [home-node]: https://nodejs.org/
