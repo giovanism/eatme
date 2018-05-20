@@ -7,3 +7,6 @@
 *.yml text eol=lf
 
 *.md text eol=lf
+
+*.ldm binary
+*.pptx binary
