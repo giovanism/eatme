@@ -27,8 +27,8 @@ module.exports = (() => {
   const INFO_LOST = 'Oops! You lose! Press READY to restart.'
 
   // seconds
-  const TIME_WAIT = 10
-  const TIME_READY = 10
+  const TIME_WAIT = 6
+  const TIME_READY = 6
   const TIME_AUTO_QUIT = 60
 
   // milliseconds
