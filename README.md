@@ -23,6 +23,14 @@ EatMe is deployed as follows:
 
 Click [here][doc-dev-guide] for more details.
 
+## Contribution Guidelines
+
+We'd love for you to help us improve the project. To keep the high quality of codes, please follow the steps below to make a contribution:
+
+* [Create an issue][new-issue] discussing what you are going to accomplish.
+* **After** being approved, [fork this project][fork-proj] to make changes in your own branch.
+* [Send us a pull request][send-pr] from your fork's branch to our `master` branch.
+
 ## License
 
 See the [LICENSE](./LICENSE) file for license rights and limitations.
@@ -39,3 +47,7 @@ See the [LICENSE](./LICENSE) file for license rights and limitations.
 [img-deploy]: ./docs/images/eatme_deploy.png
 
 [doc-dev-guide]: ./docs/dev-guide.md
+
+[new-issue]: https://github.com/chuyangliu/EatMe/issues/new/
+[fork-proj]: https://help.github.com/articles/fork-a-repo/
+[send-pr]: https://help.github.com/articles/about-pull-requests/

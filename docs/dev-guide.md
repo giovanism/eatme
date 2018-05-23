@@ -14,6 +14,7 @@ Logically, we separate the implementations for the [client][doc-client] (i.e., s
   - [Schedule Battle](#schedule-battle)
   - [Start Battle](#start-battle)
   - [Stop Battle](#stop-battle)
+- [About the Robot](#about-the-robot)
 
 ## State Machine
 
@@ -45,6 +46,10 @@ The three diagrams below show how we schedule, start and stop a battle.
 
 ![][img-seq-battle-stop]
 
+## About the Robot
+
+When finding no opponents, the player can choose to play with a robot. Currently [the robot's strategy][robot-strategy] is very simple. We warmly welcome your contributions to improve the robot!
+
 
 [img-deploy]: ./images/eatme_deploy.png
 [img-ldm]: ./images/eatme_ldm.png
@@ -60,3 +65,5 @@ The three diagrams below show how we schedule, start and stop a battle.
 [doc-server]: ../server/
 
 [src-ldm]: ./models/eatme_ldm.ldm
+
+[robot-strategy]: ../client/src/assets/js/core/robot/robot.js#L73-L117
