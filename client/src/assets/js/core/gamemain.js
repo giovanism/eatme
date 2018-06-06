@@ -84,6 +84,8 @@ module.exports = (() => {
       if (!gameCtrl.isPlaying()) return
 
       const action = MAP_KEY_ACTION[event.which]
+      if (!action) return
+
       const direc = MAP_ACTION_DIREC[action]
       const lastDirec = playground.lastSelfDirec()
       if (playground.DIREC.isOpposite(direc, lastDirec)) return
