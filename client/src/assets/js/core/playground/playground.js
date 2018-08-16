@@ -10,22 +10,22 @@ module.exports = (() => {
   const DURATION_TIME_BLINK = 200
 
   const plotter = require('./plotter.js')(NUM_ROWS, NUM_COLS)
-  const DIREC = require('./direc.js')
+  const Direc = require('./direc.js')
   const Pos = require('./pos.js')
   const Point = require('./point.js')
   const Snake = require('./snake.js')
 
   const MAP_DIREC_PLOT_TYPES = {}
-  MAP_DIREC_PLOT_TYPES[DIREC.LEFT] = plotter.HEAD.LEFT
-  MAP_DIREC_PLOT_TYPES[DIREC.UP] = plotter.HEAD.UP
-  MAP_DIREC_PLOT_TYPES[DIREC.RIGHT] = plotter.HEAD.RIGHT
-  MAP_DIREC_PLOT_TYPES[DIREC.DOWN] = plotter.HEAD.DOWN
+  MAP_DIREC_PLOT_TYPES[Direc.LEFT] = plotter.HEAD.LEFT
+  MAP_DIREC_PLOT_TYPES[Direc.UP] = plotter.HEAD.UP
+  MAP_DIREC_PLOT_TYPES[Direc.RIGHT] = plotter.HEAD.RIGHT
+  MAP_DIREC_PLOT_TYPES[Direc.DOWN] = plotter.HEAD.DOWN
 
   const SNAKE_LEFT = new Snake([
     new Pos(INIT_BODIES_PAD_VER, INIT_BODIES_PAD_HOR + 2),
     new Pos(INIT_BODIES_PAD_VER, INIT_BODIES_PAD_HOR + 1),
     new Pos(INIT_BODIES_PAD_VER, INIT_BODIES_PAD_HOR)
-  ], DIREC.RIGHT)
+  ], Direc.RIGHT)
 
   const SNAKE_LEFT_BODY_PLOT_TYPES = [
     plotter.HEAD.RIGHT,
@@ -37,7 +37,7 @@ module.exports = (() => {
     new Pos(NUM_ROWS - 1 - INIT_BODIES_PAD_VER, NUM_COLS - 1 - INIT_BODIES_PAD_HOR - 2),
     new Pos(NUM_ROWS - 1 - INIT_BODIES_PAD_VER, NUM_COLS - 1 - INIT_BODIES_PAD_HOR - 1),
     new Pos(NUM_ROWS - 1 - INIT_BODIES_PAD_VER, NUM_COLS - 1 - INIT_BODIES_PAD_HOR)
-  ], DIREC.LEFT)
+  ], Direc.LEFT)
 
   const SNAKE_RIGHT_BODY_PLOT_TYPES = [
     plotter.HEAD.LEFT,
@@ -244,7 +244,7 @@ module.exports = (() => {
     const lastDirec = snake.lastDirec()
 
     // Disable move backwards
-    if (DIREC.isOpposite(direc, lastDirec)) {
+    if (Direc.isOpposite(direc, lastDirec)) {
       direc = lastDirec
     }
 
@@ -253,23 +253,23 @@ module.exports = (() => {
     const foodEaten = isFoodType(eatType)
 
     let oldHeadPlotType = null
-    if ((lastDirec === DIREC.LEFT && direc === DIREC.LEFT) ||
-        (lastDirec === DIREC.RIGHT && direc === DIREC.RIGHT)) {
+    if ((lastDirec === Direc.LEFT && direc === Direc.LEFT) ||
+        (lastDirec === Direc.RIGHT && direc === Direc.RIGHT)) {
       oldHeadPlotType = plotter.BODY.HOR
-    } else if ((lastDirec === DIREC.UP && direc === DIREC.UP) ||
-               (lastDirec === DIREC.DOWN && direc === DIREC.DOWN)) {
+    } else if ((lastDirec === Direc.UP && direc === Direc.UP) ||
+               (lastDirec === Direc.DOWN && direc === Direc.DOWN)) {
       oldHeadPlotType = plotter.BODY.VER
-    } else if ((lastDirec === DIREC.RIGHT && direc === DIREC.UP) ||
-               (lastDirec === DIREC.DOWN && direc === DIREC.LEFT)) {
+    } else if ((lastDirec === Direc.RIGHT && direc === Direc.UP) ||
+               (lastDirec === Direc.DOWN && direc === Direc.LEFT)) {
       oldHeadPlotType = plotter.BODY.LU
-    } else if ((lastDirec === DIREC.LEFT && direc === DIREC.UP) ||
-               (lastDirec === DIREC.DOWN && direc === DIREC.RIGHT)) {
+    } else if ((lastDirec === Direc.LEFT && direc === Direc.UP) ||
+               (lastDirec === Direc.DOWN && direc === Direc.RIGHT)) {
       oldHeadPlotType = plotter.BODY.UR
-    } else if ((lastDirec === DIREC.LEFT && direc === DIREC.DOWN) ||
-               (lastDirec === DIREC.UP && direc === DIREC.RIGHT)) {
+    } else if ((lastDirec === Direc.LEFT && direc === Direc.DOWN) ||
+               (lastDirec === Direc.UP && direc === Direc.RIGHT)) {
       oldHeadPlotType = plotter.BODY.RD
-    } else if ((lastDirec === DIREC.RIGHT && direc === DIREC.DOWN) ||
-               (lastDirec === DIREC.UP && direc === DIREC.LEFT)) {
+    } else if ((lastDirec === Direc.RIGHT && direc === Direc.DOWN) ||
+               (lastDirec === Direc.UP && direc === Direc.LEFT)) {
       oldHeadPlotType = plotter.BODY.DL
     }
 
@@ -317,7 +317,7 @@ module.exports = (() => {
   return {
     NUM_ROWS: NUM_ROWS,
     NUM_COLS: NUM_COLS,
-    DIREC: DIREC,
+    Direc: Direc,
 
     isValid: isValid,
     isEmpty: isEmpty,

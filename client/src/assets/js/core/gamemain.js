@@ -51,10 +51,10 @@ module.exports = (() => {
   }
 
   const MAP_ACTION_DIREC = {}
-  MAP_ACTION_DIREC[gameCtrl.ACTION.LEFT] = playground.DIREC.LEFT
-  MAP_ACTION_DIREC[gameCtrl.ACTION.UP] = playground.DIREC.UP
-  MAP_ACTION_DIREC[gameCtrl.ACTION.RIGHT] = playground.DIREC.RIGHT
-  MAP_ACTION_DIREC[gameCtrl.ACTION.DOWN] = playground.DIREC.DOWN
+  MAP_ACTION_DIREC[gameCtrl.ACTION.LEFT] = playground.Direc.LEFT
+  MAP_ACTION_DIREC[gameCtrl.ACTION.UP] = playground.Direc.UP
+  MAP_ACTION_DIREC[gameCtrl.ACTION.RIGHT] = playground.Direc.RIGHT
+  MAP_ACTION_DIREC[gameCtrl.ACTION.DOWN] = playground.Direc.DOWN
 
   const btnMain = $('button#btn-main')
   const btnQuit = $('button#btn-quit')
@@ -88,7 +88,7 @@ module.exports = (() => {
 
       const direc = MAP_ACTION_DIREC[action]
       const lastDirec = playground.lastSelfDirec()
-      if (playground.DIREC.isOpposite(direc, lastDirec)) return
+      if (playground.Direc.isOpposite(direc, lastDirec)) return
 
       gameCtrl.setNextAction(action)
       if (gameCtrl.isGameStarted()) gameCtrl.action()
@@ -387,7 +387,7 @@ module.exports = (() => {
   }
 
   const _blurPlayground = () => {
-    playground.blur()
+    // playground.blur() // Not fully supported
   }
 
   const _noBlurPlayground = () => {

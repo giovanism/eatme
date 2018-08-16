@@ -20,8 +20,8 @@ module.exports = (() => {
     gameCtrl = ctrl
     playground = plygrnd
 
-    direcs = [playground.DIREC.LEFT, playground.DIREC.UP,
-      playground.DIREC.RIGHT, playground.DIREC.DOWN]
+    direcs = [playground.Direc.LEFT, playground.Direc.UP,
+      playground.Direc.RIGHT, playground.Direc.DOWN]
 
     actions = {}
     actions[direcs[0]] = gameCtrl.ACTION.LEFT
