@@ -27,6 +27,7 @@
     "gulp-htmlmin": "^4.0.0",
     "gulp-if-else": "^1.0.3",
     "gulp-pug": "^4.0.1",
+    "gulp-rename": "^1.4.0",
     "gulp-sourcemaps": "^2.6.4",
     "gulp-uglify": "^3.0.0",
     "run-sequence": "^2.2.1"

@@ -19,6 +19,8 @@ Make sure you have [Maven][home-maven] installed.
   java -jar ./target/eatme-server-1.0.jar
   ```
 
+Server configurations: [application.properties][conf].
+
 ## License
 
 See the [LICENSE](../LICENSE) file for license rights and limitations.
@@ -26,3 +28,5 @@ See the [LICENSE](../LICENSE) file for license rights and limitations.
 
 [home-eatme]: https://github.com/chuyangliu/EatMe/
 [home-maven]: https://maven.apache.org/
+
+[conf]: ./src/main/resources/application.properties

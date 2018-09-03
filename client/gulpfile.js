@@ -12,6 +12,7 @@ const babel = require('gulp-babel')
 const browserify = require('gulp-browserify')
 const concat = require('gulp-concat')
 const sourcemaps = require('gulp-sourcemaps')
+const rename = require('gulp-rename')
 
 const isDev = () => !process.env.NODE_ENV || process.env.NODE_ENV === 'dev'
 
@@ -55,7 +56,8 @@ gulp.task('css-lib', () => {
 })
 
 gulp.task('js-core', () => {
-  return gulp.src('src/assets/js/core/index.js')
+  return gulp.src('src/assets/js/core/index-' + (isDev() ? 'dev' : 'prod') + '.js')
+    .pipe(rename('index.js'))
     .pipe(browserify())
     .pipe(babel({
       presets: [['env', {
