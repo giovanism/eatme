@@ -35,9 +35,8 @@ We'd love for you to help us improve the project. To keep the high quality of co
 
 See the [LICENSE](./LICENSE) file for license rights and limitations.
 
-
-[ci-linux-badge]: https://travis-ci.com/chuyangliu/EatMe.svg?token=q4pnydxbKaqNRxCuy3uZ&branch=master
-[ci-linux-state]: https://travis-ci.com/chuyangliu/EatMe/
+[ci-linux-badge]: https://travis-ci.org/chuyangliu/eatme.svg?branch=master
+[ci-linux-state]: https://travis-ci.org/chuyangliu/eatme
 
 [wiki-snake]: https://en.wikipedia.org/wiki/Snake_(video_game_genre)
 
